@@ -19,6 +19,7 @@ export default function PortalNav({ isAdminView = false }: { isAdminView?: boole
         ) : (
           <>
             <Link href="/member/dashboard">Dashboard</Link>
+            <Link href="/member/speeches">Speeches</Link>
             <Link href="/admin/meetings" style={{ color: "var(--primary)", marginLeft: "1rem", fontWeight: "bold" }}>Admin Tools →</Link>
           </>
         )}

@@ -32,7 +32,7 @@ export default function LoginPage() {
           <button formAction={login} className="btn-primary" style={{ width: "100%", padding: "0.8rem" }}>Log in</button>
           
           <div style={{ textAlign: "center", marginTop: "1rem" }}>
-              <span style={{ fontSize: "0.85rem", color: "#94a3b8" }}>Don't have an account? </span>
+              <span style={{ fontSize: "0.85rem", color: "#94a3b8" }}>Don&apos;t have an account? </span>
               <button formAction={signup} style={{ background: "none", border: "none", color: "var(--primary)", cursor: "pointer", fontSize: "0.85rem", fontWeight: "bold" }}>Sign up</button>
           </div>
         </form>
