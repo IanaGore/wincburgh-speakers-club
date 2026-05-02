@@ -7,10 +7,10 @@ export default async function ContactPage({ searchParams }: { searchParams: Prom
   return (
     <div style={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
       <Navbar />
-      <main style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: "4rem 5%" }}>
-        <div style={{ width: "100%", maxWidth: "600px", background: "var(--card-bg)", border: "1px solid var(--card-border)", padding: "3rem", borderRadius: "16px", backdropFilter: "blur(10px)" }}>
-          <h1 style={{ fontSize: "2.5rem", marginBottom: "1rem", textAlign: "center", fontWeight: "700" }}>Contact Us</h1>
-          <p style={{ textAlign: "center", color: "#94a3b8", marginBottom: "2.5rem", lineHeight: "1.6" }}>
+      <main style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: "clamp(2rem, 5vw, 4rem) 5%" }}>
+        <div style={{ width: "100%", maxWidth: "600px", background: "var(--card-bg)", border: "1px solid var(--card-border)", padding: "clamp(1.5rem, 5vw, 3rem)", borderRadius: "16px", backdropFilter: "blur(10px)" }}>
+          <h1 style={{ fontSize: "clamp(2rem, 5vw, 2.5rem)", marginBottom: "1rem", textAlign: "center", fontWeight: "700" }}>Contact Us</h1>
+          <p style={{ textAlign: "center", color: "#94a3b8", marginBottom: "2.5rem", lineHeight: "1.6", fontSize: "clamp(0.9rem, 4vw, 1rem)" }}>
             Have questions about the Wincburgh Speakers Club? Want to join as a guest? Drop us a message below and the committee will get back to you!
           </p>
           
@@ -21,8 +21,8 @@ export default async function ContactPage({ searchParams }: { searchParams: Prom
           )}
 
           <form action={submitContactForm} style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
-            <div style={{ display: "flex", gap: "1.5rem" }}>
-              <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+            <div style={{ display: "flex", gap: "1.5rem", flexWrap: "wrap" }}>
+              <div style={{ flex: 1, minWidth: "200px", display: "flex", flexDirection: "column", gap: "0.5rem" }}>
                 <label htmlFor="name" style={{ fontSize: "0.9rem", color: "#94a3b8" }}>Your Name</label>
                 <input 
                   id="name" 
@@ -33,7 +33,7 @@ export default async function ContactPage({ searchParams }: { searchParams: Prom
                 />
               </div>
 
-              <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+              <div style={{ flex: 1, minWidth: "200px", display: "flex", flexDirection: "column", gap: "0.5rem" }}>
                 <label htmlFor="email" style={{ fontSize: "0.9rem", color: "#94a3b8" }}>Email Address</label>
                 <input 
                   id="email" 
