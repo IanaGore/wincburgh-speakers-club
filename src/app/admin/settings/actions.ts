@@ -10,10 +10,12 @@ export async function updateSettings(formData: FormData) {
   const hero_title = formData.get('hero_title') as string
   const hero_subtitle = formData.get('hero_subtitle') as string
   const about_text = formData.get('about_text') as string
+  const venue_name = formData.get('venue_name') as string
+  const venue_address = formData.get('venue_address') as string
 
   const { error } = await supabase
     .from('site_settings')
-    .update({ hero_title, hero_subtitle, about_text })
+    .update({ hero_title, hero_subtitle, about_text, venue_name, venue_address })
     .eq('id', 1)
 
   if (error) {

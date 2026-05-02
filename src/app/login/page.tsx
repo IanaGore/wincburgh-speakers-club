@@ -28,7 +28,10 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
           </div>
           
           <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem", marginBottom: "0.5rem" }}>
-            <label htmlFor="password" style={{ fontSize: "0.9rem", color: "#94a3b8" }}>Password</label>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <label htmlFor="password" style={{ fontSize: "0.9rem", color: "#94a3b8" }}>Password</label>
+              <Link href="/forgot-password" style={{ fontSize: "0.8rem", color: "var(--primary)", textDecoration: "none" }}>Forgot Password?</Link>
+            </div>
             <input 
               id="password" 
               name="password" 

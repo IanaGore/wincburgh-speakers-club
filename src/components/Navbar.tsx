@@ -14,6 +14,7 @@ export default async function Navbar() {
         <Link href="/#about">About Us</Link>
         <Link href="/#events">Events</Link>
         <Link href="/news">News</Link>
+        <Link href="/contact">Contact</Link>
         {user ? (
           <Link href="/member/dashboard" className="btn-primary">Dashboard</Link>
         ) : (

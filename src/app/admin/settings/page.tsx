@@ -36,6 +36,18 @@ export default async function AdminSettingsPage() {
             <textarea id="about_text" name="about_text" defaultValue={settings?.about_text} required rows={5} style={{ padding: "0.8rem", borderRadius: "8px", background: "rgba(0,0,0,0.3)", border: "1px solid var(--card-border)", color: "white" }} />
           </div>
 
+          <h2 style={{ fontSize: "1.5rem", marginTop: "1.5rem", marginBottom: "0.5rem" }}>Venue Details</h2>
+          
+          <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+            <label htmlFor="venue_name" style={{ color: "#94a3b8", fontSize: "0.9rem" }}>Venue Name</label>
+            <input type="text" id="venue_name" name="venue_name" defaultValue={settings?.venue_name} required style={{ padding: "0.8rem", borderRadius: "8px", background: "rgba(0,0,0,0.3)", border: "1px solid var(--card-border)", color: "white" }} />
+          </div>
+
+          <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+            <label htmlFor="venue_address" style={{ color: "#94a3b8", fontSize: "0.9rem" }}>Venue Address</label>
+            <textarea id="venue_address" name="venue_address" defaultValue={settings?.venue_address} required rows={2} style={{ padding: "0.8rem", borderRadius: "8px", background: "rgba(0,0,0,0.3)", border: "1px solid var(--card-border)", color: "white" }} />
+          </div>
+
           <button type="submit" className="btn-primary" style={{ alignSelf: "flex-start", marginTop: "1rem" }}>Save Changes</button>
         </form>
       </div>

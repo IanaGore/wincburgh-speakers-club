@@ -90,9 +90,12 @@ export default async function Home() {
                   <div className="event-date">{dateStr} | 7:00 PM</div>
                   <h3 className="event-title">Club Meeting</h3>
                   <p className="event-desc">{event.theme ? `Theme: ${event.theme}` : 'Standard Club Session with prepared speeches and evaluations.'}</p>
-                  <div className="event-footer">
-                    <span>📍 Local Venue</span>
-                    <span style={{ color: "#94a3b8", fontSize: "0.8rem" }}>{filledRoles}/{totalRoles} Roles Filled</span>
+                  <div className="event-footer" style={{ flexDirection: "column", gap: "0.5rem", alignItems: "flex-start" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", width: "100%" }}>
+                      <span>📍 {settings?.venue_name || 'Local Venue'}</span>
+                      <span style={{ color: "#94a3b8", fontSize: "0.8rem" }}>{filledRoles}/{totalRoles} Roles Filled</span>
+                    </div>
+                    <span style={{ color: "#94a3b8", fontSize: "0.85rem", whiteSpace: "pre-wrap" }}>{settings?.venue_address || ''}</span>
                   </div>
                 </div>
               )
