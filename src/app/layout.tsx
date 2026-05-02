@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Speakers Club Portal",
+  title: "Winchburgh Speakers Club",
   description: "Manage your public speaking journey",
 };
 
