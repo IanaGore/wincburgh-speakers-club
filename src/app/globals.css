@@ -212,6 +212,26 @@ a {
 
 /* Responsive */
 @media (max-width: 768px) {
+  .nav {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1rem 5%;
+  }
+  .nav-links {
+    width: 100%;
+    overflow-x: auto;
+    padding-bottom: 0.5rem;
+    gap: 1rem;
+    -webkit-overflow-scrolling: touch;
+  }
+  .nav-links::-webkit-scrollbar {
+    height: 4px;
+  }
+  .nav-links::-webkit-scrollbar-thumb {
+    background: var(--card-border);
+    border-radius: 4px;
+  }
   .hero {
     flex-direction: column;
     text-align: center;
@@ -225,8 +245,11 @@ a {
   }
   .hero-actions {
     justify-content: center;
+    flex-wrap: wrap;
   }
-  .nav-links {
-    display: none;
+  .event-card {
+    padding: 1rem;
+    min-width: 100%;
   }
 }
+

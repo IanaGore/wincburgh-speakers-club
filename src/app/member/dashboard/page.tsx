@@ -26,10 +26,10 @@ export default async function MemberDashboard() {
     .limit(2)
 
   return (
-    <div style={{ padding: "4rem 5%", flex: 1, maxWidth: "1200px", margin: "0 auto", width: "100%" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: "2rem" }}>
-        <h1 style={{ fontSize: "2.5rem", fontWeight: "700" }}>Upcoming Sessions</h1>
-        <p style={{ color: "#94a3b8" }}>Welcome back, {user.email}</p>
+    <div style={{ padding: "2rem 5%", flex: 1, maxWidth: "1200px", margin: "0 auto", width: "100%" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", flexWrap: "wrap", gap: "1rem", marginBottom: "2rem" }}>
+        <h1 style={{ fontSize: "clamp(1.8rem, 5vw, 2.5rem)", fontWeight: "700", margin: 0 }}>Upcoming Sessions</h1>
+        <p style={{ color: "#94a3b8", margin: 0 }}>{user.email}</p>
       </div>
       
       <div style={{ display: "flex", gap: "2rem", flexDirection: "column" }}>
@@ -38,16 +38,16 @@ export default async function MemberDashboard() {
           const totalRoles = meeting.meeting_assignments?.length || 0
           
           return (
-            <div key={meeting.id} style={{ background: "var(--card-bg)", padding: "2rem", borderRadius: "16px", border: "1px solid var(--card-border)" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.5rem" }}>
-                <h2 style={{ fontSize: "1.5rem", color: "var(--primary)" }}>
+            <div key={meeting.id} style={{ background: "var(--card-bg)", padding: "clamp(1rem, 4vw, 2rem)", borderRadius: "16px", border: "1px solid var(--card-border)" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: "1rem", marginBottom: "0.5rem" }}>
+                <h2 style={{ fontSize: "clamp(1.2rem, 4vw, 1.5rem)", color: "var(--primary)", margin: 0 }}>
                   {new Date(meeting.meeting_date).toLocaleDateString('en-GB', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
                 </h2>
-                <span style={{ background: "rgba(14, 165, 233, 0.1)", color: "var(--primary)", padding: "0.4rem 0.8rem", borderRadius: "20px", fontSize: "0.85rem", fontWeight: "600" }}>
+                <span style={{ background: "rgba(14, 165, 233, 0.1)", color: "var(--primary)", padding: "0.4rem 0.8rem", borderRadius: "20px", fontSize: "0.85rem", fontWeight: "600", whiteSpace: "nowrap" }}>
                   {filledRoles}/{totalRoles} Filled
                 </span>
               </div>
-              <p style={{ color: "#94a3b8", marginBottom: "2rem" }}>Theme: {meeting.theme || 'TBD'}</p>
+              <p style={{ color: "#94a3b8", marginBottom: "1.5rem", marginTop: "0.5rem" }}>Theme: {meeting.theme || 'TBD'}</p>
               
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: "1rem" }}>
                 {meeting.meeting_assignments?.map((assignment: any) => {
