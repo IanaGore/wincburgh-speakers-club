@@ -1,12 +1,11 @@
 'use server'
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/utils/supabase/server'
+import { checkAdmin } from '@/utils/supabase/auth-helpers'
 
 export async function createPost(formData: FormData) {
+  const user = await checkAdmin()
   const supabase = await createClient()
-
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) throw new Error("Unauthorized")
 
   const title = formData.get('title') as string
   const content = formData.get('content') as string
@@ -25,6 +24,7 @@ export async function createPost(formData: FormData) {
 }
 
 export async function deletePost(postId: string) {
+  await checkAdmin()
   const supabase = await createClient()
   
   const { error } = await supabase.from('news_posts').delete().eq('id', postId)
