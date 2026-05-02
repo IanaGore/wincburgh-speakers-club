@@ -5,7 +5,7 @@ export default function PortalNav({ isAdminView = false }: { isAdminView?: boole
   return (
     <nav className="nav" style={{ background: "rgba(15, 23, 42, 0.95)", position: "sticky", top: 0, zIndex: 50 }}>
       <div className="nav-logo" style={{ fontSize: "1.2rem" }}>
-        <Link href="/">🎙️ Speakers<span>Club</span></Link>
+        <Link href="/">🎙️ Winchburgh <span>Speakers Club</span></Link>
         <span style={{ color: "#64748b", marginLeft: "0.5rem", fontWeight: "400", fontSize: "1rem" }}>| {isAdminView ? 'Admin' : 'Member'}</span>
       </div>
       <div className="nav-links">

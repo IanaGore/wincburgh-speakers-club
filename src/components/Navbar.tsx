@@ -8,7 +8,7 @@ export default async function Navbar() {
   return (
     <nav className="nav">
       <div className="nav-logo">
-        <Link href="/">🎙️ Speakers<span>Club</span></Link>
+        <Link href="/">🎙️ Winchburgh <span>Speakers Club</span></Link>
       </div>
       <div className="nav-links">
         <Link href="/#about">About Us</Link>
