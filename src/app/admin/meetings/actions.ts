@@ -25,17 +25,14 @@ export async function createMeeting(formData: FormData) {
 
   // Pre-populate the standard roles
   const standardRoles = [
-    'Toastmaster',
+    'Chairperson',
     'Timekeeper',
-    'Ah-Counter',
-    'Grammarian',
-    'General Evaluator',
-    'Speaker 1',
-    'Speaker 2',
-    'Speaker 3',
+    'Speech 1',
     'Evaluator 1',
+    'Speech 2',
     'Evaluator 2',
-    'Evaluator 3',
+    'Topics Chair',
+    'General Evaluator'
   ]
 
   const assignmentsToInsert = standardRoles.map(role => ({
