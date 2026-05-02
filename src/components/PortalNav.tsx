@@ -14,6 +14,7 @@ export default function PortalNav({ isAdminView = false }: { isAdminView?: boole
             <Link href="/admin/meetings">Sessions</Link>
             <Link href="/admin/news">News</Link>
             <Link href="/admin/members">Members</Link>
+            <Link href="/admin/payments">Payments</Link>
             <Link href="/admin/messages">Messages</Link>
             <Link href="/admin/settings">Settings</Link>
             <Link href="/member/dashboard" style={{ color: "var(--primary)", marginLeft: "1rem", fontWeight: "bold" }}>Member View →</Link>

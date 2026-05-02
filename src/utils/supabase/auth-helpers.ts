@@ -20,3 +20,24 @@ export async function checkAdmin() {
 
   return user
 }
+
+export async function checkTreasurerOrAdmin() {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) {
+    throw new Error('Unauthorized')
+  }
+
+  const { data: profile, error } = await supabase
+    .from('profiles')
+    .select('is_admin, club_roles')
+    .eq('id', user.id)
+    .single()
+
+  if (error || (!profile?.is_admin && !profile?.club_roles?.includes('Treasurer'))) {
+    throw new Error('Unauthorized')
+  }
+
+  return user
+}
