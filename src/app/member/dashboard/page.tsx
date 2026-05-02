@@ -32,7 +32,7 @@ export default async function MemberDashboard() {
         <p style={{ color: "#94a3b8" }}>Welcome back, {user.email}</p>
       </div>
       
-      <div style={{ display: "flex", gap: "2rem", flexWrap: "wrap", flexDirection: "column" }}>
+      <div style={{ display: "flex", gap: "2rem", flexDirection: "column" }}>
         {meetings?.map((meeting: any) => {
           const filledRoles = meeting.meeting_assignments?.filter((a: any) => a.member_id).length || 0
           const totalRoles = meeting.meeting_assignments?.length || 0
