@@ -13,4 +13,4 @@ insert into public.site_settings (id) values (1) on conflict do nothing;
 
 alter table public.site_settings enable row level security;
 create policy "Settings are viewable by everyone." on site_settings for select using (true);
-create policy "Anyone can update settings" on site_settings for update using (auth.uid() is not null);
+create policy "Admins can update settings" on site_settings for update using (exists (select 1 from public.profiles where id = auth.uid() and is_admin = true));

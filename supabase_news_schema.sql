@@ -15,6 +15,6 @@ create policy "News posts are viewable by everyone."
   using ( is_published = true );
 
 -- Temporary open edit access (to be locked down to is_admin later)
-create policy "Anyone can insert news" on news_posts for insert with check (auth.uid() is not null);
-create policy "Anyone can update news" on news_posts for update using (auth.uid() is not null);
-create policy "Anyone can delete news" on news_posts for delete using (auth.uid() is not null);
+create policy "Admins can insert news" on news_posts for insert with check (exists (select 1 from public.profiles where id = auth.uid() and is_admin = true));
+create policy "Admins can update news" on news_posts for update using (exists (select 1 from public.profiles where id = auth.uid() and is_admin = true));
+create policy "Admins can delete news" on news_posts for delete using (exists (select 1 from public.profiles where id = auth.uid() and is_admin = true));

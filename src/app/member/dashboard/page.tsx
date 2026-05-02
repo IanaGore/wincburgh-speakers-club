@@ -1,8 +1,6 @@
 import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
-import { logout } from '@/app/login/actions'
 import { volunteerForRole, dropRole } from './actions'
-import Link from 'next/link'
 
 export default async function MemberDashboard() {
   const supabase = await createClient()

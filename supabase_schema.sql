@@ -57,6 +57,9 @@ create policy "Meetings are viewable by everyone."
   using ( true );
 
 -- (Later we will add admin-only policies for inserting/updating meetings)
+create policy "Admins can insert meetings" on meetings for insert with check (exists (select 1 from public.profiles where id = auth.uid() and is_admin = true));
+create policy "Admins can update meetings" on meetings for update using (exists (select 1 from public.profiles where id = auth.uid() and is_admin = true));
+create policy "Admins can delete meetings" on meetings for delete using (exists (select 1 from public.profiles where id = auth.uid() and is_admin = true));
 
 
 -- 3. Meeting Assignments Table (Who is doing what role)
@@ -79,6 +82,10 @@ create policy "Logged in users can volunteer for an open role"
   on meeting_assignments for update
   using ( auth.uid() is not null )
   with check ( member_id = auth.uid() );
+
+create policy "Admins can insert assignments" on meeting_assignments for insert with check (exists (select 1 from public.profiles where id = auth.uid() and is_admin = true));
+create policy "Admins can update assignments" on meeting_assignments for update using (exists (select 1 from public.profiles where id = auth.uid() and is_admin = true));
+create policy "Admins can delete assignments" on meeting_assignments for delete using (exists (select 1 from public.profiles where id = auth.uid() and is_admin = true));
 
 
 -- 4. Speeches Table (Speech Tracker)
@@ -107,3 +114,7 @@ create policy "Members can insert their own speeches."
 create policy "Members can update their own speeches."
   on speeches for update
   using ( auth.uid() = member_id );
+
+create policy "Evaluators can update speeches they are evaluating"
+  on speeches for update
+  using ( auth.uid() = evaluator_id );
