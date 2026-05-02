@@ -4,7 +4,7 @@ import { useState } from 'react'
 
 export default function VolunteerForm({ assignment, actionFn }: { assignment: any, actionFn: any }) {
   const [showDetails, setShowDetails] = useState(false)
-  const isSpeech = assignment.role_name.startsWith('Speech')
+  const isSpeech = assignment.role_name.startsWith('Speech') || assignment.role_name.startsWith('Speaker')
 
   if (isSpeech && !showDetails) {
     return (
