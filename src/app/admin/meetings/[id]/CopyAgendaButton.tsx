@@ -8,10 +8,14 @@ export default function CopyAgendaButton({ meeting }: { meeting: any }) {
     text += `\n--- *Roles* ---\n`
     
     // Sort roles nicely if needed, or just map them
-    meeting.meeting_assignments.forEach((assignment: any) => {
+    const rolesText = meeting.meeting_assignments.map((assignment: any) => {
       const assignee = assignment.member_id ? (assignment.profiles?.full_name || 'Member') : 'OPEN (Volunteer Now!)'
-      text += `*${assignment.role_name}:* ${assignee}\n`
+      return `*${assignment.role_name}:* ${assignee}`
     })
+
+    if (rolesText.length > 0) {
+      text += rolesText.join('\n') + '\n'
+    }
 
     navigator.clipboard.writeText(text)
     alert('Agenda copied to clipboard! You can now paste it directly into WhatsApp or an Email.')
