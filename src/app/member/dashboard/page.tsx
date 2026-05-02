@@ -1,5 +1,6 @@
 import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
+import Link from 'next/link'
 import { volunteerForRole, dropRole } from './actions'
 import VolunteerForm from './VolunteerForm'
 
@@ -90,9 +91,9 @@ export default async function MemberDashboard() {
                           </form>
                         </div>
                       ) : (
-                        <span style={{ color: "#94a3b8", fontSize: "0.9rem", display: "flex", alignItems: "center", gap: "0.5rem", fontWeight: "500" }}>
-                          🔒 {assigneeName}
-                        </span>
+                        <Link href={`/member/profile/${assignment.member_id}`} style={{ color: "#94a3b8", fontSize: "0.9rem", display: "flex", alignItems: "center", gap: "0.5rem", fontWeight: "500", textDecoration: "none", transition: "color 0.2s" }}>
+                          🔒 <span style={{ textDecoration: "underline", textDecorationColor: "rgba(255,255,255,0.2)" }}>{assigneeName}</span>
+                        </Link>
                       )}
                     </div>
                   )
