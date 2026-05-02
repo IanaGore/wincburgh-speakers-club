@@ -1,8 +1,10 @@
 'use server'
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/utils/supabase/server'
+import { checkAdmin } from '@/utils/supabase/auth-helpers'
 
 export async function updateSettings(formData: FormData) {
+  await checkAdmin()
   const supabase = await createClient()
 
   const hero_title = formData.get('hero_title') as string

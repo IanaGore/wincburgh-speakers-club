@@ -2,12 +2,11 @@
 
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/utils/supabase/server'
+import { checkAdmin } from '@/utils/supabase/auth-helpers'
 
 export async function createMeeting(formData: FormData) {
+  await checkAdmin()
   const supabase = await createClient()
-
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) throw new Error("Unauthorized")
 
   const date = formData.get('meeting_date') as string
   const theme = formData.get('theme') as string
@@ -57,6 +56,7 @@ export async function createMeeting(formData: FormData) {
 }
 
 export async function deleteMeeting(meetingId: string) {
+  await checkAdmin()
   const supabase = await createClient()
   
   // This will cascade and delete the related meeting_assignments automatically
