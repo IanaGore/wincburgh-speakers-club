@@ -35,7 +35,7 @@ export default async function Home() {
     <>
       <Navbar />
 
-      <main style={{ position: "relative", flex: 1, display: "flex", flexDirection: "column" }}>
+      <main style={{ position: "relative", flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
         <div className="orb orb-1"></div>
         <div className="orb orb-2"></div>
 
