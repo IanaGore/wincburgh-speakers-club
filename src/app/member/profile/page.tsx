@@ -78,13 +78,38 @@ export default async function ProfilePage() {
             
             <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
               <label htmlFor="avatar_url" style={{ fontSize: "0.9rem", color: "#94a3b8" }}>Photo URL (Optional)</label>
-              <input 
-                id="avatar_url" 
-                name="avatar_url" 
-                defaultValue={profile?.avatar_url || ''} 
+              <input
+                id="avatar_url"
+                name="avatar_url"
+                defaultValue={profile?.avatar_url || ''}
                 placeholder="https://example.com/my-photo.jpg"
-                style={{ padding: "0.8rem", borderRadius: "8px", background: "rgba(0,0,0,0.3)", border: "1px solid var(--card-border)", color: "white", outline: "none" }} 
+                style={{ padding: "0.8rem", borderRadius: "8px", background: "rgba(0,0,0,0.3)", border: "1px solid var(--card-border)", color: "white", outline: "none" }}
               />
+            </div>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+              <label htmlFor="phone" style={{ fontSize: "0.9rem", color: "#94a3b8" }}>Phone Number (Optional)</label>
+              <input
+                id="phone"
+                name="phone"
+                type="tel"
+                defaultValue={profile?.phone || ''}
+                placeholder="+44 7700 000000"
+                style={{ padding: "0.8rem", borderRadius: "8px", background: "rgba(0,0,0,0.3)", border: "1px solid var(--card-border)", color: "white", outline: "none" }}
+              />
+            </div>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+              <label htmlFor="contact_email" style={{ fontSize: "0.9rem", color: "#94a3b8" }}>Contact Email (Optional)</label>
+              <input
+                id="contact_email"
+                name="contact_email"
+                type="email"
+                defaultValue={profile?.contact_email || ''}
+                placeholder="your@email.com"
+                style={{ padding: "0.8rem", borderRadius: "8px", background: "rgba(0,0,0,0.3)", border: "1px solid var(--card-border)", color: "white", outline: "none" }}
+              />
+              <p style={{ fontSize: "0.78rem", color: "#64748b", margin: 0 }}>Visible to you and club administrators only.</p>
             </div>
 
             <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
