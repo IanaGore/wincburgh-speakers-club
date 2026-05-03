@@ -1,12 +1,9 @@
 'use client'
 
 import { useState } from 'react'
+import { updateSpeechDetails, dropRole } from './actions'
 
-export default function EditSpeechForm({ assignment, updateFn, dropFn }: {
-  assignment: any
-  updateFn: any
-  dropFn: any
-}) {
+export default function EditSpeechForm({ assignment }: { assignment: any }) {
   const [isEditing, setIsEditing] = useState(false)
 
   if (!isEditing) {
@@ -22,7 +19,7 @@ export default function EditSpeechForm({ assignment, updateFn, dropFn }: {
             Edit
           </button>
         </div>
-        <form action={dropFn}>
+        <form action={dropRole}>
           <input type="hidden" name="assignmentId" value={assignment.id} />
           <button type="submit" style={{ background: "transparent", color: "#f87171", border: "none", cursor: "pointer", fontSize: "0.8rem", textDecoration: "underline", padding: 0 }}>
             Drop out
@@ -33,7 +30,7 @@ export default function EditSpeechForm({ assignment, updateFn, dropFn }: {
   }
 
   return (
-    <form action={updateFn} style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+    <form action={updateSpeechDetails} style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
       <input type="hidden" name="assignmentId" value={assignment.id} />
       <div style={{ padding: "0.75rem", background: "rgba(0,0,0,0.3)", borderRadius: "8px", border: "1px solid var(--primary)", display: "flex", flexDirection: "column", gap: "0.5rem" }}>
         <p style={{ fontSize: "0.8rem", color: "var(--primary)", fontWeight: "bold", margin: 0 }}>Edit Speech Details</p>

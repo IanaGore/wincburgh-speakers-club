@@ -4,25 +4,29 @@ import { revalidatePath } from 'next/cache'
 import { createClient } from '@/utils/supabase/server'
 
 export async function volunteerForRole(formData: FormData) {
-  const assignmentId = formData.get('assignmentId') as string
-  const speech_title = formData.get('speech_title') as string | null
-  const speech_level = formData.get('speech_level') as string | null
-  const speech_length = formData.get('speech_length') as string | null
+  const assignmentId   = formData.get('assignmentId') as string
+  const targetMemberId = formData.get('target_member_id') as string | null
+  const speech_title   = formData.get('speech_title') as string | null
+  const speech_level   = formData.get('speech_level') as string | null
+  const speech_length  = formData.get('speech_length') as string | null
 
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error("Unauthorized")
 
+  // Use the provided target member, or fall back to the current user
+  const memberId = (targetMemberId && targetMemberId.trim()) ? targetMemberId : user.id
+
   const { error } = await supabase
     .from('meeting_assignments')
-    .update({ 
-      member_id: user.id,
+    .update({
+      member_id: memberId,
       speech_title: speech_title || null,
       speech_level: speech_level || null,
       speech_length: speech_length || null
     })
     .eq('id', assignmentId)
-    .is('member_id', null) // Ensures role wasn't claimed immediately prior
+    .is('member_id', null) // Prevents overwriting an already-claimed slot
 
   if (error) {
     console.error(error)

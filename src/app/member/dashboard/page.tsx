@@ -1,9 +1,11 @@
 import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { volunteerForRole, dropRole, updateSpeechDetails } from './actions'
+import { volunteerForRole, dropRole } from './actions'
 import VolunteerForm from './VolunteerForm'
 import EditSpeechForm from './EditSpeechForm'
+
+type Member = { id: string; full_name: string }
 
 function getRoleNumber(name: string): number | null {
   const m = name.match(/(\d+)$/)
@@ -22,7 +24,7 @@ function groupAssignments(assignments: any[]) {
   return { pairs, unpaired, others }
 }
 
-function RoleCard({ assignment, userId }: { assignment: any; userId: string }) {
+function RoleCard({ assignment, userId, members }: { assignment: any; userId: string; members: Member[] }) {
   const isAssignedToMe = assignment.member_id === userId
   const isUnassigned   = !assignment.member_id
   const isSpeech       = assignment.role_name.startsWith('Speech') || assignment.role_name.startsWith('Speaker')
@@ -50,10 +52,10 @@ function RoleCard({ assignment, userId }: { assignment: any; userId: string }) {
       </div>
 
       {isUnassigned ? (
-        <VolunteerForm assignment={assignment} actionFn={volunteerForRole} />
+        <VolunteerForm assignment={assignment} actionFn={volunteerForRole} members={members} />
       ) : isAssignedToMe ? (
         isSpeech ? (
-          <EditSpeechForm assignment={assignment} updateFn={updateSpeechDetails} dropFn={dropRole} />
+          <EditSpeechForm assignment={assignment} />
         ) : (
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <span style={{ color: "var(--primary)", fontSize: "0.9rem", fontWeight: "bold" }}>You!</span>
@@ -74,7 +76,7 @@ function RoleCard({ assignment, userId }: { assignment: any; userId: string }) {
   )
 }
 
-function EvaluatorCard({ assignment, userId }: { assignment: any; userId: string }) {
+function EvaluatorCard({ assignment, userId, members }: { assignment: any; userId: string; members: Member[] }) {
   return (
     <div style={{
       padding: "1rem 1.2rem",
@@ -86,7 +88,7 @@ function EvaluatorCard({ assignment, userId }: { assignment: any; userId: string
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "0.5rem" }}>
         <span style={{ fontSize: "0.9rem", color: "#94a3b8" }}>{assignment.role_name}</span>
         {!assignment.member_id ? (
-          <VolunteerForm assignment={assignment} actionFn={volunteerForRole} />
+          <VolunteerForm assignment={assignment} actionFn={volunteerForRole} members={members} />
         ) : assignment.member_id === userId ? (
           <div style={{ display: "flex", gap: "0.6rem", alignItems: "center" }}>
             <span style={{ color: "var(--primary)", fontSize: "0.85rem", fontWeight: "bold" }}>You!</span>
@@ -111,18 +113,28 @@ export default async function MemberDashboard() {
   const { data: { user }, error } = await supabase.auth.getUser()
   if (error || !user) redirect('/login')
 
-  const { data: meetings } = await supabase
-    .from('meetings')
-    .select(`
-      id, meeting_date, theme,
-      meeting_assignments (
-        id, role_name, member_id, speech_title, speech_level, speech_length,
-        profiles ( full_name )
-      )
-    `)
-    .gte('meeting_date', new Date().toISOString().split('T')[0])
-    .order('meeting_date', { ascending: true })
-    .limit(2)
+  const [{ data: meetings }, { data: membersData }] = await Promise.all([
+    supabase
+      .from('meetings')
+      .select(`
+        id, meeting_date, theme,
+        meeting_assignments (
+          id, role_name, member_id, speech_title, speech_level, speech_length,
+          profiles ( full_name )
+        )
+      `)
+      .gte('meeting_date', new Date().toISOString().split('T')[0])
+      .order('meeting_date', { ascending: true })
+      .limit(2),
+    supabase
+      .from('profiles')
+      .select('id, full_name')
+      .eq('is_active', true)
+      .not('full_name', 'is', null)
+      .order('full_name')
+  ])
+
+  const members: Member[] = membersData ?? []
 
   return (
     <div style={{ padding: "2rem 5%", flex: 1, maxWidth: "1200px", margin: "0 auto", width: "100%" }}>
@@ -152,7 +164,7 @@ export default async function MemberDashboard() {
               {/* Standalone roles grid */}
               {others.length > 0 && (
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: "1rem", marginBottom: pairs.length > 0 ? "1.5rem" : 0 }}>
-                  {others.map((a: any) => <RoleCard key={a.id} assignment={a} userId={user.id} />)}
+                  {others.map((a: any) => <RoleCard key={a.id} assignment={a} userId={user.id} members={members} />)}
                 </div>
               )}
 
@@ -161,8 +173,8 @@ export default async function MemberDashboard() {
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: "1.2rem" }}>
                   {pairs.map(({ speech, evaluator }: any) => (
                     <div key={speech.id} style={{ background: "rgba(14, 165, 233, 0.04)", borderRadius: "14px", padding: "1rem", border: "1px solid rgba(14, 165, 233, 0.12)" }}>
-                      <RoleCard assignment={speech} userId={user.id} />
-                      {evaluator && <EvaluatorCard assignment={evaluator} userId={user.id} />}
+                      <RoleCard assignment={speech} userId={user.id} members={members} />
+                      {evaluator && <EvaluatorCard assignment={evaluator} userId={user.id} members={members} />}
                     </div>
                   ))}
                 </div>
@@ -171,7 +183,7 @@ export default async function MemberDashboard() {
               {/* Unpaired evaluators */}
               {unpaired.length > 0 && (
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: "1rem", marginTop: "1rem" }}>
-                  {unpaired.map((a: any) => <RoleCard key={a.id} assignment={a} userId={user.id} />)}
+                  {unpaired.map((a: any) => <RoleCard key={a.id} assignment={a} userId={user.id} members={members} />)}
                 </div>
               )}
             </div>
