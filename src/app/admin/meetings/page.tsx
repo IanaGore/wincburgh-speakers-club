@@ -57,9 +57,12 @@ export default async function AdminMeetingsPage() {
                     </h3>
                     <p style={{ color: "#cbd5e1", marginTop: "0.25rem" }}>Theme: {meeting.theme || 'TBD'}</p>
                   </div>
-                  <div style={{ display: "flex", gap: "1rem" }}>
+                  <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap" }}>
                     <Link href={`/admin/meetings/${meeting.id}`} className="btn-secondary" style={{ padding: "0.5rem 1rem", fontSize: "0.85rem" }}>
                       Manage Roles
+                    </Link>
+                    <Link href={`/admin/meetings/${meeting.id}/summary`} className="btn-secondary" style={{ padding: "0.5rem 1rem", fontSize: "0.85rem", textDecoration: "none" }}>
+                      Summary
                     </Link>
                     <form action={async () => {
                       'use server'
