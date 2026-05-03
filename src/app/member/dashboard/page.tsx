@@ -1,18 +1,116 @@
 import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { volunteerForRole, dropRole } from './actions'
+import { volunteerForRole, dropRole, updateSpeechDetails } from './actions'
 import VolunteerForm from './VolunteerForm'
+import EditSpeechForm from './EditSpeechForm'
+
+function getRoleNumber(name: string): number | null {
+  const m = name.match(/(\d+)$/)
+  return m ? parseInt(m[1]) : null
+}
+
+function groupAssignments(assignments: any[]) {
+  const speeches   = assignments.filter(a => a.role_name.startsWith('Speech'))
+  const evaluators = assignments.filter(a => a.role_name.startsWith('Evaluator'))
+  const others     = assignments.filter(a => !a.role_name.startsWith('Speech') && !a.role_name.startsWith('Evaluator'))
+  const pairs = speeches.map(s => ({
+    speech: s,
+    evaluator: evaluators.find(e => getRoleNumber(e.role_name) === getRoleNumber(s.role_name)) ?? null
+  }))
+  const unpaired = evaluators.filter(e => !speeches.some(s => getRoleNumber(s.role_name) === getRoleNumber(e.role_name)))
+  return { pairs, unpaired, others }
+}
+
+function RoleCard({ assignment, userId }: { assignment: any; userId: string }) {
+  const isAssignedToMe = assignment.member_id === userId
+  const isUnassigned   = !assignment.member_id
+  const isSpeech       = assignment.role_name.startsWith('Speech') || assignment.role_name.startsWith('Speaker')
+  const assigneeName   = assignment.profiles?.full_name || 'Member'
+
+  return (
+    <div style={{
+      padding: "1.2rem",
+      borderRadius: "12px",
+      background: isAssignedToMe ? "rgba(14, 165, 233, 0.1)" : "rgba(0,0,0,0.2)",
+      border: "1px solid " + (isAssignedToMe ? "rgba(14, 165, 233, 0.5)" : "var(--card-border)"),
+      display: "flex",
+      flexDirection: "column",
+      justifyContent: "space-between",
+      gap: "1rem"
+    }}>
+      <div>
+        <div style={{ fontWeight: "700", marginBottom: "0.3rem", fontSize: "1.05rem" }}>{assignment.role_name}</div>
+        {isSpeech && assignment.speech_title && (
+          <div style={{ fontSize: "0.85rem", color: "#cbd5e1" }}>
+            <span style={{ color: "var(--primary)" }}>[{assignment.speech_level}]</span> {assignment.speech_title}<br />
+            <span style={{ color: "#64748b" }}>({assignment.speech_length})</span>
+          </div>
+        )}
+      </div>
+
+      {isUnassigned ? (
+        <VolunteerForm assignment={assignment} actionFn={volunteerForRole} />
+      ) : isAssignedToMe ? (
+        isSpeech ? (
+          <EditSpeechForm assignment={assignment} updateFn={updateSpeechDetails} dropFn={dropRole} />
+        ) : (
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <span style={{ color: "var(--primary)", fontSize: "0.9rem", fontWeight: "bold" }}>You!</span>
+            <form action={dropRole}>
+              <input type="hidden" name="assignmentId" value={assignment.id} />
+              <button type="submit" style={{ background: "transparent", color: "#f87171", border: "none", cursor: "pointer", fontSize: "0.85rem", textDecoration: "underline", padding: 0 }}>
+                Drop out
+              </button>
+            </form>
+          </div>
+        )
+      ) : (
+        <Link href={`/member/profile/${assignment.member_id}`} style={{ color: "#94a3b8", fontSize: "0.9rem", display: "flex", alignItems: "center", gap: "0.5rem", fontWeight: "500", textDecoration: "none" }}>
+          🔒 <span style={{ textDecoration: "underline", textDecorationColor: "rgba(255,255,255,0.2)" }}>{assigneeName}</span>
+        </Link>
+      )}
+    </div>
+  )
+}
+
+function EvaluatorCard({ assignment, userId }: { assignment: any; userId: string }) {
+  return (
+    <div style={{
+      padding: "1rem 1.2rem",
+      borderRadius: "10px",
+      background: assignment.member_id === userId ? "rgba(14, 165, 233, 0.07)" : "rgba(0,0,0,0.12)",
+      border: "1px solid " + (assignment.member_id === userId ? "rgba(14, 165, 233, 0.3)" : "rgba(255,255,255,0.05)"),
+      marginTop: "0.5rem"
+    }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "0.5rem" }}>
+        <span style={{ fontSize: "0.9rem", color: "#94a3b8" }}>{assignment.role_name}</span>
+        {!assignment.member_id ? (
+          <VolunteerForm assignment={assignment} actionFn={volunteerForRole} />
+        ) : assignment.member_id === userId ? (
+          <div style={{ display: "flex", gap: "0.6rem", alignItems: "center" }}>
+            <span style={{ color: "var(--primary)", fontSize: "0.85rem", fontWeight: "bold" }}>You!</span>
+            <form action={dropRole}>
+              <input type="hidden" name="assignmentId" value={assignment.id} />
+              <button type="submit" style={{ background: "transparent", color: "#f87171", border: "none", cursor: "pointer", fontSize: "0.8rem", textDecoration: "underline", padding: 0 }}>Drop out</button>
+            </form>
+          </div>
+        ) : (
+          <Link href={`/member/profile/${assignment.member_id}`} style={{ color: "#94a3b8", fontSize: "0.85rem", textDecoration: "none" }}>
+            🔒 {assignment.profiles?.full_name || 'Member'}
+          </Link>
+        )}
+      </div>
+    </div>
+  )
+}
 
 export default async function MemberDashboard() {
   const supabase = await createClient()
 
   const { data: { user }, error } = await supabase.auth.getUser()
-  if (error || !user) {
-    redirect('/login')
-  }
+  if (error || !user) redirect('/login')
 
-  // Fetch upcoming meetings with their assignments
   const { data: meetings } = await supabase
     .from('meetings')
     .select(`
@@ -32,12 +130,13 @@ export default async function MemberDashboard() {
         <h1 style={{ fontSize: "clamp(1.8rem, 5vw, 2.5rem)", fontWeight: "700", margin: 0 }}>Upcoming Sessions</h1>
         <p style={{ color: "#94a3b8", margin: 0 }}>{user.email}</p>
       </div>
-      
+
       <div style={{ display: "flex", gap: "2rem", flexDirection: "column" }}>
         {meetings?.map((meeting: any) => {
           const filledRoles = meeting.meeting_assignments?.filter((a: any) => a.member_id).length || 0
-          const totalRoles = meeting.meeting_assignments?.length || 0
-          
+          const totalRoles  = meeting.meeting_assignments?.length || 0
+          const { pairs, unpaired, others } = groupAssignments(meeting.meeting_assignments ?? [])
+
           return (
             <div key={meeting.id} style={{ background: "var(--card-bg)", padding: "clamp(1rem, 4vw, 2rem)", borderRadius: "16px", border: "1px solid var(--card-border)" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: "1rem", marginBottom: "0.5rem" }}>
@@ -49,64 +148,40 @@ export default async function MemberDashboard() {
                 </span>
               </div>
               <p style={{ color: "#94a3b8", marginBottom: "1.5rem", marginTop: "0.5rem" }}>Theme: {meeting.theme || 'TBD'}</p>
-              
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: "1rem" }}>
-                {meeting.meeting_assignments?.map((assignment: any) => {
-                  const isAssignedToMe = assignment.member_id === user.id;
-                  const isUnassigned = !assignment.member_id;
-                  const assigneeName = assignment.profiles?.full_name || 'Member';
-                  const isSpeech = assignment.role_name.startsWith('Speech');
 
-                  return (
-                    <div key={assignment.id} style={{ 
-                      padding: "1.2rem", 
-                      borderRadius: "12px", 
-                      background: isAssignedToMe ? "rgba(14, 165, 233, 0.1)" : "rgba(0,0,0,0.2)", 
-                      border: "1px solid " + (isAssignedToMe ? "rgba(14, 165, 233, 0.5)" : "var(--card-border)"),
-                      display: "flex",
-                      flexDirection: "column",
-                      justifyContent: "space-between",
-                      gap: "1rem" // Added gap instead of minHeight to fix wasted space
-                    }}>
-                      <div>
-                        <div style={{ fontWeight: "700", marginBottom: "0.3rem", fontSize: "1.05rem" }}>{assignment.role_name}</div>
-                        {isSpeech && assignment.speech_title && (
-                          <div style={{ fontSize: "0.85rem", color: "#cbd5e1" }}>
-                            <span style={{ color: "var(--primary)" }}>[{assignment.speech_level}]</span> {assignment.speech_title} <br/>
-                            <span style={{ color: "#64748b" }}>({assignment.speech_length})</span>
-                          </div>
-                        )}
-                      </div>
-                      
-                      {isUnassigned ? (
-                        <VolunteerForm assignment={assignment} actionFn={volunteerForRole} />
-                      ) : isAssignedToMe ? (
-                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                          <span style={{ color: "var(--primary)", fontSize: "0.9rem", fontWeight: "bold" }}>You!</span>
-                          <form action={dropRole}>
-                            <input type="hidden" name="assignmentId" value={assignment.id} />
-                            <button type="submit" style={{ background: "transparent", color: "#f87171", border: "none", cursor: "pointer", fontSize: "0.85rem", textDecoration: "underline", padding: 0 }}>
-                              Drop out
-                            </button>
-                          </form>
-                        </div>
-                      ) : (
-                        <Link href={`/member/profile/${assignment.member_id}`} style={{ color: "#94a3b8", fontSize: "0.9rem", display: "flex", alignItems: "center", gap: "0.5rem", fontWeight: "500", textDecoration: "none", transition: "color 0.2s" }}>
-                          🔒 <span style={{ textDecoration: "underline", textDecorationColor: "rgba(255,255,255,0.2)" }}>{assigneeName}</span>
-                        </Link>
-                      )}
+              {/* Standalone roles grid */}
+              {others.length > 0 && (
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: "1rem", marginBottom: pairs.length > 0 ? "1.5rem" : 0 }}>
+                  {others.map((a: any) => <RoleCard key={a.id} assignment={a} userId={user.id} />)}
+                </div>
+              )}
+
+              {/* Speech / evaluator pairs */}
+              {pairs.length > 0 && (
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: "1.2rem" }}>
+                  {pairs.map(({ speech, evaluator }: any) => (
+                    <div key={speech.id} style={{ background: "rgba(14, 165, 233, 0.04)", borderRadius: "14px", padding: "1rem", border: "1px solid rgba(14, 165, 233, 0.12)" }}>
+                      <RoleCard assignment={speech} userId={user.id} />
+                      {evaluator && <EvaluatorCard assignment={evaluator} userId={user.id} />}
                     </div>
-                  )
-                })}
-              </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Unpaired evaluators */}
+              {unpaired.length > 0 && (
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: "1rem", marginTop: "1rem" }}>
+                  {unpaired.map((a: any) => <RoleCard key={a.id} assignment={a} userId={user.id} />)}
+                </div>
+              )}
             </div>
           )
         })}
 
         {meetings?.length === 0 && (
           <div style={{ padding: "3rem", border: "1px dashed var(--card-border)", borderRadius: "12px", textAlign: "center", color: "#94a3b8" }}>
-              <div style={{ fontSize: "2rem", marginBottom: "1rem" }}>📅</div>
-              No upcoming sessions are scheduled yet. Check back soon!
+            <div style={{ fontSize: "2rem", marginBottom: "1rem" }}>📅</div>
+            No upcoming sessions are scheduled yet. Check back soon!
           </div>
         )}
       </div>

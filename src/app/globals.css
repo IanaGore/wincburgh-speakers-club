@@ -254,3 +254,31 @@ a {
   }
 }
 
+/* Print styles — used by the meeting programme / summary page */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  .print-only {
+    display: block !important;
+  }
+  body {
+    background: white !important;
+    color: black !important;
+  }
+  nav, footer {
+    display: none !important;
+  }
+  #programme {
+    background: white !important;
+    border: none !important;
+    color: black !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+  }
+  a {
+    color: black !important;
+    text-decoration: none !important;
+  }
+}
+
