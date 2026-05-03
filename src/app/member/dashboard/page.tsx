@@ -113,28 +113,33 @@ export default async function MemberDashboard() {
   const { data: { user }, error } = await supabase.auth.getUser()
   if (error || !user) redirect('/login')
 
-  const [{ data: meetings }, { data: membersData }] = await Promise.all([
-    supabase
-      .from('meetings')
-      .select(`
-        id, meeting_date, theme,
-        meeting_assignments (
-          id, role_name, member_id, speech_title, speech_level, speech_length,
-          profiles ( full_name )
-        )
-      `)
-      .gte('meeting_date', new Date().toISOString().split('T')[0])
-      .order('meeting_date', { ascending: true })
-      .limit(2),
-    supabase
+  const { data: meetings } = await supabase
+    .from('meetings')
+    .select(`
+      id, meeting_date, theme,
+      meeting_assignments (
+        id, role_name, member_id, speech_title, speech_level, speech_length,
+        profiles ( full_name )
+      )
+    `)
+    .gte('meeting_date', new Date().toISOString().split('T')[0])
+    .order('meeting_date', { ascending: true })
+    .limit(2)
+
+  // Try the SECURITY DEFINER function (available after migration runs).
+  // Fall back to a direct query while the migration is still pending.
+  let members: Member[] = []
+  const { data: rpcData, error: rpcError } = await supabase.rpc('get_member_directory')
+  if (!rpcError && rpcData) {
+    members = rpcData
+  } else {
+    const { data: fallback } = await supabase
       .from('profiles')
       .select('id, full_name')
-      .eq('is_active', true)
       .not('full_name', 'is', null)
       .order('full_name')
-  ])
-
-  const members: Member[] = membersData ?? []
+    members = fallback ?? []
+  }
 
   return (
     <div style={{ padding: "2rem 5%", flex: 1, maxWidth: "1200px", margin: "0 auto", width: "100%" }}>
