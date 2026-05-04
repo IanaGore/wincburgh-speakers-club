@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { createClient } from '@/utils/supabase/server'
 import Navbar from '@/components/Navbar'
+import ScrollButton from '@/components/ScrollButton'
 
 export default async function Home() {
   const supabase = await createClient()
@@ -45,7 +46,7 @@ export default async function Home() {
             <p style={{ whiteSpace: "pre-line" }}>{heroSubtitle}</p>
             <div className="hero-actions">
               <Link href="/login" className="btn-primary">JOIN US →</Link>
-              <Link href="#about" className="btn-secondary">LEARN MORE</Link>
+              <ScrollButton targetId="about" className="btn-secondary">LEARN MORE</ScrollButton>
             </div>
           </div>
           {/* We would put a nice 3D illustration or image here in the future */}
@@ -65,7 +66,7 @@ export default async function Home() {
           <div className="events-grid">
             {news?.map(post => (
               <div key={post.id} className="event-card" style={{ background: "rgba(15, 23, 42, 0.4)" }}>
-                <div className="event-date">{new Date(post.published_at).toLocaleDateString()}</div>
+                <div className="event-date">{new Date(post.published_at).toLocaleDateString('en-GB')}</div>
                 <h3 className="event-title">{post.title}</h3>
                 <p className="event-desc">{post.content.substring(0, 100)}...</p>
                 <div className="event-footer">
@@ -95,7 +96,16 @@ export default async function Home() {
                       <span>📍 {settings?.venue_name || 'Local Venue'}</span>
                       <span style={{ color: "#94a3b8", fontSize: "0.8rem" }}>{filledRoles}/{totalRoles} Roles Filled</span>
                     </div>
-                    <span style={{ color: "#94a3b8", fontSize: "0.85rem", whiteSpace: "pre-wrap" }}>{settings?.venue_address || ''}</span>
+                    {settings?.venue_address && (
+                      <a
+                        href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(settings.venue_address)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{ color: "var(--primary)", fontSize: "1rem", whiteSpace: "pre-wrap", textDecoration: "underline", textDecorationColor: "rgba(14,165,233,0.4)" }}
+                      >
+                        {settings.venue_address}
+                      </a>
+                    )}
                   </div>
                 </div>
               )

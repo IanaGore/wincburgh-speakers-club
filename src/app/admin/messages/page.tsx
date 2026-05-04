@@ -1,5 +1,6 @@
 import { createClient } from '@/utils/supabase/server'
-import { markAsRead, deleteMessage } from './actions'
+import { markAsRead } from './actions'
+import DeleteMessageButton from './DeleteMessageButton'
 
 export default async function AdminMessagesPage() {
   const supabase = await createClient()
@@ -54,10 +55,7 @@ export default async function AdminMessagesPage() {
                     <button type="submit" className="btn-secondary" style={{ padding: "0.4rem 1rem", fontSize: "0.85rem", borderColor: "var(--primary)", color: "var(--primary)" }}>Mark as Read</button>
                   </form>
                 )}
-                <form action={deleteMessage}>
-                  <input type="hidden" name="message_id" value={msg.id} />
-                  <button type="submit" className="btn-secondary" style={{ padding: "0.4rem 1rem", fontSize: "0.85rem", borderColor: "rgba(239, 68, 68, 0.3)", color: "#f87171" }}>Delete</button>
-                </form>
+                <DeleteMessageButton messageId={msg.id} />
               </div>
             </div>
           ))

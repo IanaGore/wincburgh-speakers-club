@@ -85,6 +85,7 @@ export default async function ProfilePage() {
                 placeholder="https://example.com/my-photo.jpg"
                 style={{ padding: "0.8rem", borderRadius: "8px", background: "rgba(0,0,0,0.3)", border: "1px solid var(--card-border)", color: "white", outline: "none" }}
               />
+              <p style={{ fontSize: "0.78rem", color: "#64748b", margin: 0 }}>Paste a public image URL, e.g. your Google profile picture link.</p>
             </div>
 
             <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>

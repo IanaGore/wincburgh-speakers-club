@@ -1,7 +1,8 @@
 import { createClient } from '@/utils/supabase/server'
-import { addCustomRole, deleteRole } from './actions'
+import { addCustomRole, deleteRoleFromForm } from './actions'
 import Link from 'next/link'
 import CopyAgendaButton from './CopyAgendaButton'
+import RemoveRoleButton from './RemoveRoleButton'
 
 function getRoleNumber(name: string): number | null {
   const m = name.match(/(\d+)$/)
@@ -28,12 +29,7 @@ function AssignmentRow({ assignment, meetingId }: { assignment: any; meetingId: 
         <span style={{ color: assignment.member_id ? "var(--primary)" : "#94a3b8", fontSize: "0.9rem" }}>
           {assignment.member_id ? (assignment.profiles?.full_name || 'Member') : 'Open'}
         </span>
-        <form action={async () => {
-          'use server'
-          await deleteRole(assignment.id, meetingId)
-        }}>
-          <button type="submit" style={{ background: "none", color: "#f87171", border: "none", cursor: "pointer", fontSize: "0.85rem" }}>Remove</button>
-        </form>
+        <RemoveRoleButton assignmentId={assignment.id} meetingId={meetingId} actionFn={deleteRoleFromForm} />
       </div>
     </div>
   )

@@ -24,7 +24,7 @@ function groupAssignments(assignments: any[]) {
   return { pairs, unpaired, others }
 }
 
-function RoleCard({ assignment, userId, members }: { assignment: any; userId: string; members: Member[] }) {
+function RoleCard({ assignment, userId, members, meetingId }: { assignment: any; userId: string; members: Member[]; meetingId: string }) {
   const isAssignedToMe = assignment.member_id === userId
   const isUnassigned   = !assignment.member_id
   const isSpeech       = assignment.role_name.startsWith('Speech') || assignment.role_name.startsWith('Speaker')
@@ -52,7 +52,7 @@ function RoleCard({ assignment, userId, members }: { assignment: any; userId: st
       </div>
 
       {isUnassigned ? (
-        <VolunteerForm assignment={assignment} actionFn={volunteerForRole} members={members} />
+        <VolunteerForm assignment={assignment} actionFn={volunteerForRole} members={members} meetingId={meetingId} />
       ) : isAssignedToMe ? (
         isSpeech ? (
           <EditSpeechForm assignment={assignment} />
@@ -76,7 +76,7 @@ function RoleCard({ assignment, userId, members }: { assignment: any; userId: st
   )
 }
 
-function EvaluatorCard({ assignment, userId, members }: { assignment: any; userId: string; members: Member[] }) {
+function EvaluatorCard({ assignment, userId, members, meetingId }: { assignment: any; userId: string; members: Member[]; meetingId: string }) {
   return (
     <div style={{
       padding: "1rem 1.2rem",
@@ -88,7 +88,7 @@ function EvaluatorCard({ assignment, userId, members }: { assignment: any; userI
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "0.5rem" }}>
         <span style={{ fontSize: "0.9rem", color: "#94a3b8" }}>{assignment.role_name}</span>
         {!assignment.member_id ? (
-          <VolunteerForm assignment={assignment} actionFn={volunteerForRole} members={members} />
+          <VolunteerForm assignment={assignment} actionFn={volunteerForRole} members={members} meetingId={meetingId} />
         ) : assignment.member_id === userId ? (
           <div style={{ display: "flex", gap: "0.6rem", alignItems: "center" }}>
             <span style={{ color: "var(--primary)", fontSize: "0.85rem", fontWeight: "bold" }}>You!</span>
@@ -169,7 +169,7 @@ export default async function MemberDashboard() {
               {/* Standalone roles grid */}
               {others.length > 0 && (
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: "1rem", marginBottom: pairs.length > 0 ? "1.5rem" : 0 }}>
-                  {others.map((a: any) => <RoleCard key={a.id} assignment={a} userId={user.id} members={members} />)}
+                  {others.map((a: any) => <RoleCard key={a.id} assignment={a} userId={user.id} members={members} meetingId={meeting.id} />)}
                 </div>
               )}
 
@@ -178,8 +178,8 @@ export default async function MemberDashboard() {
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: "1.2rem" }}>
                   {pairs.map(({ speech, evaluator }: any) => (
                     <div key={speech.id} style={{ background: "rgba(14, 165, 233, 0.04)", borderRadius: "14px", padding: "1rem", border: "1px solid rgba(14, 165, 233, 0.12)" }}>
-                      <RoleCard assignment={speech} userId={user.id} members={members} />
-                      {evaluator && <EvaluatorCard assignment={evaluator} userId={user.id} members={members} />}
+                      <RoleCard assignment={speech} userId={user.id} members={members} meetingId={meeting.id} />
+                      {evaluator && <EvaluatorCard assignment={evaluator} userId={user.id} members={members} meetingId={meeting.id} />}
                     </div>
                   ))}
                 </div>
@@ -188,7 +188,7 @@ export default async function MemberDashboard() {
               {/* Unpaired evaluators */}
               {unpaired.length > 0 && (
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: "1rem", marginTop: "1rem" }}>
-                  {unpaired.map((a: any) => <RoleCard key={a.id} assignment={a} userId={user.id} members={members} />)}
+                  {unpaired.map((a: any) => <RoleCard key={a.id} assignment={a} userId={user.id} members={members} meetingId={meeting.id} />)}
                 </div>
               )}
             </div>
