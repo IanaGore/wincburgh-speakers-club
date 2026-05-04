@@ -33,11 +33,10 @@ export default async function MeetingSummaryPage({ params }: { params: Promise<{
 
   if (!meeting) notFound()
 
-  // Fetch all active members for attendance
+  // Fetch all members for attendance (is_active col only exists after migration)
   const { data: allMembers } = await supabase
     .from('profiles')
     .select('id, full_name, club_roles')
-    .eq('is_active', true)
     .not('full_name', 'is', null)
     .order('full_name')
 
@@ -74,12 +73,14 @@ export default async function MeetingSummaryPage({ params }: { params: Promise<{
   return (
     <div style={{ padding: "4rem 5%", flex: 1 }}>
       {/* Header */}
-      <div className="no-print" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2rem", flexWrap: "wrap", gap: "1rem" }}>
-        <div>
-          <Link href={`/admin/meetings/${id}`} style={{ color: "#94a3b8", fontSize: "0.9rem", textDecoration: "none" }}>← Back to Roles</Link>
-          <h1 style={{ fontSize: "2.2rem", margin: "0.5rem 0 0" }}>Session Summary</h1>
+      <div className="no-print" style={{ marginBottom: "2rem" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "1rem" }}>
+          <h1 style={{ fontSize: "2.2rem", margin: 0 }}>Session Summary</h1>
+          <PrintButton />
         </div>
-        <PrintButton />
+        <Link href={`/admin/meetings/${id}`} className="btn-secondary" style={{ display: "inline-block", marginTop: "1rem", padding: "0.5rem 1.2rem", fontSize: "0.9rem", textDecoration: "none" }}>
+          ← Back to Roles
+        </Link>
       </div>
 
       {/* ===== SECTION A: PROGRAMME (printable) ===== */}

@@ -15,11 +15,13 @@ const selectStyle = {
 export default function VolunteerForm({
   assignment,
   actionFn,
-  members
+  members,
+  meetingId
 }: {
   assignment: any
   actionFn: any
   members: { id: string; full_name: string }[]
+  meetingId: string
 }) {
   const [showSpeechForm, setShowSpeechForm] = useState(false)
   const [showAssignOther, setShowAssignOther] = useState(false)
@@ -31,6 +33,7 @@ export default function VolunteerForm({
     return (
       <form action={actionFn} style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
         <input type="hidden" name="assignmentId" value={assignment.id} />
+        <input type="hidden" name="meetingId" value={meetingId} />
         <select name="target_member_id" required style={selectStyle}>
           <option value="">Select member...</option>
           {members.map(m => (
@@ -57,6 +60,7 @@ export default function VolunteerForm({
       <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem" }}>
         <form action={actionFn}>
           <input type="hidden" name="assignmentId" value={assignment.id} />
+          <input type="hidden" name="meetingId" value={meetingId} />
           <button type="submit" className="btn-primary" style={{ padding: "0.4rem 0.8rem", fontSize: "0.85rem", width: "100%" }}>
             Volunteer
           </button>
@@ -85,6 +89,7 @@ export default function VolunteerForm({
   return (
     <form action={actionFn} style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
       <input type="hidden" name="assignmentId" value={assignment.id} />
+      <input type="hidden" name="meetingId" value={meetingId} />
 
       <div style={{ padding: "0.75rem", background: "rgba(0,0,0,0.3)", borderRadius: "8px", border: "1px solid var(--primary)", display: "flex", flexDirection: "column", gap: "0.5rem", marginTop: "0.5rem" }}>
         <p style={{ fontSize: "0.8rem", color: "var(--primary)", fontWeight: "bold", margin: 0 }}>Speech Details</p>
