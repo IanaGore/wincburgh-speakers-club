@@ -429,7 +429,7 @@
   left: -100px;
   width: 500px;
   height: 500px;
-  background: radial-gradient(circle, var(--sage / 0.15) 0%, transparent 70%);
+  background: radial-gradient(circle, oklch(0.68 0.135 200 / 0.15) 0%, transparent 70%);
   pointer-events: none;
 }
 
