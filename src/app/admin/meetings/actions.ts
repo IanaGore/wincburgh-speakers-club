@@ -11,6 +11,12 @@ export async function createMeeting(formData: FormData) {
   const date = formData.get('meeting_date') as string
   const theme = formData.get('theme') as string
 
+  const { data: existing } = await supabase
+    .from('meetings').select('id').eq('meeting_date', date).limit(1)
+  if (existing && existing.length > 0) {
+    throw new Error('A meeting is already scheduled on this date.')
+  }
+
   // Insert the meeting
   const { data: meeting, error: meetingError } = await supabase
     .from('meetings')

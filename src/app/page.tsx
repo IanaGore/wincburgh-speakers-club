@@ -1,31 +1,20 @@
-import Link from 'next/link'
+import Link from "next/link";
 import { createClient } from '@/utils/supabase/server'
 import Navbar from '@/components/Navbar'
-import Footer from '@/components/Footer'
-import PhotoSlot from '@/components/ui/PhotoSlot'
-import EyebrowLabel from '@/components/ui/EyebrowLabel'
-import Button from '@/components/ui/Button'
-import Tag from '@/components/ui/Tag'
-import './page.css'
-
-function formatDay(dateStr: string) {
-  return new Date(dateStr).toLocaleDateString('en-GB', { day: 'numeric' })
-}
-
-function formatMonth(dateStr: string) {
-  return new Date(dateStr).toLocaleDateString('en-GB', { month: 'short' }).toUpperCase()
-}
+import ScrollButton from '@/components/ScrollButton'
 
 export default async function Home() {
   const supabase = await createClient()
 
+  // Fetch actual upcoming meetings
   const { data: events } = await supabase
     .from('meetings')
-    .select('*')
+    .select('*, meeting_assignments(id, member_id)')
     .gte('meeting_date', new Date().toISOString().split('T')[0])
     .order('meeting_date', { ascending: true })
     .limit(3)
 
+  // Fetch top 3 latest news
   const { data: news } = await supabase
     .from('news_posts')
     .select('*')
@@ -33,222 +22,108 @@ export default async function Home() {
     .order('published_at', { ascending: false })
     .limit(3)
 
-  const { count: memberCount } = await supabase
-    .from('profiles')
-    .select('*', { count: 'exact', head: true })
+  // Fetch settings
+  const { data: settings } = await supabase
+    .from('site_settings')
+    .select('*')
+    .eq('id', 1)
+    .single()
 
-  const nextMeeting = events?.[0]
+  const heroTitle = settings?.hero_title || "UNCAP YOUR POTENTIAL.\nMASTER THE ART\nOF SPEAKING."
+  const heroSubtitle = settings?.hero_subtitle || "Find your voice, build confidence, and become an impactful speaker in our vibrant community."
 
   return (
     <>
       <Navbar />
 
-      <main>
-        {/* Hero */}
-        <section className="home-hero">
-          <div>
-            <div className="home-hero__eyebrow">
-              <EyebrowLabel>Winchburgh · West Lothian</EyebrowLabel>
-            </div>
-            <h1>
-              The warmest room in Winchburgh{' '}
-              <em>on a Tuesday.</em>
-            </h1>
-            <p className="home-hero__body">
-              We&apos;re a friendly bunch who meet twice a month to practise speaking, try new things, and have a proper cup of tea. No experience needed. No booking required for your first visit.
-            </p>
-            <div className="home-hero__actions">
-              <Button href="/contact" variant="primary">Come to a meeting</Button>
-              <Button href="/#about" variant="ghost">What happens?</Button>
-            </div>
-            {memberCount != null && (
-              <div className="home-hero__avatars">
-                <div className="home-hero__avatar-stack">
-                  <PhotoSlot width={40} height={40} label="" style={{ borderRadius: '50%' }} />
-                  <PhotoSlot width={40} height={40} label="" style={{ borderRadius: '50%' }} />
-                  <PhotoSlot width={40} height={40} label="" style={{ borderRadius: '50%' }} />
-                </div>
-                <span className="home-hero__member-count">
-                  <strong>{memberCount}+</strong> members and growing
-                </span>
-              </div>
-            )}
-          </div>
+      <main style={{ position: "relative", flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
+        <div className="orb orb-1"></div>
+        <div className="orb orb-2"></div>
 
-          <div className="home-hero__visual">
-            <PhotoSlot
-              label="member at lectern"
-              className="home-hero__photo-large"
-              style={{ width: '75%', height: '80%', top: 0, left: 0, position: 'absolute' }}
-            />
-            <PhotoSlot
-              label="audience"
-              className="home-hero__photo-small"
-              style={{ width: '55%', height: '55%', bottom: 0, right: 0, position: 'absolute', background: 'oklch(0.72 0.09 200 / 0.25)' }}
-            />
-            {nextMeeting && (
-              <div className="home-hero__meeting-pill">
-                <div className="home-hero__date-badge">
-                  <div className="day">{formatDay(nextMeeting.meeting_date)}</div>
-                  <div className="month">{formatMonth(nextMeeting.meeting_date)}</div>
-                </div>
-                <div className="home-hero__pill-info">
-                  <div className="label">Next meeting</div>
-                  <div className="title">{nextMeeting.theme || 'Members\' Meeting'}</div>
-                </div>
-              </div>
-            )}
+        <section className="hero">
+          <div className="hero-content">
+            <h1 style={{ whiteSpace: "pre-line" }}>{heroTitle}</h1>
+            <p style={{ whiteSpace: "pre-line" }}>{heroSubtitle}</p>
+            <div className="hero-actions">
+              <Link href="/login" className="btn-primary">JOIN US →</Link>
+              <ScrollButton targetId="about" className="btn-secondary">LEARN MORE</ScrollButton>
+            </div>
+          </div>
+          {/* We would put a nice 3D illustration or image here in the future */}
+          <div style={{ flex: 1, display: "flex", justifyContent: "center" }}>
+             <div style={{ width: "300px", height: "400px", background: "rgba(255,255,255,0.05)", borderRadius: "20px", border: "1px solid rgba(255,255,255,0.1)", display: "flex", alignItems: "center", justifyContent: "center", backdropFilter: "blur(5px)" }}>
+                 <span style={{ fontSize: "4rem" }}>🎤</span>
+             </div>
           </div>
         </section>
 
-        {/* How it works */}
-        <section className="home-how" id="about">
-          <div className="home-how__inner">
-            <div className="home-how__header">
-              <EyebrowLabel className="wsc-eyebrow" color="clay">How it works</EyebrowLabel>
-              <h2>We keep it simple. <em>You keep your seat.</em></h2>
-            </div>
-            <div className="home-how__steps">
-              {[
-                {
-                  num: 'Step 01',
-                  title: 'Just turn up',
-                  body: 'No booking needed for your first three visits. The kettle goes on at half six. Meeting starts at seven. Someone will meet you at the door.',
-                },
-                {
-                  num: 'Step 02',
-                  title: 'Watch and listen',
-                  body: "You won't be asked to speak until you're ready. Watch how it works, ask questions, eat a biscuit. There's absolutely no pressure.",
-                },
-                {
-                  num: 'Step 03',
-                  title: 'Find your pace',
-                  body: "When you're ready, take a role. Give a speech. Get feedback. We follow the Pathways programme — or we can just be your Tuesday-night practice ground.",
-                },
-              ].map((step) => (
-                <div key={step.num} className="home-how__step">
-                  <div className="home-how__step-num">{step.num}</div>
-                  <h3>{step.title}</h3>
-                  <p>{step.body}</p>
+        {/* Latest News Section */}
+        <section id="news" className="events-section" style={{ marginBottom: "2rem" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: "1.5rem" }}>
+             <h2 className="events-title" style={{ marginBottom: 0 }}>Latest News</h2>
+             <Link href="/news" style={{ color: "var(--primary)", fontSize: "0.9rem", fontWeight: "bold" }}>View All →</Link>
+          </div>
+          <div className="events-grid">
+            {news?.map(post => (
+              <div key={post.id} className="event-card" style={{ background: "rgba(15, 23, 42, 0.4)" }}>
+                <div className="event-date">{new Date(post.published_at).toLocaleDateString('en-GB')}</div>
+                <h3 className="event-title">{post.title}</h3>
+                <p className="event-desc">{post.content.substring(0, 100)}...</p>
+                <div className="event-footer">
+                  <Link href={`/news/${post.id}`} className="btn-secondary" style={{ padding: "0.4rem 1rem", fontSize: "0.8rem" }}>Read Article</Link>
                 </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Pull-quote */}
-        <section className="home-quote">
-          <div className="home-quote__inner">
-            <span className="home-quote__mark">&ldquo;</span>
-            <blockquote>
-              You don&apos;t need to be confident. You don&apos;t need to have anything to say. You just need to turn up.
-            </blockquote>
-            <p className="home-quote__attribution">— Margaret, Club President</p>
-          </div>
-        </section>
-
-        {/* News */}
-        {news && news.length > 0 && (
-          <section className="home-news" id="news">
-            <div className="home-news__inner">
-              <div className="home-news__header">
-                <h2>From the club</h2>
-                <Link href="/news" className="wsc-btn wsc-btn-ghost wsc-btn-sm">All news →</Link>
               </div>
-              <div className="home-news__grid">
-                {news.map((post: any) => (
-                  <article key={post.id} className="home-news__card">
-                    <PhotoSlot height={180} label="news image" style={{ borderRadius: 0 }} />
-                    <div className="home-news__card-body">
-                      <div className="home-news__card-meta">
-                        <Tag variant="clay">Update</Tag>
-                        <span className="home-news__card-date">
-                          {new Date(post.published_at).toLocaleDateString('en-GB', {
-                            day: 'numeric',
-                            month: 'short',
-                            year: 'numeric',
-                          })}
-                        </span>
-                      </div>
-                      <h3>{post.title}</h3>
-                      <p>{post.excerpt || post.content?.slice(0, 100)}</p>
+            ))}
+            {(!news || news.length === 0) && <p style={{color: "#94a3b8"}}>No recent news.</p>}
+          </div>
+        </section>
+
+        <section id="events" className="events-section">
+          <h2 className="events-title">Upcoming Events</h2>
+          <div className="events-grid">
+            {events?.map(event => {
+              const dateStr = new Date(event.meeting_date).toLocaleDateString('en-GB', { month: 'short', day: 'numeric' }).toUpperCase()
+              const filledRoles = event.meeting_assignments?.filter((a: any) => a.member_id).length || 0
+              const totalRoles = event.meeting_assignments?.length || 0
+
+              return (
+                <div key={event.id} className="event-card">
+                  <div className="event-date">{dateStr} | 7:00 PM</div>
+                  <h3 className="event-title">Club Meeting</h3>
+                  <p className="event-desc">{event.theme ? `Theme: ${event.theme}` : 'Standard Club Session with prepared speeches and evaluations.'}</p>
+                  <div className="event-footer" style={{ flexDirection: "column", gap: "0.5rem", alignItems: "flex-start" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", width: "100%" }}>
+                      <span>📍 {settings?.venue_name || 'Local Venue'}</span>
+                      <span style={{ color: "#94a3b8", fontSize: "0.8rem" }}>{filledRoles}/{totalRoles} Roles Filled</span>
                     </div>
-                  </article>
-                ))}
-              </div>
-            </div>
-          </section>
-        )}
-
-        {/* Village map + venue */}
-        <section className="home-venue" id="meetings">
-          <div className="home-venue__inner">
-            <div className="home-venue__map">
-              <svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
-                <rect width="400" height="300" fill="oklch(0.95 0.014 230)" rx="16" />
-                {/* Roads */}
-                <path d="M 20 150 L 380 150" stroke="oklch(0.88 0.025 230)" strokeWidth="8" strokeLinecap="round" />
-                <path d="M 200 20 L 200 280" stroke="oklch(0.88 0.025 230)" strokeWidth="8" strokeLinecap="round" />
-                <path d="M 80 80 L 320 220" stroke="oklch(0.88 0.025 230)" strokeWidth="6" strokeLinecap="round" />
-                {/* Canal */}
-                <path d="M 0 200 Q 100 190 200 200 Q 300 210 400 200" stroke="var(--sage)" strokeWidth="5" fill="none" strokeLinecap="round" />
-                {/* Labels */}
-                <text x="50" y="140" fontFamily="JetBrains Mono, monospace" fontSize="9" fill="oklch(0.55 0.040 240)" letterSpacing="1">MAIN STREET</text>
-                <text x="205" y="100" fontFamily="JetBrains Mono, monospace" fontSize="9" fill="oklch(0.55 0.040 240)" letterSpacing="1" transform="rotate(90 205 100)">SCHOOL RD</text>
-                <text x="60" y="215" fontFamily="JetBrains Mono, monospace" fontSize="8" fill="var(--sage)" letterSpacing="1">UNION CANAL</text>
-                {/* Venue pin */}
-                <circle cx="200" cy="150" r="14" fill="var(--clay)" />
-                <circle cx="200" cy="150" r="6" fill="white" />
-                <text x="215" y="135" fontFamily="JetBrains Mono, monospace" fontSize="9" fill="var(--clay-deep)" fontWeight="500">Community Centre</text>
-              </svg>
-            </div>
-
-            <div className="home-venue__info">
-              <EyebrowLabel color="clay">Find us</EyebrowLabel>
-              <h2>It is the warmest room in Winchburgh on a Tuesday. <em>Honest.</em></h2>
-              <div className="home-venue__detail">
-                <div className="home-venue__detail-icon">📍</div>
-                <div>
-                  <strong>Winchburgh Community Centre</strong><br />
-                  Main Street, Winchburgh, EH52 6QF
+                    {settings?.venue_address && (
+                      <a
+                        href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(settings.venue_address)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{ color: "var(--primary)", fontSize: "1rem", whiteSpace: "pre-wrap", textDecoration: "underline", textDecorationColor: "rgba(14,165,233,0.4)" }}
+                      >
+                        {settings.venue_address}
+                      </a>
+                    )}
+                  </div>
                 </div>
-              </div>
-              <div className="home-venue__detail">
-                <div className="home-venue__detail-icon">🕖</div>
-                <div>
-                  <strong>1st &amp; 3rd Tuesday of the month</strong><br />
-                  Doors 6:30pm · Meeting 7:00pm
-                </div>
-              </div>
-              <div className="home-venue__access">
-                ✅ Step-free access &nbsp;·&nbsp; 🔊 Hearing loop &nbsp;·&nbsp; 🚗 Free parking on-site
-              </div>
-              <div style={{ marginTop: 28 }}>
-                <Button href="https://maps.google.com/?q=Winchburgh+Community+Centre" variant="ghost">
-                  Get directions →
-                </Button>
-              </div>
-            </div>
+              )
+            })}
+            
+            {(!events || events.length === 0) && (
+              <p style={{color: "#94a3b8"}}>No public events scheduled currently.</p>
+            )}
           </div>
         </section>
 
-        {/* CTA strip */}
-        <section className="home-cta">
-          <div className="home-cta__inner">
-            <EyebrowLabel>Ready when you are</EyebrowLabel>
-            <h2>Come and <em>try us.</em></h2>
-            <p>
-              No booking needed for your first visit. Margaret, our president, will drop you a quick hello in the next day or two.
-            </p>
-            <div className="home-cta__actions">
-              <Button href="/contact" variant="primary">Come to a meeting</Button>
-              <Button href="/contact" variant="ghost-light">Get in touch</Button>
-            </div>
-          </div>
+        <section id="about" className="events-section" style={{ marginBottom: "4rem" }}>
+           <h2 className="events-title">About Us</h2>
+           <div style={{ background: "var(--card-bg)", padding: "2.5rem", borderRadius: "16px", border: "1px solid var(--card-border)", color: "#cbd5e1", lineHeight: "1.8", whiteSpace: "pre-line" }}>
+              {settings?.about_text || "Welcome to the Speakers Club."}
+           </div>
         </section>
       </main>
-
-      <Footer />
     </>
-  )
+  );
 }

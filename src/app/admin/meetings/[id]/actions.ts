@@ -21,3 +21,9 @@ export async function deleteRole(assignmentId: string, meetingId: string) {
   revalidatePath(`/admin/meetings/${meetingId}`)
   revalidatePath(`/member/dashboard`)
 }
+
+export async function deleteRoleFromForm(formData: FormData) {
+  const assignmentId = formData.get('assignmentId') as string
+  const meetingId    = formData.get('meetingId') as string
+  await deleteRole(assignmentId, meetingId)
+}

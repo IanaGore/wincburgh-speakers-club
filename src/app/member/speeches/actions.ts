@@ -31,6 +31,15 @@ export async function logSpeech(formData: FormData) {
   revalidatePath('/member/speeches')
 }
 
+export async function deleteSpeech(formData: FormData) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Not logged in')
+  const speechId = formData.get('speechId') as string
+  await supabase.from('speeches').delete().eq('id', speechId).eq('member_id', user.id)
+  revalidatePath('/member/speeches')
+}
+
 export async function addFeedback(formData: FormData) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()

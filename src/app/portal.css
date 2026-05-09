@@ -57,3 +57,25 @@
 .portal-root .btn-secondary:hover {
   background: rgba(255, 255, 255, 0.05);
 }
+
+/* Native <select> options don't inherit background — force dark on portal pages */
+.portal-root select option {
+  background: #1e293b;
+  color: white;
+}
+
+/* Print styles for meeting summary page */
+@media print {
+  .no-print { display: none !important; }
+  .print-only { display: block !important; }
+  body { background: white !important; color: black !important; }
+  nav, footer { display: none !important; }
+  #programme {
+    background: white !important;
+    border: none !important;
+    color: black !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+  }
+  a { color: black !important; text-decoration: none !important; }
+}
