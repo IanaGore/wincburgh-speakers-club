@@ -36,7 +36,7 @@ export default function Footer() {
           <p style={{ fontSize: 14, color: 'var(--ink-3)', marginBottom: 12 }}>
             Occasional updates, no spam.
           </p>
-          <form className="site-footer__newsletter" onSubmit={(e) => e.preventDefault()}>
+          <form className="site-footer__newsletter" action="/contact">
             <input type="email" placeholder="your@email.com" aria-label="Email address" />
             <button type="submit">Join</button>
           </form>
