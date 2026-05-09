@@ -1,0 +1,27 @@
+.photo-slot {
+  background: repeating-linear-gradient(
+    135deg,
+    oklch(0.84 0.045 230) 0 12px,
+    oklch(0.89 0.035 230) 12px 24px
+  );
+  border: 1px solid var(--rule);
+  border-radius: var(--r-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.photo-slot__label {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: oklch(0.40 0.045 235);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  background: var(--paper);
+  padding: 4px 10px;
+  border: 1px solid var(--rule);
+  border-radius: var(--r-pill);
+}
