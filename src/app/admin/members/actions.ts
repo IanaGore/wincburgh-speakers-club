@@ -63,3 +63,23 @@ export async function updateMemberRoles(formData: FormData) {
 
   revalidatePath('/admin/members')
 }
+
+export async function toggleActive(formData: FormData) {
+  await checkAdmin()
+  const supabase = await createClient()
+
+  const memberId = formData.get('member_id') as string
+  const currentStatus = formData.get('is_active') === 'true'
+
+  const { error } = await supabase
+    .from('profiles')
+    .update({ is_active: !currentStatus })
+    .eq('id', memberId)
+
+  if (error) {
+    console.error("Failed to update active status:", error)
+    throw new Error("Failed to update active status")
+  }
+
+  revalidatePath('/admin/members')
+}
