@@ -1,53 +1,84 @@
-import { login } from './actions'
-import Link from 'next/link'
+import { createClient } from '@/utils/supabase/server'
+import Wordmark from '@/components/Wordmark'
+import LoginForm from './LoginForm'
+import './login.css'
 
-export default async function LoginPage({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
-  const resolvedParams = await searchParams;
+function formatDay(dateStr: string) {
+  return new Date(dateStr).toLocaleDateString('en-GB', { day: 'numeric' })
+}
+
+function formatMonth(dateStr: string) {
+  return new Date(dateStr).toLocaleDateString('en-GB', { month: 'short' }).toUpperCase()
+}
+
+function formatDate(dateStr: string) {
+  return new Date(dateStr).toLocaleDateString('en-GB', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+  })
+}
+
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ error?: string }>
+}) {
+  const params = await searchParams
+  const supabase = await createClient()
+
+  const { data: meetings } = await supabase
+    .from('meetings')
+    .select('*')
+    .gte('meeting_date', new Date().toISOString().split('T')[0])
+    .order('meeting_date', { ascending: true })
+    .limit(1)
+
+  const nextMeeting = meetings?.[0]
 
   return (
-    <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: "2rem" }}>
-      <div style={{ width: "100%", maxWidth: "400px", background: "var(--card-bg)", border: "1px solid var(--card-border)", padding: "2.5rem", borderRadius: "16px", backdropFilter: "blur(10px)" }}>
-        <h2 style={{ fontSize: "1.8rem", marginBottom: "2rem", textAlign: "center", fontWeight: "700" }}>Welcome Back</h2>
-        
-        {resolvedParams.error && (
-           <div style={{ padding: "1rem", marginBottom: "1rem", background: "rgba(239, 68, 68, 0.1)", border: "1px solid #ef4444", borderRadius: "8px", color: "#ef4444", textAlign: "center", fontSize: "0.9rem" }}>
-              {resolvedParams.error}
-           </div>
-        )}
+    <div className="login-page">
+      {/* Left: welcome panel */}
+      <div className="login-left">
+        <div className="login-left__content">
+          <Wordmark tone="light" />
 
-        <form style={{ display: "flex", flexDirection: "column", gap: "1.2rem" }}>
-          <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-            <label htmlFor="email" style={{ fontSize: "0.9rem", color: "#94a3b8" }}>Email</label>
-            <input 
-              id="email" 
-              name="email" 
-              type="email" 
-              required 
-              style={{ padding: "0.8rem", borderRadius: "8px", background: "rgba(0,0,0,0.3)", border: "1px solid var(--card-border)", color: "white", outline: "none" }} 
-            />
-          </div>
-          
-          <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem", marginBottom: "0.5rem" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <label htmlFor="password" style={{ fontSize: "0.9rem", color: "#94a3b8" }}>Password</label>
-              <Link href="/forgot-password" style={{ fontSize: "0.8rem", color: "var(--primary)", textDecoration: "none" }}>Forgot Password?</Link>
+          <span className="login-left__eyebrow">Welcome back</span>
+          <h2>Good to see you <em>again.</em></h2>
+          <p className="login-left__sub">
+            Sign in to volunteer for roles, track your pathway, and see what&apos;s coming up.
+          </p>
+
+          {nextMeeting && (
+            <div className="login-meeting-card">
+              <div className="login-meeting-card__badge">
+                <div className="day">{formatDay(nextMeeting.meeting_date)}</div>
+                <div className="month">{formatMonth(nextMeeting.meeting_date)}</div>
+              </div>
+              <div className="login-meeting-card__info">
+                <div className="label">Next meeting</div>
+                <div className="title">{nextMeeting.theme || "Members' Meeting"}</div>
+                <div className="detail">{formatDate(nextMeeting.meeting_date)} · 7pm</div>
+              </div>
             </div>
-            <input 
-              id="password" 
-              name="password" 
-              type="password" 
-              required 
-              style={{ padding: "0.8rem", borderRadius: "8px", background: "rgba(0,0,0,0.3)", border: "1px solid var(--card-border)", color: "white", outline: "none" }} 
-            />
-          </div>
+          )}
 
-          <button formAction={login} className="btn-primary" style={{ width: "100%", padding: "0.8rem" }}>Log in</button>
-          
-          <div style={{ textAlign: "center", marginTop: "1rem" }}>
-              <span style={{ fontSize: "0.85rem", color: "#94a3b8" }}>Don&apos;t have an account? </span>
-              <Link href="/signup" style={{ color: "var(--primary)", fontSize: "0.85rem", fontWeight: "bold", textDecoration: "none" }}>Sign up</Link>
+          <div className="login-left__quote">
+            <blockquote>
+              It is the warmest room in Winchburgh on a Tuesday. Honest.
+            </blockquote>
+            <cite>— Margaret, Club President</cite>
           </div>
-        </form>
+        </div>
+      </div>
+
+      {/* Right: form */}
+      <div className="login-right">
+        <p className="login-right__new-here">
+          New here?{' '}
+          <a href="/contact">Get in touch</a>
+        </p>
+        <LoginForm error={params.error} />
       </div>
     </div>
   )
