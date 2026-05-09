@@ -1,65 +1,89 @@
-import { submitContactForm } from './actions'
 import Navbar from '@/components/Navbar'
+import Footer from '@/components/Footer'
+import EyebrowLabel from '@/components/ui/EyebrowLabel'
+import ContactForm from './ContactForm'
+import './contact.css'
 
-export default async function ContactPage({ searchParams }: { searchParams: Promise<{ success?: string }> }) {
-  const resolvedParams = await searchParams;
+export default async function ContactPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ success?: string }>
+}) {
+  const params = await searchParams
+  const success = params.success === 'true'
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
+    <>
       <Navbar />
-      <main style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: "clamp(2rem, 5vw, 4rem) 5%" }}>
-        <div style={{ width: "100%", maxWidth: "600px", background: "var(--card-bg)", border: "1px solid var(--card-border)", padding: "clamp(1.5rem, 5vw, 3rem)", borderRadius: "16px", backdropFilter: "blur(10px)" }}>
-          <h1 style={{ fontSize: "clamp(2rem, 5vw, 2.5rem)", marginBottom: "1rem", textAlign: "center", fontWeight: "700" }}>Contact Us</h1>
-          <p style={{ textAlign: "center", color: "#94a3b8", marginBottom: "2.5rem", lineHeight: "1.6", fontSize: "clamp(0.9rem, 4vw, 1rem)" }}>
-            Have questions about the Wincburgh Speakers Club? Want to join as a guest? Drop us a message below and the committee will get back to you!
-          </p>
-          
-          {resolvedParams.success && (
-             <div style={{ padding: "1.5rem", marginBottom: "2rem", background: "rgba(16, 185, 129, 0.1)", border: "1px solid #10b981", borderRadius: "8px", color: "#10b981", textAlign: "center", fontWeight: "600" }}>
-                Thanks for reaching out! We have received your message.
-             </div>
-          )}
+      <main>
+        <div className="contact-page">
+          <div className="contact-page__header">
+            <EyebrowLabel color="clay">Get in touch</EyebrowLabel>
+            <h1>We&apos;d love to hear from you.</h1>
+            <p>
+              Questions about the club? Want to come as a guest? Drop us a message and someone from the committee will get back to you — usually within a day or two.
+            </p>
+          </div>
 
-          <form action={submitContactForm} style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
-            <div style={{ display: "flex", gap: "1.5rem", flexWrap: "wrap" }}>
-              <div style={{ flex: 1, minWidth: "200px", display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-                <label htmlFor="name" style={{ fontSize: "0.9rem", color: "#94a3b8" }}>Your Name</label>
-                <input 
-                  id="name" 
-                  name="name" 
-                  type="text" 
-                  required 
-                  style={{ padding: "0.8rem", borderRadius: "8px", background: "rgba(0,0,0,0.3)", border: "1px solid var(--card-border)", color: "white", outline: "none" }} 
-                />
-              </div>
-
-              <div style={{ flex: 1, minWidth: "200px", display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-                <label htmlFor="email" style={{ fontSize: "0.9rem", color: "#94a3b8" }}>Email Address</label>
-                <input 
-                  id="email" 
-                  name="email" 
-                  type="email" 
-                  required 
-                  style={{ padding: "0.8rem", borderRadius: "8px", background: "rgba(0,0,0,0.3)", border: "1px solid var(--card-border)", color: "white", outline: "none" }} 
-                />
-              </div>
-            </div>
-            
-            <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-              <label htmlFor="message" style={{ fontSize: "0.9rem", color: "#94a3b8" }}>Message</label>
-              <textarea 
-                id="message" 
-                name="message" 
-                rows={5}
-                required 
-                style={{ padding: "0.8rem", borderRadius: "8px", background: "rgba(0,0,0,0.3)", border: "1px solid var(--card-border)", color: "white", outline: "none", resize: "vertical" }} 
-              />
+          <div className="contact-layout">
+            {/* Left: form */}
+            <div>
+              <ContactForm success={success} />
             </div>
 
-            <button type="submit" className="btn-primary" style={{ padding: "1rem", fontSize: "1rem", marginTop: "1rem" }}>Send Message</button>
-          </form>
+            {/* Right: info */}
+            <div className="contact-info">
+              <div className="contact-find-us">
+                <h3>Find us</h3>
+                <div className="contact-find-us__detail">
+                  <span>📍</span>
+                  <div>
+                    <strong>Winchburgh Community Centre</strong><br />
+                    Main Street, Winchburgh, EH52 6QF
+                  </div>
+                </div>
+                <div className="contact-find-us__detail">
+                  <span>🕖</span>
+                  <div>1st &amp; 3rd Tuesday · doors 6:30pm</div>
+                </div>
+                <div className="contact-find-us__detail">
+                  <span>🚗</span>
+                  <div>Free parking on-site. Step-free entrance. Hearing loop available.</div>
+                </div>
+              </div>
+
+              <div className="contact-faqs">
+                <h3>Common questions</h3>
+                <div className="contact-faq">
+                  <details>
+                    <summary>Do I need to book?</summary>
+                    <p>No booking needed for your first three visits. Just turn up. If you&apos;re coming for the first time, a quick message so we can look out for you is always nice — but it&apos;s not required.</p>
+                  </details>
+                  <details>
+                    <summary>Will I have to speak?</summary>
+                    <p>Absolutely not. You won&apos;t be put on the spot. Lots of people come along for weeks before they feel ready to take a role. You move at your own pace, full stop.</p>
+                  </details>
+                  <details>
+                    <summary>What does it cost?</summary>
+                    <p>Your first three visits are completely free. After that, membership is £30 per quarter — around £2.50 a week. That covers the room, refreshments, and access to all club resources.</p>
+                  </details>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                <a
+                  href="mailto:hello@winchburghspeakers.co.uk"
+                  style={{ display: 'flex', alignItems: 'center', gap: 10, color: 'var(--ink-2)', fontSize: 15, textDecoration: 'none' }}
+                >
+                  <span>✉️</span>
+                  hello@winchburghspeakers.co.uk
+                </a>
+              </div>
+            </div>
+          </div>
         </div>
       </main>
-    </div>
+      <Footer />
+    </>
   )
 }

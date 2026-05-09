@@ -8,6 +8,7 @@ const AVAILABLE_ROLES = [
   "Social Secretary",
   "Development Manager",
   "Club Secretary",
+  "Treasurer",
   "Vice President",
   "President",
   "Education Director"
@@ -111,6 +112,30 @@ export default async function ProfilePage() {
                 style={{ padding: "0.8rem", borderRadius: "8px", background: "rgba(0,0,0,0.3)", border: "1px solid var(--card-border)", color: "white", outline: "none" }}
               />
               <p style={{ fontSize: "0.78rem", color: "#64748b", margin: 0 }}>Visible to you and club administrators only.</p>
+            </div>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+              <label htmlFor="contact_email" style={{ fontSize: "0.9rem", color: "#94a3b8" }}>Contact Email</label>
+              <input 
+                id="contact_email" 
+                name="contact_email" 
+                type="email"
+                defaultValue={profile?.contact_email || ''} 
+                placeholder="Preferred email address"
+                style={{ padding: "0.8rem", borderRadius: "8px", background: "rgba(0,0,0,0.3)", border: "1px solid var(--card-border)", color: "white", outline: "none" }} 
+              />
+            </div>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+              <label htmlFor="phone" style={{ fontSize: "0.9rem", color: "#94a3b8" }}>Phone Number</label>
+              <input 
+                id="phone" 
+                name="phone" 
+                type="tel"
+                defaultValue={profile?.phone || ''} 
+                placeholder="07000 000000"
+                style={{ padding: "0.8rem", borderRadius: "8px", background: "rgba(0,0,0,0.3)", border: "1px solid var(--card-border)", color: "white", outline: "none" }} 
+              />
             </div>
 
             <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
