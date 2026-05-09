@@ -1,6 +1,7 @@
 import PortalNav from '@/components/PortalNav'
 import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
+import '../portal.css'
 
 export default async function MemberLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient()
@@ -8,7 +9,6 @@ export default async function MemberLayout({ children }: { children: React.React
 
   if (!user) redirect('/login')
 
-  // Check onboarding status
   const { data: profile } = await supabase
     .from('profiles')
     .select('full_name')
@@ -20,7 +20,7 @@ export default async function MemberLayout({ children }: { children: React.React
   }
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
+    <div className="portal-root">
       <PortalNav isAdminView={false} />
       {children}
     </div>
