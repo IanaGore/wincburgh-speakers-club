@@ -6,7 +6,7 @@ import { logout } from '@/app/login/actions'
 
 function activeStyle(pathname: string, href: string) {
   return pathname.startsWith(href)
-    ? { color: 'white', borderBottom: '2px solid var(--primary)', paddingBottom: '2px' }
+    ? { color: 'white', borderBottom: '2px solid var(--clay)', paddingBottom: '2px' }
     : {}
 }
 
@@ -14,12 +14,12 @@ export default function PortalNav({ isAdminView = false }: { isAdminView?: boole
   const pathname = usePathname()
 
   return (
-    <nav className="nav" style={{ background: "rgba(15, 23, 42, 0.95)", position: "sticky", top: 0, zIndex: 50 }}>
-      <div className="nav-logo" style={{ fontSize: "1.2rem" }}>
+    <nav className="portal-nav" style={{ background: "var(--paper)", position: "sticky", top: 0, zIndex: 50, borderBottom: '1px solid var(--rule)' }}>
+      <div className="portal-nav__logo" style={{ fontSize: "1.2rem" }}>
         <Link href="/">🎙️ Winchburgh <span>Speakers Club</span></Link>
-        <span style={{ color: "#64748b", marginLeft: "0.5rem", fontWeight: "400", fontSize: "1rem" }}>| {isAdminView ? 'Admin' : 'Member'}</span>
+        <span style={{ color: "var(--ink-3)", marginLeft: "0.5rem", fontWeight: "400", fontSize: "1rem" }}>| {isAdminView ? 'Admin' : 'Member'}</span>
       </div>
-      <div className="nav-links">
+      <div className="portal-nav__links">
         {isAdminView ? (
           <>
             <Link href="/admin/meetings" style={activeStyle(pathname, '/admin/meetings')}>Sessions</Link>
@@ -28,14 +28,14 @@ export default function PortalNav({ isAdminView = false }: { isAdminView?: boole
             <Link href="/admin/news" style={activeStyle(pathname, '/admin/news')}>News</Link>
             <Link href="/admin/messages" style={activeStyle(pathname, '/admin/messages')}>Messages</Link>
             <Link href="/admin/settings" style={activeStyle(pathname, '/admin/settings')}>Settings</Link>
-            <Link href="/member/dashboard" style={{ color: "var(--primary)", marginLeft: "1rem", fontWeight: "bold" }}>Member View →</Link>
+            <Link href="/member/dashboard" style={{ color: "var(--clay)", marginLeft: "1rem", fontWeight: "bold" }}>Member View →</Link>
           </>
         ) : (
           <>
             <Link href="/member/dashboard" style={activeStyle(pathname, '/member/dashboard')}>Dashboard</Link>
             <Link href="/member/profile" style={activeStyle(pathname, '/member/profile')}>Profile</Link>
             <Link href="/member/speeches" style={activeStyle(pathname, '/member/speeches')}>Speeches</Link>
-            <Link href="/admin/meetings" style={{ color: "var(--primary)", marginLeft: "1rem", fontWeight: "bold" }}>Admin Tools →</Link>
+            <Link href="/admin/meetings" style={{ color: "var(--clay)", marginLeft: "1rem", fontWeight: "bold" }}>Admin Tools →</Link>
           </>
         )}
         <form action={logout}>
