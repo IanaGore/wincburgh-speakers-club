@@ -77,11 +77,13 @@ export default async function Home() {
 
           <div className="home-hero__visual">
             <PhotoSlot
+              mediaKey="homepage_hero"
               label="member at lectern"
               className="home-hero__photo-large"
               style={{ width: '75%', height: '80%', top: 0, left: 0, position: 'absolute' }}
             />
             <PhotoSlot
+              mediaKey="homepage_hero_secondary"
               label="audience"
               className="home-hero__photo-small"
               style={{ width: '55%', height: '55%', bottom: 0, right: 0, position: 'absolute', background: 'oklch(0.72 0.09 200 / 0.25)' }}

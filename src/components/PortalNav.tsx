@@ -16,7 +16,7 @@ export default function PortalNav({ isAdminView = false }: { isAdminView?: boole
   return (
     <nav className="portal-nav" style={{ background: "var(--paper)", position: "sticky", top: 0, zIndex: 50, borderBottom: '1px solid var(--rule)' }}>
       <div className="portal-nav__logo" style={{ fontSize: "1.2rem" }}>
-        <Link href="/">🎙️ Winchburgh <span>Speakers Club</span></Link>
+        <Link href={isAdminView ? '/admin/meetings' : '/member/dashboard'}>🎙️ Winchburgh <span>Speakers Club</span></Link>
         <span style={{ color: "var(--ink-3)", marginLeft: "0.5rem", fontWeight: "400", fontSize: "1rem" }}>| {isAdminView ? 'Admin' : 'Member'}</span>
       </div>
       <div className="portal-nav__links">
@@ -27,6 +27,7 @@ export default function PortalNav({ isAdminView = false }: { isAdminView?: boole
             <Link href="/admin/payments" style={activeStyle(pathname, '/admin/payments')}>Payments</Link>
             <Link href="/admin/news" style={activeStyle(pathname, '/admin/news')}>News</Link>
             <Link href="/admin/enquiries" style={activeStyle(pathname, '/admin/enquiries')}>Enquiries</Link>
+            <Link href="/admin/media" style={activeStyle(pathname, '/admin/media')}>Media</Link>
             <Link href="/admin/settings" style={activeStyle(pathname, '/admin/settings')}>Settings</Link>
             <Link href="/member/dashboard" style={{ color: "var(--clay)", marginLeft: "1rem", fontWeight: "bold" }}>Member View →</Link>
           </>
