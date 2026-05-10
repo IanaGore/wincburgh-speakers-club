@@ -173,7 +173,7 @@ export default async function MemberDashboard() {
         <span className="wsc-eyebrow" style={{ color: 'var(--gold)' }}>{dateStr}</span>
         <h1>
           Good {getTimeOfDay()},{' '}
-          <em style={{ fontStyle: 'italic', color: 'oklch(0.55 0.155 60)' }}>
+          <em className="dash-greeting-em">
             {profile?.first_name ?? (profile?.full_name?.split(' ')[0]) ?? 'there'}
           </em>.
         </h1>
@@ -186,7 +186,7 @@ export default async function MemberDashboard() {
           {nextMeeting ? (
             <div className="dash-next">
               <div className="dash-next-header">
-                <span className="wsc-eyebrow" style={{ color: 'oklch(0.68 0.030 235)' }}>Next session</span>
+                <span className="wsc-eyebrow dash-eyebrow-ice">Next session</span>
                 <div className="dash-next-meta">
                   <h2 className="dash-next-title">
                     {new Date(nextMeeting.meeting_date).toLocaleDateString('en-GB', {

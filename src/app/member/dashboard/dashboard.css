@@ -52,7 +52,7 @@
 .dash-next-title {
   font-family: var(--serif);
   font-size: 24px;
-  color: white;
+  color: oklch(1 0 0);
   margin: 0;
 }
 
@@ -85,7 +85,7 @@
   cursor: pointer;
   transition: all 0.15s;
 }
-.dash-meeting-tab--active { background: oklch(0.97 0.01 80 / 0.12); border-color: oklch(0.97 0.01 80 / 0.4); color: white; }
+.dash-meeting-tab--active { background: oklch(0.97 0.01 80 / 0.12); border-color: oklch(0.97 0.01 80 / 0.4); color: oklch(1 0 0); }
 
 /* Role list */
 .dash-roles { display: flex; flex-direction: column; gap: 2px; position: relative; z-index: 1; }
@@ -135,12 +135,12 @@
   border-radius: var(--r-md);
   background: oklch(1 0 0 / 0.06);
   border: 1px solid oklch(1 0 0 / 0.15);
-  color: white;
+  color: oklch(1 0 0);
   font-family: var(--mono);
   font-size: 12px;
   width: 100%;
 }
-.dash-select option { background: var(--night-2); color: white; }
+.dash-select option { background: var(--night-2); color: oklch(1 0 0); }
 
 .dash-speech-expand {
   background: oklch(0 0 0 / 0.3);
@@ -165,7 +165,7 @@
   border-radius: var(--r-md);
   background: oklch(1 0 0 / 0.06);
   border: 1px solid oklch(1 0 0 / 0.15);
-  color: white;
+  color: oklch(1 0 0);
   font-family: var(--sans);
   font-size: 13px;
   width: 100%;
@@ -261,7 +261,7 @@
   position: fixed;
   bottom: 24px; left: 50%; transform: translateX(-50%);
   background: var(--night);
-  color: white;
+  color: oklch(1 0 0);
   padding: 14px 24px;
   border-radius: var(--r-pill);
   font-size: 14px;
@@ -271,6 +271,9 @@
   animation: wscFade 0.2s ease;
 }
 @keyframes wscFade { from { opacity: 0; transform: translateX(-50%) translateY(8px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+
+.dash-greeting-em { color: oklch(0.55 0.155 60); font-style: italic; }
+.dash-eyebrow-ice { color: oklch(0.68 0.030 235); }
 
 @media (max-width: 1023px) {
   .dashboard-grid { grid-template-columns: 1fr; }
