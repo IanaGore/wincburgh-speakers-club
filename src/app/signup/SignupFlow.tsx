@@ -9,9 +9,28 @@ type Meeting = { id: string; meeting_date: string; theme: string | null; meeting
 const HEARD_OPTIONS = ['A friend or family member', 'Social media', 'Local noticeboard', 'Search engine', 'Walked past', 'Other']
 const HOPE_OPTIONS = ['Build my confidence', 'Get better at work presentations', 'Meet new people in Winchburgh', 'Practice for a wedding / event', 'Have a go at competitions', 'Just have a fun Tuesday night']
 
-function formatDay(d: string) { return new Date(d).toLocaleDateString('en-GB', { day: 'numeric' }) }
-function formatMonth(d: string) { return new Date(d).toLocaleDateString('en-GB', { month: 'short' }).toUpperCase() }
-function formatFullDate(d: string) { return new Date(d).toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' }) }
+function formatDay(d: string) {
+  const [,, day] = d.split('-')
+  return String(parseInt(day, 10))
+}
+function formatMonth(d: string) {
+  const months = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC']
+  return months[parseInt(d.split('-')[1], 10) - 1]
+}
+function formatFullDate(d: string) {
+  const [year, month, day] = d.split('-').map(Number)
+  const date = new Date(year, month - 1, day)
+  return date.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' })
+}
+
+function calendarUrl(meeting: Meeting) {
+  const date = meeting.meeting_date.replace(/-/g, '')
+  const start = `${date}T190000`
+  const end = `${date}T210000`
+  const title = encodeURIComponent(`Winchburgh Speakers Club — ${meeting.theme || 'Open session'}`)
+  const location = encodeURIComponent('Winchburgh Community Centre, Main Street')
+  return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${start}/${end}&location=${location}`
+}
 
 type Step = 1 | 2 | 3 | 4
 
@@ -20,16 +39,16 @@ export default function SignupFlow({ meetings }: { meetings: Meeting[] }) {
   const [submitting, setSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
 
-  const [form, setForm] = useState<SignupData>({
+  const [form, setForm] = useState<Omit<SignupData, 'experience'> & { experience: '' | 'none' | 'some' | 'lots' }>({
     firstName: '', lastName: '', email: '', phone: '', heard: '',
-    experience: 'none', hopes: [], meetingId: '', notes: '',
+    experience: '', hopes: [], meetingId: '', notes: '',
   })
 
-  const set = (k: keyof SignupData, v: string | string[]) => setForm(f => ({ ...f, [k]: v }))
+  const set = (k: keyof typeof form, v: string | string[]) => setForm(f => ({ ...f, [k]: v }))
 
   const validEmail = /\S+@\S+\.\S+/.test(form.email)
   const step1Valid = form.firstName.trim().length > 0 && validEmail
-  const step2Valid = (form.experience as string) !== '' && form.hopes.length > 0
+  const step2Valid = form.experience !== '' && form.hopes.length > 0
   const step3Valid = form.meetingId !== ''
 
   const selectedMeeting = meetings.find(m => m.id === form.meetingId)
@@ -38,7 +57,7 @@ export default function SignupFlow({ meetings }: { meetings: Meeting[] }) {
     setSubmitting(true)
     setSubmitError(null)
     try {
-      await submitSignup(form)
+      await submitSignup({ ...form, experience: form.experience as 'none' | 'some' | 'lots' })
       setStep(4)
     } catch (e) {
       setSubmitError(e instanceof Error ? e.message : 'Something went wrong. Please try again.')
@@ -70,20 +89,20 @@ export default function SignupFlow({ meetings }: { meetings: Meeting[] }) {
             <div className="signup-form__row">
               <div className="input-field">
                 <label className="wsc-label" htmlFor="firstName">First name <span style={{color:'var(--clay)'}}>*</span></label>
-                <input id="firstName" className="wsc-input" value={form.firstName} onChange={e => set('firstName', e.target.value)} placeholder="Your first name" required />
+                <input id="firstName" className="wsc-input" value={form.firstName} onChange={e => set('firstName', e.target.value)} placeholder="Your first name" autoComplete="given-name" required />
               </div>
               <div className="input-field">
                 <label className="wsc-label" htmlFor="lastName">Last name <span style={{color:'var(--ink-4)'}}>(optional)</span></label>
-                <input id="lastName" className="wsc-input" value={form.lastName} onChange={e => set('lastName', e.target.value)} placeholder="Your last name" />
+                <input id="lastName" className="wsc-input" value={form.lastName} onChange={e => set('lastName', e.target.value)} placeholder="Your last name" autoComplete="family-name" />
               </div>
             </div>
             <div className="input-field">
               <label className="wsc-label" htmlFor="email">Email address <span style={{color:'var(--clay)'}}>*</span></label>
-              <input id="email" type="email" className="wsc-input" value={form.email} onChange={e => set('email', e.target.value)} placeholder="you@example.com" required />
+              <input id="email" type="email" className="wsc-input" value={form.email} onChange={e => set('email', e.target.value)} placeholder="you@example.com" autoComplete="email" required />
             </div>
             <div className="input-field">
               <label className="wsc-label" htmlFor="phone">Phone <span style={{color:'var(--ink-4)'}}>(optional)</span></label>
-              <input id="phone" type="tel" className="wsc-input" value={form.phone} onChange={e => set('phone', e.target.value)} placeholder="07700 000000" />
+              <input id="phone" type="tel" className="wsc-input" value={form.phone} onChange={e => set('phone', e.target.value)} placeholder="07700 000000" autoComplete="tel" />
             </div>
             <div>
               <p className="wsc-label" style={{marginBottom:12}}>How did you hear about us?</p>
@@ -196,7 +215,7 @@ export default function SignupFlow({ meetings }: { meetings: Meeting[] }) {
           <EyebrowLabel tone="gold">You&apos;re booked in</EyebrowLabel>
           <h2>Brilliant, <em style={{fontStyle:'italic',color:'oklch(0.55 0.155 60)'}}>{form.firstName}</em>. We&apos;ll see you then.</h2>
           <p style={{color:'var(--ink-2)',maxWidth:480}}>
-            We&apos;ve sent a confirmation to <strong>{form.email}</strong>. Margaret, our president, will drop you a quick hello in the next day or two.
+            We&apos;ll be in touch soon at <strong>{form.email}</strong>. Margaret, our president, will drop you a quick hello in the next day or two.
           </p>
           {selectedMeeting && (
             <div className="signup-confirmation">
@@ -212,7 +231,7 @@ export default function SignupFlow({ meetings }: { meetings: Meeting[] }) {
                 </div>
               </div>
               <div style={{display:'flex',gap:12,flexWrap:'wrap'}}>
-                <Button>Add to calendar</Button>
+                <Button href={calendarUrl(selectedMeeting)}>Add to calendar</Button>
                 <Button variant="ghost-light" href="https://maps.google.com/?q=Winchburgh+Community+Centre">Get directions</Button>
               </div>
             </div>
