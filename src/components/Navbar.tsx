@@ -1,42 +1,35 @@
+'use client'
+import { useState } from 'react'
 import Link from 'next/link'
-import { createClient } from '@/utils/supabase/server'
 import Wordmark from './Wordmark'
+import { Menu, X } from 'lucide-react'
 import './Navbar.css'
 
-export default async function Navbar() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+export default function Navbar() {
+  const [open, setOpen] = useState(false)
 
   return (
-    <header>
-      <div className="site-ribbon">
+    <header className="navbar-wrap">
+      <div className="nav-ribbon">
         <span>Tuesday meetings · 7pm · Community Centre, Main Street</span>
         <span>First three visits free</span>
       </div>
-      <nav className="site-nav">
+      <nav className="navbar">
         <Wordmark />
-        <ul className="site-nav__links">
-          <li><Link href="/#about" className="site-nav__link">About</Link></li>
-          <li><Link href="/#meetings" className="site-nav__link">Meetings</Link></li>
-          <li><Link href="/news" className="site-nav__link">News</Link></li>
-          <li><Link href="/contact" className="site-nav__link">Contact</Link></li>
+        <button
+          className="navbar__hamburger"
+          aria-label={open ? 'Close menu' : 'Open menu'}
+          aria-expanded={open}
+          onClick={() => setOpen(o => !o)}
+        >
+          {open ? <X size={22} /> : <Menu size={22} />}
+        </button>
+        <ul className={`navbar__links${open ? ' navbar__links--open' : ''}`}>
+          {[['/', 'Home'], ['/about', 'About'], ['/meetings', 'Meetings'], ['/news', 'News'], ['/contact', 'Contact']].map(([href, label]) => (
+            <li key={href}><Link href={href} onClick={() => setOpen(false)}>{label}</Link></li>
+          ))}
         </ul>
-        <div className="site-nav__actions">
-          {user ? (
-            <Link href="/member/dashboard" className="wsc-btn wsc-btn-ghost wsc-btn-sm">
-              My dashboard
-            </Link>
-          ) : (
-            <>
-              <Link href="/login" className="wsc-btn wsc-btn-ghost wsc-btn-sm">
-                Member login
-              </Link>
-              <Link href="/contact" className="wsc-btn wsc-btn-primary wsc-btn-sm">
-                Visit a meeting
-              </Link>
-            </>
-          )}
-        </div>
+        <Link href="/login" className="navbar__login wsc-btn wsc-btn-sm">Member login</Link>
       </nav>
     </header>
   )
