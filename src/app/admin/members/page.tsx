@@ -58,7 +58,7 @@ function MemberRow({ profile }: { profile: any }) {
             {AVAILABLE_ROLES.map(role => {
               const userRoles = profile.club_roles || []
               return (
-                <label key={role} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'var(--paper)', padding: '0.5rem 0.8rem', borderRadius: '8px', border: '1px solid var(--rule)', cursor: 'pointer', fontSize: '0.85rem', color: 'var(--ink-2)' }}>
+                <label key={role} className="wsc-label" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'var(--paper)', padding: '0.5rem 0.8rem', borderRadius: '8px', border: '1px solid var(--rule)', cursor: 'pointer', fontSize: '0.85rem', color: 'var(--ink-2)' }}>
                   <input
                     type="checkbox"
                     name="club_roles"

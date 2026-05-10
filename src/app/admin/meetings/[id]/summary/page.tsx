@@ -155,20 +155,8 @@ export default async function MeetingSummaryPage({ params }: { params: Promise<{
                 <input type="hidden" name="attended" value={attended ? 'true' : 'false'} />
                 <button
                   type="submit"
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    padding: '0.7rem 1rem',
-                    borderRadius: '10px',
-                    border: `1px solid ${attended ? 'var(--clay)' : 'var(--rule)'}`,
-                    background: attended ? 'var(--clay-soft)' : 'var(--paper)',
-                    cursor: 'pointer',
-                    color: 'var(--ink)',
-                    textAlign: 'left',
-                    transition: 'all 0.15s',
-                    fontFamily: 'var(--sans)',
-                  }}
+                  className={`wsc-btn wsc-btn--ghost${attended ? ' wsc-btn--active' : ''}`}
+                  style={attended ? { borderColor: 'var(--clay)', background: 'var(--clay-soft)' } : undefined}
                 >
                   <span style={{ fontSize: '0.9rem', fontWeight: 500 }}>{member.full_name}</span>
                   <span style={{ fontSize: '0.8rem', color: attended ? 'var(--clay-deep)' : 'var(--ink-4)', fontWeight: 600 }}>
