@@ -3,7 +3,16 @@
 import { useState } from 'react'
 import { updateSpeechDetails, dropRole } from './actions'
 
-export default function EditSpeechForm({ assignment, dark = false }: { assignment: any; dark?: boolean }) {
+interface Assignment {
+  id: string
+  role_name: string
+  member_id: string | null
+  speech_title?: string | null
+  speech_level?: string | null
+  speech_length?: string | null
+}
+
+export default function EditSpeechForm({ assignment, dark = false }: { assignment: Assignment; dark?: boolean }) {
   const [isEditing, setIsEditing] = useState(false)
 
   const selectClass = dark ? 'dash-select' : 'wsc-input'

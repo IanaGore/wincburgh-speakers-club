@@ -2,19 +2,30 @@
 
 import { useState } from 'react'
 
+interface Assignment {
+  id: string
+  role_name: string
+  member_id: string | null
+  speech_title?: string | null
+  speech_level?: string | null
+  speech_length?: string | null
+}
+
+interface VolunteerFormProps {
+  assignment: Assignment
+  actionFn: (formData: FormData) => Promise<void>
+  members: { id: string; full_name: string }[]
+  meetingId: string
+  dark?: boolean
+}
+
 export default function VolunteerForm({
   assignment,
   actionFn,
   members,
   meetingId,
   dark = false,
-}: {
-  assignment: any
-  actionFn: any
-  members: { id: string; full_name: string }[]
-  meetingId: string
-  dark?: boolean
-}) {
+}: VolunteerFormProps) {
   const [showSpeechForm, setShowSpeechForm] = useState(false)
   const [showAssignOther, setShowAssignOther] = useState(false)
 

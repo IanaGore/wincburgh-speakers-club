@@ -9,6 +9,8 @@
   gap: 32px;
   align-items: start;
 }
+.dashboard-main { min-width: 0; }
+.dashboard-sidebar { min-width: 0; }
 
 /* Next meeting card */
 .dash-next {

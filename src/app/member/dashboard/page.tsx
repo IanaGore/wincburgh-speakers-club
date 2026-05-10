@@ -4,16 +4,10 @@ import Link from 'next/link'
 import { volunteerForRole, dropRole } from './actions'
 import VolunteerForm from './VolunteerForm'
 import EditSpeechForm from './EditSpeechForm'
+import DashboardGreeting from './DashboardGreeting'
 import './dashboard.css'
 
 type Member = { id: string; full_name: string }
-
-function getTimeOfDay() {
-  const h = new Date().getHours()
-  if (h < 12) return 'morning'
-  if (h < 18) return 'afternoon'
-  return 'evening'
-}
 
 function getRoleNumber(name: string): number | null {
   const m = name.match(/(\d+)$/)
@@ -110,7 +104,7 @@ export default async function MemberDashboard() {
   // Profile
   const { data: profile } = await supabase
     .from('profiles')
-    .select('*')
+    .select('full_name, pathway')
     .eq('id', user.id)
     .single()
 
@@ -162,22 +156,12 @@ export default async function MemberDashboard() {
   const filledNext = nextAssignments.filter((a: any) => a.member_id).length
   const totalNext  = nextAssignments.length
 
-  const dateStr = new Date().toLocaleDateString('en-GB', {
-    weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
-  })
+  const firstName = profile?.full_name?.split(' ')[0] ?? 'there'
 
   return (
     <div className="dashboard-page">
       {/* Greeting */}
-      <div className="dashboard-greeting">
-        <span className="wsc-eyebrow" style={{ color: 'var(--gold)' }}>{dateStr}</span>
-        <h1>
-          Good {getTimeOfDay()},{' '}
-          <em className="dash-greeting-em">
-            {profile?.first_name ?? (profile?.full_name?.split(' ')[0]) ?? 'there'}
-          </em>.
-        </h1>
-      </div>
+      <DashboardGreeting firstName={firstName} />
 
       <div className="dashboard-grid">
         {/* Main column */}
