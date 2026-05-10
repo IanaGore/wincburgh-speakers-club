@@ -1,14 +1,24 @@
 'use server'
 import { createClient } from '@/utils/supabase/server'
+import { createClient as createAdminClient } from '@supabase/supabase-js'
 import { revalidatePath } from 'next/cache'
 
 const BUCKET = 'site-media'
 const MAX_BYTES = 5 * 1024 * 1024 // 5 MB
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp']
 
-export async function uploadMediaPhoto(formData: FormData) {
-  const supabase = await createClient()
+// Service role client bypasses Storage RLS — only used after admin check below
+function getAdminClient() {
+  return createAdminClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    { auth: { persistSession: false } }
+  )
+}
 
+export async function uploadMediaPhoto(formData: FormData) {
+  // Auth check with user client
+  const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('Not authenticated')
   const { data: profile } = await supabase.from('profiles').select('is_admin').eq('id', user.id).single()
@@ -27,7 +37,10 @@ export async function uploadMediaPhoto(formData: FormData) {
   const storagePath = `${key}.${ext}`
   const buffer = Buffer.from(await file.arrayBuffer())
 
-  const { error: uploadError } = await supabase.storage
+  // Use service role for storage + DB writes — bypasses Storage RLS
+  const admin = getAdminClient()
+
+  const { error: uploadError } = await admin.storage
     .from(BUCKET)
     .upload(storagePath, buffer, { contentType: file.type, upsert: true })
   if (uploadError) {
@@ -35,7 +48,7 @@ export async function uploadMediaPhoto(formData: FormData) {
     throw new Error(`Storage: ${uploadError.message}`)
   }
 
-  const { error: dbError } = await supabase.from('media').upsert({
+  const { error: dbError } = await admin.from('media').upsert({
     key,
     storage_path: storagePath,
     alt_text: altText,
