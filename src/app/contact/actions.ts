@@ -1,23 +1,16 @@
 'use server'
 
-import { createClient } from '@/utils/supabase/server'
-import { redirect } from 'next/navigation'
-
-export async function submitContactForm(formData: FormData) {
-  const supabase = await createClient()
-
+export async function sendContactMessage(
+  _prevState: { success: boolean; error: string | null },
+  formData: FormData
+): Promise<{ success: boolean; error: string | null }> {
   const name = formData.get('name') as string
   const email = formData.get('email') as string
+  const topic = formData.get('topic') as string
   const message = formData.get('message') as string
+  const smsOk = formData.get('sms_ok') === 'on'
 
-  const { error } = await supabase
-    .from('contact_messages')
-    .insert([{ name, email, message }])
+  console.log('[Contact] New message:', { name, email, topic, message, smsOk })
 
-  if (error) {
-    console.error("Contact Form Error:", error)
-    // Silently fail for the user, but we log it
-  }
-
-  redirect('/contact?success=true')
+  return { success: true, error: null }
 }
