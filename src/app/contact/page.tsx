@@ -1,89 +1,52 @@
-import Navbar from '@/components/Navbar'
-import Footer from '@/components/Footer'
-import EyebrowLabel from '@/components/ui/EyebrowLabel'
 import ContactForm from './ContactForm'
+import EyebrowLabel from '@/components/ui/EyebrowLabel'
 import './contact.css'
 
-export default async function ContactPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ success?: string }>
-}) {
-  const params = await searchParams
-  const success = params.success === 'true'
-
+export default function ContactPage() {
   return (
-    <>
-      <Navbar />
-      <main>
-        <div className="contact-page">
-          <div className="contact-page__header">
-            <EyebrowLabel tone="clay">Get in touch</EyebrowLabel>
-            <h1>We&apos;d love to hear from you.</h1>
-            <p>
-              Questions about the club? Want to come as a guest? Drop us a message and someone from the committee will get back to you — usually within a day or two.
-            </p>
-          </div>
-
-          <div className="contact-layout">
-            {/* Left: form */}
-            <div>
-              <ContactForm success={success} />
-            </div>
-
-            {/* Right: info */}
-            <div className="contact-info">
-              <div className="contact-find-us">
-                <h3>Find us</h3>
-                <div className="contact-find-us__detail">
-                  <span>📍</span>
-                  <div>
-                    <strong>Winchburgh Community Centre</strong><br />
-                    Main Street, Winchburgh, EH52 6QF
-                  </div>
-                </div>
-                <div className="contact-find-us__detail">
-                  <span>🕖</span>
-                  <div>1st &amp; 3rd Tuesday · doors 6:30pm</div>
-                </div>
-                <div className="contact-find-us__detail">
-                  <span>🚗</span>
-                  <div>Free parking on-site. Step-free entrance. Hearing loop available.</div>
-                </div>
-              </div>
-
-              <div className="contact-faqs">
-                <h3>Common questions</h3>
-                <div className="contact-faq">
-                  <details>
-                    <summary>Do I need to book?</summary>
-                    <p>No booking needed for your first three visits. Just turn up. If you&apos;re coming for the first time, a quick message so we can look out for you is always nice — but it&apos;s not required.</p>
-                  </details>
-                  <details>
-                    <summary>Will I have to speak?</summary>
-                    <p>Absolutely not. You won&apos;t be put on the spot. Lots of people come along for weeks before they feel ready to take a role. You move at your own pace, full stop.</p>
-                  </details>
-                  <details>
-                    <summary>What does it cost?</summary>
-                    <p>Your first three visits are completely free. After that, membership is £30 per quarter — around £2.50 a week. That covers the room, refreshments, and access to all club resources.</p>
-                  </details>
-                </div>
-              </div>
-
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                <a
-                  href="mailto:hello@winchburghspeakers.co.uk"
-                  style={{ display: 'flex', alignItems: 'center', gap: 10, color: 'var(--ink-2)', fontSize: 15, textDecoration: 'none' }}
-                >
-                  <span>✉️</span>
-                  hello@winchburghspeakers.co.uk
-                </a>
-              </div>
-            </div>
-          </div>
+    <main className="contact-page">
+      <div className="contact-inner">
+        <div className="contact-left">
+          <EyebrowLabel tone="clay">Get in touch</EyebrowLabel>
+          <h1>We&apos;d love to hear from you</h1>
+          <p className="contact-intro">Whether you&apos;re curious about visiting, have a question, or just want to say hello — drop us a message and we&apos;ll get back to you soon.</p>
+          <ContactForm />
         </div>
-      </main>
-      <Footer />
-    </>
+        <aside className="contact-right">
+          <div className="contact-find-us wsc-card" id="find-us">
+            <EyebrowLabel>Find us</EyebrowLabel>
+            <h2>Winchburgh Community Centre</h2>
+            <address>
+              <p>Main Street, Winchburgh</p>
+              <p>EH52 6RP</p>
+            </address>
+            <p className="contact-find-us__access">
+              <strong>Parking:</strong> Free parking on site<br />
+              <strong>Step-free:</strong> Yes — full wheelchair access<br />
+              <strong>Hearing loop:</strong> Available in the main hall
+            </p>
+            <a href="https://maps.google.com/?q=Winchburgh+Community+Centre" target="_blank" rel="noopener noreferrer" className="wsc-btn wsc-btn-ghost wsc-btn-sm contact-find-us__link">
+              Get directions
+            </a>
+          </div>
+
+          <div className="contact-faqs">
+            <EyebrowLabel>Common questions</EyebrowLabel>
+            <details className="contact-faq">
+              <summary>Do I need to book?</summary>
+              <p>No booking needed for your first three visits. Just turn up. If you&apos;d like to let us know you&apos;re coming, you can use the form above — but it&apos;s not required.</p>
+            </details>
+            <details className="contact-faq">
+              <summary>Will I have to speak?</summary>
+              <p>Not on your first visit — or your second, or your third. You&apos;re welcome to just watch until you feel ready. Nobody will put you on the spot.</p>
+            </details>
+            <details className="contact-faq">
+              <summary>What does it cost?</summary>
+              <p>Your first three visits are completely free. After that, membership is £3 per meeting. No hidden costs, no annual fee.</p>
+            </details>
+          </div>
+        </aside>
+      </div>
+    </main>
   )
 }
