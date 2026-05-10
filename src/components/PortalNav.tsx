@@ -23,11 +23,10 @@ export default function PortalNav({ isAdminView = false }: { isAdminView?: boole
         {isAdminView ? (
           <>
             <Link href="/admin/meetings" style={activeStyle(pathname, '/admin/meetings')}>Sessions</Link>
-            <Link href="/admin/signups" style={activeStyle(pathname, '/admin/signups')}>RSVPs</Link>
             <Link href="/admin/members" style={activeStyle(pathname, '/admin/members')}>Members</Link>
             <Link href="/admin/payments" style={activeStyle(pathname, '/admin/payments')}>Payments</Link>
             <Link href="/admin/news" style={activeStyle(pathname, '/admin/news')}>News</Link>
-            <Link href="/admin/messages" style={activeStyle(pathname, '/admin/messages')}>Messages</Link>
+            <Link href="/admin/enquiries" style={activeStyle(pathname, '/admin/enquiries')}>Enquiries</Link>
             <Link href="/admin/settings" style={activeStyle(pathname, '/admin/settings')}>Settings</Link>
             <Link href="/member/dashboard" style={{ color: "var(--clay)", marginLeft: "1rem", fontWeight: "bold" }}>Member View →</Link>
           </>
