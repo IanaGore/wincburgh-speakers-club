@@ -1,87 +1,35 @@
 'use client'
+import { useState, InputHTMLAttributes } from 'react'
+import { Eye, EyeOff } from 'lucide-react'
 
-import { useState } from 'react'
-
-interface InputProps {
+interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
+  label: string
   id: string
-  name: string
-  type?: 'text' | 'email' | 'password' | 'tel' | 'checkbox'
-  label?: string
-  placeholder?: string
-  required?: boolean
-  defaultValue?: string
-  autoComplete?: string
+  error?: string
 }
 
-export default function Input({
-  id,
-  name,
-  type = 'text',
-  label,
-  placeholder,
-  required,
-  defaultValue,
-  autoComplete,
-}: InputProps) {
+export default function Input({ label, id, error, type, ...props }: InputProps) {
   const [showPw, setShowPw] = useState(false)
-
-  if (type === 'checkbox') {
-    return (
-      <label style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}>
-        <input
-          id={id}
-          name={name}
-          type="checkbox"
-          style={{ accentColor: 'var(--gold)', width: 18, height: 18 }}
-        />
-        <span className="wsc-label" style={{ margin: 0, cursor: 'pointer' }}>
-          {label}
-        </span>
-      </label>
-    )
-  }
+  const isPassword = type === 'password'
+  const inputType = isPassword ? (showPw ? 'text' : 'password') : type
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-      {label && (
-        <label htmlFor={id} className="wsc-label">
-          {label}
-        </label>
-      )}
+    <div className="input-field">
+      <label className="wsc-label" htmlFor={id}>{label}</label>
       <div style={{ position: 'relative' }}>
-        <input
-          id={id}
-          name={name}
-          type={type === 'password' ? (showPw ? 'text' : 'password') : type}
-          placeholder={placeholder}
-          required={required}
-          defaultValue={defaultValue}
-          autoComplete={autoComplete}
-          className="wsc-input"
-        />
-        {type === 'password' && (
+        <input id={id} type={inputType} className="wsc-input" {...props} />
+        {isPassword && (
           <button
             type="button"
-            onClick={() => setShowPw((v) => !v)}
+            className="input-field__eye"
             aria-label={showPw ? 'Hide password' : 'Show password'}
-            style={{
-              position: 'absolute',
-              right: 14,
-              top: '50%',
-              transform: 'translateY(-50%)',
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              color: 'var(--ink-3)',
-              fontSize: 18,
-              lineHeight: 1,
-              padding: 4,
-            }}
+            onClick={() => setShowPw(v => !v)}
           >
-            {showPw ? '🙈' : '👁'}
+            {showPw ? <EyeOff size={18} /> : <Eye size={18} />}
           </button>
         )}
       </div>
+      {error && <p className="input-field__error">{error}</p>}
     </div>
   )
 }

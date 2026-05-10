@@ -1,67 +1,34 @@
+import { ReactNode } from 'react'
 import Link from 'next/link'
 
-type ButtonVariant = 'primary' | 'ghost' | 'ghost-light' | 'sm'
+type ButtonVariant = 'primary' | 'ghost' | 'ghost-light' | 'text'
+type ButtonSize = 'default' | 'sm'
 
 interface ButtonProps {
-  children: React.ReactNode
-  variant?: ButtonVariant | ButtonVariant[]
+  children: ReactNode
+  variant?: ButtonVariant
+  size?: ButtonSize
   href?: string
   onClick?: () => void
   type?: 'button' | 'submit' | 'reset'
   disabled?: boolean
   className?: string
-  style?: React.CSSProperties
-  formAction?: (formData: FormData) => void | Promise<void>
 }
 
 export default function Button({
-  children,
-  variant = 'primary',
-  href,
-  onClick,
-  type = 'button',
-  disabled,
-  className = '',
-  style,
-  formAction,
+  children, variant = 'primary', size = 'default',
+  href, onClick, type = 'button', disabled, className = ''
 }: ButtonProps) {
-  const variants = Array.isArray(variant) ? variant : [variant]
   const classes = [
     'wsc-btn',
-    ...variants.map((v) =>
-      v === 'primary'
-        ? 'wsc-btn-primary'
-        : v === 'ghost'
-          ? 'wsc-btn-ghost'
-          : v === 'ghost-light'
-            ? 'wsc-btn-ghost-light'
-            : v === 'sm'
-              ? 'wsc-btn-sm'
-              : ''
-    ),
+    variant === 'primary' ? 'wsc-btn-primary' : '',
+    variant === 'ghost' ? 'wsc-btn-ghost' : '',
+    variant === 'ghost-light' ? 'wsc-btn-ghost-light' : '',
+    variant === 'text' ? 'wsc-btn-text' : '',
+    size === 'sm' ? 'wsc-btn-sm' : '',
     className,
-  ]
-    .filter(Boolean)
-    .join(' ')
+  ].filter(Boolean).join(' ')
 
-  if (href) {
-    return (
-      <Link href={href} className={classes} style={style}>
-        {children}
-      </Link>
-    )
-  }
-
-  return (
-    <button
-      type={type}
-      onClick={onClick}
-      disabled={disabled}
-      className={classes}
-      style={style}
-      formAction={formAction}
-    >
-      {children}
-    </button>
-  )
+  if (href) return <Link href={href} className={classes}>{children}</Link>
+  return <button type={type} onClick={onClick} disabled={disabled} className={classes}>{children}</button>
 }

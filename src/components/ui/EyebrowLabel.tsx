@@ -1,23 +1,13 @@
-interface EyebrowLabelProps {
-  children: React.ReactNode
-  className?: string
-  color?: 'default' | 'clay' | 'gold'
-}
+type EyebrowTone = 'muted' | 'clay' | 'gold'
 
-export default function EyebrowLabel({
-  children,
-  className = '',
-  color = 'default',
-}: EyebrowLabelProps) {
-  const colorStyle =
-    color === 'clay'
-      ? { color: 'var(--clay-deep)' }
-      : color === 'gold'
-        ? { color: 'oklch(0.55 0.155 60)' }
-        : undefined
-
+export default function EyebrowLabel({ children, tone = 'muted' }: { children: React.ReactNode; tone?: EyebrowTone }) {
+  const colors: Record<EyebrowTone, string> = {
+    muted: 'var(--ink-3)',
+    clay: 'var(--clay)',
+    gold: 'oklch(0.55 0.155 60)',
+  }
   return (
-    <span className={`wsc-eyebrow ${className}`} style={colorStyle}>
+    <span className="wsc-eyebrow" style={{ color: colors[tone] }}>
       {children}
     </span>
   )
