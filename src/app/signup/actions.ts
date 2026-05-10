@@ -1,40 +1,34 @@
 'use server'
-
 import { createClient } from '@/utils/supabase/server'
-import { redirect } from 'next/navigation'
 
-export async function signup(formData: FormData) {
+export type SignupData = {
+  firstName: string
+  lastName: string
+  email: string
+  phone: string
+  heard: string
+  experience: 'none' | 'some' | 'lots'
+  hopes: string[]
+  meetingId: string
+  notes: string
+}
+
+export async function submitSignup(data: SignupData) {
   const supabase = await createClient()
 
-  const full_name = formData.get('full_name') as string
-  const email = formData.get('email') as string
-  const password = formData.get('password') as string
-
-  const headersList = await import('next/headers').then(m => m.headers())
-  const host = headersList.get('host')
-  const protocol = process.env.NODE_ENV === 'development' ? 'http' : 'https'
-  const origin = `${protocol}://${host}`
-
-  const { data, error } = await supabase.auth.signUp({
-    email,
-    password,
-    options: {
-      emailRedirectTo: `${origin}/auth/callback`,
-      data: {
-        full_name,
-      }
-    }
+  const { error } = await supabase.from('signups').insert({
+    first_name: data.firstName,
+    last_name: data.lastName || null,
+    email: data.email,
+    phone: data.phone || null,
+    heard_from: data.heard || null,
+    experience: data.experience,
+    hopes: data.hopes,
+    meeting_id: data.meetingId || null,
+    notes: data.notes || null,
+    status: 'pending',
   })
 
-  if (error) {
-    redirect(`/signup?error=${encodeURIComponent(error.message)}`)
-  }
-
-  // If Supabase is configured to require email confirmation, the session will be null here.
-  if (data.user && data.session === null) {
-    redirect('/signup?message=Success! Please check your email to verify your account.')
-  }
-
-  // If email confirmation is disabled (e.g. some local dev environments)
-  redirect('/member/dashboard')
+  if (error) throw new Error(error.message)
+  return { success: true }
 }
