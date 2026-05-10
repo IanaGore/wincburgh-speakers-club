@@ -43,6 +43,8 @@
 }
 .navbar__links a:hover { color: var(--clay); }
 
+.navbar__links-login { display: none; }
+
 .navbar__hamburger {
   display: none;
   background: none;
@@ -61,6 +63,7 @@
   .navbar { padding: 0 20px; }
   .navbar__hamburger { display: flex; }
   .navbar__login { display: none; }
+  .navbar__links-login { display: list-item; }
 
   .navbar__links {
     display: none;
@@ -77,6 +80,9 @@
   }
 
   .navbar__links--open { display: flex; }
+
+  .navbar__links-login { display: list-item; border-bottom: none !important; padding-top: 16px; }
+  .navbar__links-login a { color: var(--clay) !important; font-weight: 600 !important; }
 
   .navbar__links li { border-bottom: 1px solid var(--rule-soft); }
   .navbar__links a {
