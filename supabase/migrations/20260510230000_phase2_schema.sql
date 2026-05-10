@@ -25,8 +25,21 @@ create policy "Public can read media"
   using (true);
 
 drop policy if exists "Admins can manage media" on public.media;
-create policy "Admins can manage media"
-  on public.media for all
+drop policy if exists "Admins can insert media" on public.media;
+drop policy if exists "Admins can update media" on public.media;
+
+create policy "Admins can insert media"
+  on public.media for insert
+  with check (
+    exists (
+      select 1 from public.profiles
+      where profiles.id = auth.uid()
+      and profiles.is_admin = true
+    )
+  );
+
+create policy "Admins can update media"
+  on public.media for update
   using (
     exists (
       select 1 from public.profiles
