@@ -29,7 +29,6 @@ export default function CopyAgendaButton({ meeting }: { meeting: any }) {
 
     const { pairs, unpaired, others } = groupAssignments(meeting.meeting_assignments ?? [])
 
-    // Standalone roles
     for (const a of others) {
       const name = a.member_id ? (a.profiles?.full_name || 'Member') : 'OPEN'
       text += `*${a.role_name}:* ${name}\n`
@@ -37,7 +36,6 @@ export default function CopyAgendaButton({ meeting }: { meeting: any }) {
 
     if (others.length > 0 && pairs.length > 0) text += `\n`
 
-    // Speech / evaluator pairs
     for (const { speech, evaluator } of pairs) {
       const speakerName = speech.member_id ? (speech.profiles?.full_name || 'Member') : 'OPEN'
       text += `*${speech.role_name}:* ${speakerName}\n`
@@ -53,7 +51,6 @@ export default function CopyAgendaButton({ meeting }: { meeting: any }) {
       text += `\n`
     }
 
-    // Unpaired evaluators
     for (const a of unpaired) {
       const name = a.member_id ? (a.profiles?.full_name || 'Member') : 'OPEN'
       text += `*${a.role_name}:* ${name}\n`
@@ -64,7 +61,7 @@ export default function CopyAgendaButton({ meeting }: { meeting: any }) {
   }
 
   return (
-    <button onClick={handleCopy} className="btn-secondary" style={{ padding: "0.5rem 1rem", fontSize: "0.85rem", cursor: "pointer" }}>
+    <button onClick={handleCopy} className="wsc-btn wsc-btn-sm wsc-btn-ghost">
       Copy Programme
     </button>
   )

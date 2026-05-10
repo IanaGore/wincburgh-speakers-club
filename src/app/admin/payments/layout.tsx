@@ -21,10 +21,10 @@ export default async function PaymentsLayout({ children }: { children: React.Rea
 
   if (!canAccess) {
     return (
-      <div style={{ padding: "4rem", textAlign: "center", flex: 1 }}>
-        <h1 style={{ color: "#f87171", marginBottom: "1rem" }}>Access Denied</h1>
-        <p style={{ color: "#94a3b8", marginBottom: "2rem" }}>Only administrators and the club treasurer can manage payments.</p>
-        <a href="/member/dashboard" className="btn-primary" style={{ padding: "0.8rem 1.5rem" }}>Return to Dashboard</a>
+      <div style={{ padding: '4rem', textAlign: 'center' }}>
+        <h1 style={{ fontFamily: 'var(--serif)', fontWeight: 500, fontSize: 32, color: 'var(--ink)', marginBottom: '1rem' }}>Access Denied</h1>
+        <p style={{ color: 'var(--ink-3)', marginBottom: '2rem' }}>Only administrators and the club treasurer can manage payments.</p>
+        <a href="/member/dashboard" className="wsc-btn wsc-btn-primary">Return to Dashboard</a>
       </div>
     )
   }

@@ -14,16 +14,6 @@
   z-index: 0;
 }
 
-.signup-topbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 20px 40px;
-  border-bottom: 1px solid var(--rule);
-  position: relative;
-  z-index: 1;
-}
-
 .signup-main {
   max-width: 640px;
   margin: 0 auto;
@@ -212,8 +202,7 @@ details[open] .signup-notes summary::after {
 }
 
 @media (max-width: 639px) {
-  .signup-topbar { padding: 16px 20px; }
-  .signup-form__row { grid-template-columns: 1fr; }
+.signup-form__row { grid-template-columns: 1fr; }
   .signup-steps__line { width: 28px; }
   .signup-step h2 { font-size: 28px; }
 }

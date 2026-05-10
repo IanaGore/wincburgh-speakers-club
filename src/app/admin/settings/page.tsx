@@ -1,6 +1,5 @@
 import { createClient } from '@/utils/supabase/server'
 import { updateSettings } from './actions'
-import Link from 'next/link'
 
 export default async function AdminSettingsPage() {
   const supabase = await createClient()
@@ -12,43 +11,43 @@ export default async function AdminSettingsPage() {
     .single()
 
   return (
-    <div style={{ padding: "4rem 5%", flex: 1 }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2rem" }}>
-        <h1 style={{ fontSize: "2.5rem" }}>Admin: Site Settings</h1>
-      </div>
-      
-      <div style={{ background: "var(--card-bg)", padding: "2rem", borderRadius: "16px", border: "1px solid var(--card-border)", maxWidth: "800px" }}>
-        <h2 style={{ fontSize: "1.5rem", marginBottom: "1.5rem" }}>Customize Public Homepage</h2>
-        <form action={updateSettings} style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
-          
-          <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-            <label htmlFor="hero_title" style={{ color: "#94a3b8", fontSize: "0.9rem" }}>Hero Title</label>
-            <textarea id="hero_title" name="hero_title" defaultValue={settings?.hero_title} required rows={3} style={{ padding: "0.8rem", borderRadius: "8px", background: "rgba(0,0,0,0.3)", border: "1px solid var(--card-border)", color: "white" }} />
-          </div>
-          
-          <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-            <label htmlFor="hero_subtitle" style={{ color: "#94a3b8", fontSize: "0.9rem" }}>Hero Subtitle</label>
-            <textarea id="hero_subtitle" name="hero_subtitle" defaultValue={settings?.hero_subtitle} required rows={3} style={{ padding: "0.8rem", borderRadius: "8px", background: "rgba(0,0,0,0.3)", border: "1px solid var(--card-border)", color: "white" }} />
+    <div>
+      <h1 style={{ fontFamily: 'var(--serif)', fontWeight: 500, fontSize: 32, margin: '8px 0 24px', color: 'var(--ink)' }}>Site Settings</h1>
+
+      <div className="wsc-card" style={{ maxWidth: 800, padding: '2rem' }}>
+        <h2 style={{ fontFamily: 'var(--serif)', fontWeight: 500, fontSize: 22, margin: '0 0 1.5rem', color: 'var(--ink)' }}>Customize Public Homepage</h2>
+        <form action={updateSettings} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+            <label htmlFor="hero_title" className="wsc-label">Hero Title</label>
+            <textarea id="hero_title" name="hero_title" defaultValue={settings?.hero_title} required rows={3} className="wsc-input" />
           </div>
 
-          <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-            <label htmlFor="about_text" style={{ color: "#94a3b8", fontSize: "0.9rem" }}>About Us Text</label>
-            <textarea id="about_text" name="about_text" defaultValue={settings?.about_text} required rows={5} style={{ padding: "0.8rem", borderRadius: "8px", background: "rgba(0,0,0,0.3)", border: "1px solid var(--card-border)", color: "white" }} />
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+            <label htmlFor="hero_subtitle" className="wsc-label">Hero Subtitle</label>
+            <textarea id="hero_subtitle" name="hero_subtitle" defaultValue={settings?.hero_subtitle} required rows={3} className="wsc-input" />
           </div>
 
-          <h2 style={{ fontSize: "1.5rem", marginTop: "1.5rem", marginBottom: "0.5rem" }}>Venue Details</h2>
-          
-          <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-            <label htmlFor="venue_name" style={{ color: "#94a3b8", fontSize: "0.9rem" }}>Venue Name</label>
-            <input type="text" id="venue_name" name="venue_name" defaultValue={settings?.venue_name} required style={{ padding: "0.8rem", borderRadius: "8px", background: "rgba(0,0,0,0.3)", border: "1px solid var(--card-border)", color: "white" }} />
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+            <label htmlFor="about_text" className="wsc-label">About Us Text</label>
+            <textarea id="about_text" name="about_text" defaultValue={settings?.about_text} required rows={5} className="wsc-input" />
           </div>
 
-          <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-            <label htmlFor="venue_address" style={{ color: "#94a3b8", fontSize: "0.9rem" }}>Venue Address</label>
-            <textarea id="venue_address" name="venue_address" defaultValue={settings?.venue_address} required rows={2} style={{ padding: "0.8rem", borderRadius: "8px", background: "rgba(0,0,0,0.3)", border: "1px solid var(--card-border)", color: "white" }} />
+          <h2 style={{ fontFamily: 'var(--serif)', fontWeight: 500, fontSize: 20, margin: '0.5rem 0 0', color: 'var(--ink)' }}>Venue Details</h2>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+            <label htmlFor="venue_name" className="wsc-label">Venue Name</label>
+            <input type="text" id="venue_name" name="venue_name" defaultValue={settings?.venue_name} required className="wsc-input" />
           </div>
 
-          <button type="submit" className="btn-primary" style={{ alignSelf: "flex-start", marginTop: "1rem" }}>Save Changes</button>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+            <label htmlFor="venue_address" className="wsc-label">Venue Address</label>
+            <textarea id="venue_address" name="venue_address" defaultValue={settings?.venue_address} required rows={2} className="wsc-input" />
+          </div>
+
+          <div>
+            <button type="submit" className="wsc-btn wsc-btn-primary">Save Changes</button>
+          </div>
         </form>
       </div>
     </div>

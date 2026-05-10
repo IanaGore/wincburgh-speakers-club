@@ -1,6 +1,5 @@
 import { createClient } from '@/utils/supabase/server'
-import Wordmark from '@/components/Wordmark'
-import Link from 'next/link'
+import Navbar from '@/components/Navbar'
 import SignupFlow from './SignupFlow'
 import './signup.css'
 
@@ -15,10 +14,7 @@ export default async function SignupPage() {
 
   return (
     <div className="signup-page">
-      <div className="signup-topbar">
-        <Wordmark />
-        <Link href="/login" style={{ fontSize: 14, color: 'var(--ink-3)' }}>Already a member? <span style={{ color: 'var(--clay)' }}>Sign in</span></Link>
-      </div>
+      <Navbar />
       <main className="signup-main">
         <SignupFlow meetings={meetings ?? []} />
       </main>

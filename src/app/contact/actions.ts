@@ -1,18 +1,20 @@
 'use server'
+import { createClient } from '@/utils/supabase/server'
 
-// TODO: Replace console.log with email send (Resend/Edge Function) before launch
+// TODO: Also send notification email via Resend/Edge Function before launch
 export async function sendContactMessage(
   _prevState: { success: boolean; error: string | null },
   formData: FormData
 ) {
   const name = formData.get('name') as string
   const email = formData.get('email') as string
-  const phone = formData.get('phone') as string | null
-  const topic = formData.get('topic') as string
   const message = formData.get('message') as string
-  const smsOk = formData.get('sms_ok') === 'on'
 
-  console.log('Contact form submission:', { name, email, phone, topic, message, smsOk })
+  const supabase = await createClient()
+  const { error } = await supabase
+    .from('contact_messages')
+    .insert({ name, email, message })
 
+  if (error) return { success: false, error: error.message }
   return { success: true, error: null }
 }

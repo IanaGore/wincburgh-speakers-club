@@ -4,6 +4,8 @@ import Link from 'next/link'
 import { volunteerForRole, dropRole } from './actions'
 import VolunteerForm from './VolunteerForm'
 import EditSpeechForm from './EditSpeechForm'
+import DashboardGreeting from './DashboardGreeting'
+import './dashboard.css'
 
 type Member = { id: string; full_name: string }
 
@@ -24,82 +26,68 @@ function groupAssignments(assignments: any[]) {
   return { pairs, unpaired, others }
 }
 
-function RoleCard({ assignment, userId, members, meetingId }: { assignment: any; userId: string; members: Member[]; meetingId: string }) {
-  const isAssignedToMe = assignment.member_id === userId
-  const isUnassigned   = !assignment.member_id
-  const isSpeech       = assignment.role_name.startsWith('Speech') || assignment.role_name.startsWith('Speaker')
-  const assigneeName   = assignment.profiles?.full_name || 'Member'
+function RoleRow({
+  assignment,
+  userId,
+  members,
+  meetingId,
+  dark = false,
+}: {
+  assignment: any
+  userId: string
+  members: Member[]
+  meetingId: string
+  dark?: boolean
+}) {
+  const isMe         = assignment.member_id === userId
+  const isOpen       = !assignment.member_id
+  const isSpeech     = assignment.role_name.startsWith('Speech') || assignment.role_name.startsWith('Speaker')
+  const assigneeName = assignment.profiles?.full_name ?? 'Member'
+
+  const badgeVariant = isOpen ? 'open' : isMe ? 'you' : 'filled'
+  const badgeLabel   = isOpen ? '?' : isMe ? 'YOU' : assigneeName.slice(0, 2).toUpperCase()
 
   return (
-    <div style={{
-      padding: "1.2rem",
-      borderRadius: "12px",
-      background: isAssignedToMe ? "rgba(14, 165, 233, 0.1)" : "rgba(0,0,0,0.2)",
-      border: "1px solid " + (isAssignedToMe ? "rgba(14, 165, 233, 0.5)" : "var(--card-border)"),
-      display: "flex",
-      flexDirection: "column",
-      justifyContent: "space-between",
-      gap: "1rem"
-    }}>
-      <div>
-        <div style={{ fontWeight: "700", marginBottom: "0.3rem", fontSize: "1.05rem" }}>{assignment.role_name}</div>
+    <div className="dash-role">
+      <span className={`dash-role__badge dash-role__badge--${badgeVariant}`}>{badgeLabel}</span>
+      <span className="dash-role__name">
+        {assignment.role_name}
         {isSpeech && assignment.speech_title && (
-          <div style={{ fontSize: "0.85rem", color: "#cbd5e1" }}>
-            <span style={{ color: "var(--primary)" }}>[{assignment.speech_level}]</span> {assignment.speech_title}<br />
-            <span style={{ color: "#64748b" }}>({assignment.speech_length})</span>
-          </div>
+          <span className="dash-role__speech-detail">
+            {' '}&mdash;{' '}
+            <span className="dash-role__speech-level">[{assignment.speech_level}]</span>
+            {assignment.speech_title}
+          </span>
         )}
-      </div>
-
-      {isUnassigned ? (
-        <VolunteerForm assignment={assignment} actionFn={volunteerForRole} members={members} meetingId={meetingId} />
-      ) : isAssignedToMe ? (
-        isSpeech ? (
-          <EditSpeechForm assignment={assignment} />
+      </span>
+      <div className="dash-role__actions">
+        {isOpen ? (
+          <VolunteerForm
+            assignment={assignment}
+            actionFn={volunteerForRole}
+            members={members}
+            meetingId={meetingId}
+            dark={dark}
+          />
+        ) : isMe ? (
+          isSpeech ? (
+            <EditSpeechForm assignment={assignment} dark={dark} />
+          ) : (
+            <>
+              <span className="dash-role__status">You</span>
+              <form action={dropRole}>
+                <input type="hidden" name="assignmentId" value={assignment.id} />
+                <button type="submit" className="dash-drop-btn">Drop out</button>
+              </form>
+            </>
+          )
         ) : (
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <span style={{ color: "var(--primary)", fontSize: "0.9rem", fontWeight: "bold" }}>You!</span>
-            <form action={dropRole}>
-              <input type="hidden" name="assignmentId" value={assignment.id} />
-              <button type="submit" style={{ background: "transparent", color: "#f87171", border: "none", cursor: "pointer", fontSize: "0.85rem", textDecoration: "underline", padding: 0 }}>
-                Drop out
-              </button>
-            </form>
-          </div>
-        )
-      ) : (
-        <Link href={`/member/profile/${assignment.member_id}`} style={{ color: "#94a3b8", fontSize: "0.9rem", display: "flex", alignItems: "center", gap: "0.5rem", fontWeight: "500", textDecoration: "none" }}>
-          🔒 <span style={{ textDecoration: "underline", textDecorationColor: "rgba(255,255,255,0.2)" }}>{assigneeName}</span>
-        </Link>
-      )}
-    </div>
-  )
-}
-
-function EvaluatorCard({ assignment, userId, members, meetingId }: { assignment: any; userId: string; members: Member[]; meetingId: string }) {
-  return (
-    <div style={{
-      padding: "1rem 1.2rem",
-      borderRadius: "10px",
-      background: assignment.member_id === userId ? "rgba(14, 165, 233, 0.07)" : "rgba(0,0,0,0.12)",
-      border: "1px solid " + (assignment.member_id === userId ? "rgba(14, 165, 233, 0.3)" : "rgba(255,255,255,0.05)"),
-      marginTop: "0.5rem"
-    }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "0.5rem" }}>
-        <span style={{ fontSize: "0.9rem", color: "#94a3b8" }}>{assignment.role_name}</span>
-        {!assignment.member_id ? (
-          <VolunteerForm assignment={assignment} actionFn={volunteerForRole} members={members} meetingId={meetingId} />
-        ) : assignment.member_id === userId ? (
-          <div style={{ display: "flex", gap: "0.6rem", alignItems: "center" }}>
-            <span style={{ color: "var(--primary)", fontSize: "0.85rem", fontWeight: "bold" }}>You!</span>
-            <form action={dropRole}>
-              <input type="hidden" name="assignmentId" value={assignment.id} />
-              <button type="submit" style={{ background: "transparent", color: "#f87171", border: "none", cursor: "pointer", fontSize: "0.8rem", textDecoration: "underline", padding: 0 }}>Drop out</button>
-            </form>
-          </div>
-        ) : (
-          <Link href={`/member/profile/${assignment.member_id}`} style={{ color: "#94a3b8", fontSize: "0.85rem", textDecoration: "none" }}>
-            🔒 {assignment.profiles?.full_name || 'Member'}
+          <Link
+            href={`/member/profile/${assignment.member_id}`}
+            className="dash-role__status"
+            style={{ textDecoration: 'none' }}
+          >
+            {assigneeName}
           </Link>
         )}
       </div>
@@ -113,6 +101,14 @@ export default async function MemberDashboard() {
   const { data: { user }, error } = await supabase.auth.getUser()
   if (error || !user) redirect('/login')
 
+  // Profile
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('full_name, pathway')
+    .eq('id', user.id)
+    .single()
+
+  // Upcoming meetings (3)
   const { data: meetings } = await supabase
     .from('meetings')
     .select(`
@@ -124,10 +120,21 @@ export default async function MemberDashboard() {
     `)
     .gte('meeting_date', new Date().toISOString().split('T')[0])
     .order('meeting_date', { ascending: true })
-    .limit(2)
+    .limit(3)
 
-  // Try the SECURITY DEFINER function (available after migration runs).
-  // Fall back to a direct query while the migration is still pending.
+  // Speech count (gracefully handle if table doesn't exist)
+  let speechCount = 0
+  try {
+    const { count } = await supabase
+      .from('speeches')
+      .select('id', { count: 'exact', head: true })
+      .eq('member_id', user.id)
+    speechCount = count ?? 0
+  } catch {
+    // speeches table may not exist yet
+  }
+
+  // Member directory
   let members: Member[] = []
   const { data: rpcData, error: rpcError } = await supabase.rpc('get_member_directory')
   if (!rpcError && rpcData) {
@@ -141,66 +148,145 @@ export default async function MemberDashboard() {
     members = fallback ?? []
   }
 
+  const [nextMeeting, ...otherMeetings] = meetings ?? []
+
+  const nextAssignments = nextMeeting?.meeting_assignments ?? []
+  const { pairs, unpaired, others } = groupAssignments(nextAssignments)
+  const allNextRoles = [...others, ...pairs.flatMap(p => [p.speech, p.evaluator].filter(Boolean)), ...unpaired]
+  const filledNext = nextAssignments.filter((a: any) => a.member_id).length
+  const totalNext  = nextAssignments.length
+
+  const firstName = profile?.full_name?.split(' ')[0] ?? 'there'
+
   return (
-    <div style={{ padding: "2rem 5%", flex: 1, maxWidth: "1200px", margin: "0 auto", width: "100%" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", flexWrap: "wrap", gap: "1rem", marginBottom: "2rem" }}>
-        <h1 style={{ fontSize: "clamp(1.8rem, 5vw, 2.5rem)", fontWeight: "700", margin: 0 }}>Upcoming Sessions</h1>
-        <p style={{ color: "#94a3b8", margin: 0 }}>{user.email}</p>
-      </div>
+    <div className="dashboard-page">
+      {/* Greeting */}
+      <DashboardGreeting firstName={firstName} />
 
-      <div style={{ display: "flex", gap: "2rem", flexDirection: "column" }}>
-        {meetings?.map((meeting: any) => {
-          const filledRoles = meeting.meeting_assignments?.filter((a: any) => a.member_id).length || 0
-          const totalRoles  = meeting.meeting_assignments?.length || 0
-          const { pairs, unpaired, others } = groupAssignments(meeting.meeting_assignments ?? [])
-
-          return (
-            <div key={meeting.id} style={{ background: "var(--card-bg)", padding: "clamp(1rem, 4vw, 2rem)", borderRadius: "16px", border: "1px solid var(--card-border)" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: "1rem", marginBottom: "0.5rem" }}>
-                <h2 style={{ fontSize: "clamp(1.2rem, 4vw, 1.5rem)", color: "var(--primary)", margin: 0 }}>
-                  {new Date(meeting.meeting_date).toLocaleDateString('en-GB', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
-                </h2>
-                <span style={{ background: "rgba(14, 165, 233, 0.1)", color: "var(--primary)", padding: "0.4rem 0.8rem", borderRadius: "20px", fontSize: "0.85rem", fontWeight: "600", whiteSpace: "nowrap" }}>
-                  {filledRoles}/{totalRoles} Filled
-                </span>
+      <div className="dashboard-grid">
+        {/* Main column */}
+        <div className="dashboard-main">
+          {/* Next meeting dark card */}
+          {nextMeeting ? (
+            <div className="dash-next">
+              <div className="dash-next-header">
+                <span className="wsc-eyebrow dash-eyebrow-ice">Next session</span>
+                <div className="dash-next-meta">
+                  <h2 className="dash-next-title">
+                    {new Date(nextMeeting.meeting_date).toLocaleDateString('en-GB', {
+                      weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
+                    })}
+                  </h2>
+                  <span className="dash-fill-badge">{filledNext}/{totalNext} filled</span>
+                </div>
+                {nextMeeting.theme && (
+                  <p className="dash-next-theme">Theme: {nextMeeting.theme}</p>
+                )}
               </div>
-              <p style={{ color: "#94a3b8", marginBottom: "1.5rem", marginTop: "0.5rem" }}>Theme: {meeting.theme || 'TBD'}</p>
 
-              {/* Standalone roles grid */}
-              {others.length > 0 && (
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: "1rem", marginBottom: pairs.length > 0 ? "1.5rem" : 0 }}>
-                  {others.map((a: any) => <RoleCard key={a.id} assignment={a} userId={user.id} members={members} meetingId={meeting.id} />)}
-                </div>
-              )}
-
-              {/* Speech / evaluator pairs */}
-              {pairs.length > 0 && (
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: "1.2rem" }}>
-                  {pairs.map(({ speech, evaluator }: any) => (
-                    <div key={speech.id} style={{ background: "rgba(14, 165, 233, 0.04)", borderRadius: "14px", padding: "1rem", border: "1px solid rgba(14, 165, 233, 0.12)" }}>
-                      <RoleCard assignment={speech} userId={user.id} members={members} meetingId={meeting.id} />
-                      {evaluator && <EvaluatorCard assignment={evaluator} userId={user.id} members={members} meetingId={meeting.id} />}
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {/* Unpaired evaluators */}
-              {unpaired.length > 0 && (
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: "1rem", marginTop: "1rem" }}>
-                  {unpaired.map((a: any) => <RoleCard key={a.id} assignment={a} userId={user.id} members={members} meetingId={meeting.id} />)}
-                </div>
-              )}
+              <div className="dash-roles">
+                {allNextRoles.map((a: any) => (
+                  <RoleRow
+                    key={a.id}
+                    assignment={a}
+                    userId={user.id}
+                    members={members}
+                    meetingId={nextMeeting.id}
+                    dark
+                  />
+                ))}
+              </div>
             </div>
-          )
-        })}
+          ) : (
+            <div className="dash-empty">No upcoming sessions scheduled yet. Check back soon.</div>
+          )}
 
-        {meetings?.length === 0 && (
-          <div style={{ padding: "3rem", border: "1px dashed var(--card-border)", borderRadius: "12px", textAlign: "center", color: "#94a3b8" }}>
-            <div style={{ fontSize: "2rem", marginBottom: "1rem" }}>📅</div>
-            No upcoming sessions are scheduled yet. Check back soon!
+          {/* Additional upcoming meetings */}
+          {otherMeetings.length > 0 && (
+            <div className="dash-meeting-list">
+              {otherMeetings.map((meeting: any) => {
+                const filled = meeting.meeting_assignments?.filter((a: any) => a.member_id).length ?? 0
+                const total  = meeting.meeting_assignments?.length ?? 0
+                const { pairs: mPairs, unpaired: mUnpaired, others: mOthers } = groupAssignments(meeting.meeting_assignments ?? [])
+                const allRoles = [...mOthers, ...mPairs.flatMap((p: any) => [p.speech, p.evaluator].filter(Boolean)), ...mUnpaired]
+                return (
+                  <div key={meeting.id} className="dash-meeting-item">
+                    <div className="dash-meeting-item-header">
+                      <span className="dash-meeting-item-date">
+                        {new Date(meeting.meeting_date).toLocaleDateString('en-GB', {
+                          weekday: 'long', day: 'numeric', month: 'long'
+                        })}
+                      </span>
+                      <span className="dash-fill-badge" style={{ border: '1px solid var(--rule)', background: 'var(--paper-2)', color: 'var(--ink-3)' }}>
+                        {filled}/{total}
+                      </span>
+                    </div>
+                    {meeting.theme && (
+                      <p className="dash-meeting-item-theme">Theme: {meeting.theme}</p>
+                    )}
+                    <div className="dash-meeting-item-roles">
+                      {allRoles.map((a: any) => (
+                        <RoleRow
+                          key={a.id}
+                          assignment={a}
+                          userId={user.id}
+                          members={members}
+                          meetingId={meeting.id}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          )}
+        </div>
+
+        {/* Sidebar */}
+        <aside className="dashboard-sidebar">
+          {/* Speech stats card */}
+          <div className="dash-sidebar-card">
+            <span className="wsc-eyebrow">My Progress</span>
+            <div className="dash-stats" style={{ marginTop: 16 }}>
+              <div className="dash-stat">
+                <span className="dash-stat__num">{speechCount}</span>
+                <span className="dash-stat__label">Speeches</span>
+              </div>
+              <div className="dash-stat">
+                <span className="dash-stat__num">—</span>
+                <span className="dash-stat__label">Evals</span>
+              </div>
+              <div className="dash-stat">
+                <span className="dash-stat__num">—</span>
+                <span className="dash-stat__label">Roles</span>
+              </div>
+            </div>
+            <div className="dash-progress-bar" style={{ marginTop: 20 }}>
+              {[...Array(5)].map((_, i) => (
+                <div
+                  key={i}
+                  className={`dash-progress-seg${i < speechCount ? ' dash-progress-seg--done' : i === speechCount ? ' dash-progress-seg--current' : ''}`}
+                />
+              ))}
+            </div>
+            {profile?.pathway && (
+              <p style={{ fontFamily: 'var(--mono)', fontSize: 11, color: 'var(--ink-3)', marginTop: 8 }}>
+                Pathway: {profile.pathway}
+              </p>
+            )}
           </div>
-        )}
+
+          {/* Feedback placeholder card */}
+          <div className="dash-sidebar-card">
+            <span className="wsc-eyebrow">Latest Feedback</span>
+            <div className="dash-feedback" style={{ marginTop: 16 }}>
+              <blockquote>
+                &ldquo;Feedback from evaluators will appear here once the speech tracker is live.&rdquo;
+              </blockquote>
+              <cite>— Coming soon</cite>
+            </div>
+          </div>
+        </aside>
       </div>
     </div>
   )

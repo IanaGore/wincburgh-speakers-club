@@ -3,42 +3,52 @@
 import { useState } from 'react'
 import { updateSpeechDetails, dropRole } from './actions'
 
-export default function EditSpeechForm({ assignment }: { assignment: any }) {
+interface Assignment {
+  id: string
+  role_name: string
+  member_id: string | null
+  speech_title?: string | null
+  speech_level?: string | null
+  speech_length?: string | null
+}
+
+export default function EditSpeechForm({ assignment, dark = false }: { assignment: Assignment; dark?: boolean }) {
   const [isEditing, setIsEditing] = useState(false)
+
+  const selectClass = dark ? 'dash-select' : 'wsc-input'
+  const inputClass  = dark ? 'dash-input'  : 'wsc-input'
 
   if (!isEditing) {
     return (
-      <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <span style={{ color: "var(--primary)", fontSize: "0.9rem", fontWeight: "bold" }}>You!</span>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 4, alignItems: 'flex-end' }}>
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+          <span className="dash-role__status">You</span>
           <button
             type="button"
             onClick={() => setIsEditing(true)}
-            style={{ background: "transparent", color: "#94a3b8", border: "none", cursor: "pointer", fontSize: "0.8rem", textDecoration: "underline", padding: 0 }}
+            className="dash-btn-ghost-sm"
           >
             Edit
           </button>
         </div>
         <form action={dropRole}>
           <input type="hidden" name="assignmentId" value={assignment.id} />
-          <button type="submit" style={{ background: "transparent", color: "#f87171", border: "none", cursor: "pointer", fontSize: "0.8rem", textDecoration: "underline", padding: 0 }}>
-            Drop out
-          </button>
+          <button type="submit" className="dash-drop-btn">Drop out</button>
         </form>
       </div>
     )
   }
 
   return (
-    <form action={updateSpeechDetails} style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+    <form action={updateSpeechDetails} className="dash-volunteer-form">
       <input type="hidden" name="assignmentId" value={assignment.id} />
-      <div style={{ padding: "0.75rem", background: "rgba(0,0,0,0.3)", borderRadius: "8px", border: "1px solid var(--primary)", display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-        <p style={{ fontSize: "0.8rem", color: "var(--primary)", fontWeight: "bold", margin: 0 }}>Edit Speech Details</p>
+      <div className="dash-speech-expand">
+        <p className="dash-speech-expand__label">Edit Speech Details</p>
         <select
           name="speech_level"
           required
           defaultValue={assignment.speech_level || ''}
-          style={{ padding: "0.5rem", borderRadius: "4px", background: "rgba(255,255,255,0.1)", border: "1px solid var(--card-border)", color: "white", fontSize: "0.8rem" }}
+          className={selectClass}
         >
           <option value="">Select Level...</option>
           <optgroup label="Foundation">
@@ -54,7 +64,7 @@ export default function EditSpeechForm({ assignment }: { assignment: any }) {
           placeholder="Speech Title"
           required
           defaultValue={assignment.speech_title || ''}
-          style={{ padding: "0.5rem", borderRadius: "4px", background: "rgba(255,255,255,0.1)", border: "1px solid var(--card-border)", color: "white", fontSize: "0.8rem" }}
+          className={inputClass}
         />
         <input
           type="text"
@@ -62,16 +72,16 @@ export default function EditSpeechForm({ assignment }: { assignment: any }) {
           placeholder="Estimated Length"
           required
           defaultValue={assignment.speech_length || '6 - 8 minutes'}
-          style={{ padding: "0.5rem", borderRadius: "4px", background: "rgba(255,255,255,0.1)", border: "1px solid var(--card-border)", color: "white", fontSize: "0.8rem" }}
+          className={inputClass}
         />
       </div>
-      <button type="submit" className="btn-primary" style={{ padding: "0.4rem 0.8rem", fontSize: "0.85rem", width: "100%" }}>
+      <button type="submit" className="wsc-btn wsc-btn-primary wsc-btn-sm" style={{ width: '100%' }}>
         Save
       </button>
       <button
         type="button"
         onClick={() => setIsEditing(false)}
-        style={{ background: "none", border: "none", color: "#94a3b8", fontSize: "0.8rem", cursor: "pointer" }}
+        className="dash-btn-ghost-sm"
       >
         Cancel
       </button>

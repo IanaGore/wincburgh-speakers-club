@@ -13,8 +13,7 @@ export default function DeleteMessageButton({ messageId }: { messageId: string }
         onClick={() => {
           if (confirm('Delete this message? This cannot be undone.')) formRef.current?.requestSubmit()
         }}
-        className="btn-secondary"
-        style={{ padding: "0.4rem 1rem", fontSize: "0.85rem", borderColor: "rgba(239, 68, 68, 0.3)", color: "#f87171" }}
+        className="wsc-btn wsc-btn-sm wsc-btn-ghost"
       >
         Delete
       </button>
