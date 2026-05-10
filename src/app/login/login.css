@@ -339,17 +339,17 @@
   margin-bottom: 16px;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 767px) {
   .login-page {
     grid-template-columns: 1fr;
+    min-height: 100vh;
   }
 
   .login-left {
-    padding: 40px 24px;
-    min-height: 40vh;
+    display: none;
   }
 
   .login-right {
-    padding: 48px 24px;
+    padding: 40px 24px;
   }
 }

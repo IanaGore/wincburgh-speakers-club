@@ -25,7 +25,7 @@ export default function Navbar() {
           {open ? <X size={22} /> : <Menu size={22} />}
         </button>
         <ul className={`navbar__links${open ? ' navbar__links--open' : ''}`}>
-          {[['/', 'Home'], ['/about', 'About'], ['/meetings', 'Meetings'], ['/news', 'News'], ['/contact', 'Contact']].map(([href, label]) => (
+          {[['/', 'Home'], ['/news', 'News'], ['/contact', 'Contact']].map(([href, label]) => (
             <li key={href}><Link href={href} onClick={() => setOpen(false)}>{label}</Link></li>
           ))}
         </ul>

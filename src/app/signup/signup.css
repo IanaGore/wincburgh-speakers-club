@@ -1,0 +1,219 @@
+@keyframes wscFade {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.signup-page { min-height: 100vh; background: var(--paper); }
+.signup-page::before {
+  content: '';
+  position: fixed;
+  top: -150px; right: -150px;
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, oklch(0.78 0.135 75 / 0.12) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.signup-topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 40px;
+  border-bottom: 1px solid var(--rule);
+  position: relative;
+  z-index: 1;
+}
+
+.signup-main {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 56px 24px 80px;
+  position: relative;
+  z-index: 1;
+}
+
+.signup-step {
+  animation: wscFade 0.32s ease;
+}
+
+.signup-step h2 {
+  font-size: 36px;
+  margin: 8px 0 24px;
+}
+
+.signup-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.signup-form__row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+/* Steps indicator */
+.signup-steps {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 40px;
+  gap: 0;
+}
+.signup-steps__item { display: flex; align-items: center; }
+.signup-steps__dot {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  border: 2px solid var(--rule);
+  background: var(--paper);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--mono); font-size: 12px; color: var(--ink-4);
+  transition: all 0.2s;
+}
+.signup-steps__dot--active { border-color: var(--gold); background: oklch(0.94 0.07 80); color: oklch(0.42 0.135 65); font-weight: 600; }
+.signup-steps__dot--done { border-color: var(--clay); background: var(--clay-soft); color: var(--clay-deep); }
+.signup-steps__line { width: 48px; height: 2px; background: var(--rule); transition: background 0.2s; }
+.signup-steps__line--done { background: var(--clay); }
+
+/* Chips */
+.signup-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.signup-chip {
+  padding: 8px 16px;
+  border-radius: var(--r-pill);
+  border: 1.5px solid var(--rule);
+  background: var(--paper);
+  font-size: 14px; cursor: pointer;
+  transition: all 0.15s;
+  color: var(--ink-2);
+}
+.signup-chip--active {
+  border-color: var(--gold);
+  background: oklch(0.97 0.020 75);
+  color: oklch(0.42 0.135 65);
+  font-weight: 600;
+}
+.signup-chip--multi.signup-chip--multi-active {
+  border-color: var(--clay);
+  background: var(--clay-soft);
+  color: var(--clay-deep);
+  font-weight: 600;
+}
+
+/* Experience cards */
+.signup-experience { display: flex; flex-direction: column; gap: 12px; margin-bottom: 8px; }
+.signup-exp-card {
+  text-align: left;
+  padding: 18px 20px;
+  border-radius: var(--r-lg);
+  border: 1.5px solid var(--rule);
+  background: var(--paper);
+  cursor: pointer;
+  position: relative;
+  transition: all 0.15s;
+}
+.signup-exp-card:hover { border-color: var(--ink-3); }
+.signup-exp-card--active { border-color: var(--gold); background: oklch(0.97 0.020 75); }
+.signup-exp-card__check {
+  position: absolute; top: 12px; right: 12px;
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  background: var(--gold);
+  color: white;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px;
+}
+.signup-exp-card h3 { font-size: 17px; margin-bottom: 4px; }
+.signup-exp-card p { font-size: 14px; color: var(--ink-3); margin: 0; }
+.signup-exp-card--active h3 { color: oklch(0.42 0.135 65); }
+
+/* Meetings */
+.signup-meetings { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+.signup-meeting {
+  display: flex; align-items: center; gap: 16px;
+  padding: 14px 16px;
+  border-radius: var(--r-lg);
+  border: 1.5px solid var(--rule);
+  background: var(--paper);
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.15s;
+  width: 100%;
+}
+.signup-meeting:hover { border-color: var(--ink-3); }
+.signup-meeting--active { border-color: var(--gold); background: oklch(0.97 0.020 75); }
+.signup-meeting__badge {
+  min-width: 44px; height: 52px;
+  border-radius: var(--r-md);
+  background: var(--paper-3);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  font-family: var(--mono); font-size: 11px;
+  color: var(--ink-3);
+  flex-shrink: 0;
+}
+.signup-meeting__badge--active { background: var(--gradient); color: white; }
+.signup-meeting__badge span:first-child { font-size: 20px; font-weight: 600; line-height: 1; }
+.signup-meeting__info { flex: 1; display: flex; flex-direction: column; gap: 3px; }
+.signup-meeting__radio {
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  border: 2px solid var(--rule);
+  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; color: white;
+}
+.signup-meeting__radio--active { background: var(--gold); border-color: var(--gold); }
+
+/* Notes accordion */
+.signup-notes { margin-bottom: 16px; }
+.signup-notes summary {
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--ink-2);
+  padding: 8px 0;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.signup-notes summary::-webkit-details-marker { display: none; }
+.signup-notes summary::after {
+  content: '▾';
+  font-size: 12px;
+  color: var(--ink-4);
+  transition: transform 0.2s;
+}
+details[open] .signup-notes summary::after {
+  transform: rotate(-180deg);
+}
+
+/* Done step */
+.signup-step--done { text-align: center; }
+.signup-done__mark {
+  width: 80px; height: 80px;
+  border-radius: 50%;
+  background: var(--gradient);
+  color: white;
+  font-size: 32px;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 16px;
+  box-shadow: 0 4px 20px oklch(0.78 0.135 75 / 0.3);
+}
+.signup-done__mark + span { display: block; margin-bottom: 8px; }
+.signup-step--done h2 { font-size: 32px; margin-bottom: 16px; }
+
+.signup-confirmation {
+  background: var(--night);
+  border-radius: var(--r-xl);
+  padding: 24px;
+  margin-top: 24px;
+  text-align: left;
+}
+
+@media (max-width: 639px) {
+  .signup-topbar { padding: 16px 20px; }
+  .signup-form__row { grid-template-columns: 1fr; }
+  .signup-steps__line { width: 28px; }
+  .signup-step h2 { font-size: 28px; }
+}
