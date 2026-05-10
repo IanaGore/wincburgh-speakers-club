@@ -1,4 +1,6 @@
 import { createClient } from '@/utils/supabase/server'
+
+export const metadata = { title: 'RSVPs | Admin' }
 import EyebrowLabel from '@/components/ui/EyebrowLabel'
 import { MarkAttendedButton, InviteButton } from './RSVPActions'
 

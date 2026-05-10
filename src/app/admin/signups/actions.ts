@@ -5,7 +5,8 @@ import { randomUUID } from 'crypto'
 
 export async function markAttended(signupId: string) {
   const supabase = await createClient()
-  await supabase.from('signups').update({ status: 'attended' }).eq('id', signupId)
+  const { error } = await supabase.from('signups').update({ status: 'attended' }).eq('id', signupId)
+  if (error) throw new Error(error.message)
   revalidatePath('/admin/signups')
 }
 
@@ -14,15 +15,15 @@ export async function sendConversionInvite(signupId: string) {
   const token = randomUUID()
   const expires = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
 
-  await supabase.from('signups').update({
+  const { error } = await supabase.from('signups').update({
     conversion_token: token,
     conversion_token_expires_at: expires,
     conversion_token_used_at: null,
   }).eq('id', signupId)
+  if (error) throw new Error(error.message)
 
   const joinUrl = `${process.env.NEXT_PUBLIC_SITE_URL}/join?token=${token}`
   console.log(`Invite URL for signup ${signupId}: ${joinUrl}`)
 
   revalidatePath('/admin/signups')
-  return { joinUrl }
 }
