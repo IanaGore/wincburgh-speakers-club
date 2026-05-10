@@ -1,5 +1,6 @@
 'use server'
 import { createClient } from '@/utils/supabase/server'
+import { sendRsvpConfirmation } from '@/lib/email'
 
 export type SignupData = {
   firstName: string
@@ -14,7 +15,6 @@ export type SignupData = {
 }
 
 export async function submitSignup(data: SignupData) {
-  // Validate inputs
   const firstName = data.firstName?.trim()
   if (!firstName || firstName.length > 100) throw new Error('Invalid first name')
 
@@ -27,6 +27,29 @@ export async function submitSignup(data: SignupData) {
   const hopes = Array.isArray(data.hopes) ? data.hopes.slice(0, 20).map(h => String(h).slice(0, 200)) : []
 
   const supabase = await createClient()
+
+  // Fetch meeting date + venue for confirmation email
+  let meetingDateStr = ''
+  let venueName = ''
+  if (data.meetingId) {
+    const { data: meeting } = await supabase
+      .from('meetings')
+      .select('meeting_date')
+      .eq('id', data.meetingId)
+      .single()
+    if (meeting) {
+      meetingDateStr = new Date(meeting.meeting_date).toLocaleDateString('en-GB', {
+        weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
+      })
+    }
+  }
+  const { data: settings } = await supabase
+    .from('site_settings')
+    .select('venue_name, meeting_time')
+    .eq('id', 1)
+    .single()
+  venueName = settings?.venue_name ?? 'our venue'
+  if (settings?.meeting_time) venueName = `${venueName} at ${settings.meeting_time}`
 
   const { error } = await supabase.from('signups').insert({
     first_name: firstName,
@@ -42,5 +65,14 @@ export async function submitSignup(data: SignupData) {
   })
 
   if (error) throw new Error(error.message)
+
+  // Send confirmation — non-blocking, don't fail the RSVP on email error
+  try {
+    const dateDisplay = meetingDateStr || 'our next meeting'
+    await sendRsvpConfirmation(email, firstName, dateDisplay, venueName)
+  } catch (emailError) {
+    console.error('RSVP confirmation email failed:', emailError)
+  }
+
   return { success: true }
 }
