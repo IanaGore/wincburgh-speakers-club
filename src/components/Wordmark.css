@@ -1,40 +1,21 @@
-.wordmark {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  text-decoration: none;
-}
+.wordmark { display: flex; flex-direction: column; gap: 2px; text-decoration: none; }
 
-.wordmark__text {
-  line-height: 1.1;
-}
-
-.wordmark__name {
+.wordmark__serif {
   font-family: var(--serif);
-  font-size: 20px;
   font-weight: 500;
+  font-size: 20px;
   letter-spacing: -0.01em;
+  line-height: 1;
 }
 
-.wordmark__sub {
+.wordmark__mono {
   font-family: var(--mono);
   font-size: 10px;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
 }
 
-.wordmark--light .wordmark__name {
-  color: oklch(0.97 0.01 80);
-}
-
-.wordmark--light .wordmark__sub {
-  color: oklch(0.85 0.02 80);
-}
-
-.wordmark--dark .wordmark__name {
-  color: var(--ink);
-}
-
-.wordmark--dark .wordmark__sub {
-  color: var(--clay);
-}
+.wordmark--dark .wordmark__serif { color: var(--ink); }
+.wordmark--dark .wordmark__mono { color: var(--ink-3); }
+.wordmark--light .wordmark__serif { color: oklch(0.97 0.010 80); }
+.wordmark--light .wordmark__mono { color: oklch(0.78 0.135 75); }

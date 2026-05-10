@@ -18,7 +18,7 @@ export default async function ContactPage({
       <main>
         <div className="contact-page">
           <div className="contact-page__header">
-            <EyebrowLabel color="clay">Get in touch</EyebrowLabel>
+            <EyebrowLabel tone="clay">Get in touch</EyebrowLabel>
             <h1>We&apos;d love to hear from you.</h1>
             <p>
               Questions about the club? Want to come as a guest? Drop us a message and someone from the committee will get back to you — usually within a day or two.

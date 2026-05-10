@@ -64,6 +64,74 @@
   color: white;
 }
 
+/* PortalNav styling and mobile responsiveness */
+.portal-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 2rem;
+  gap: 2rem;
+}
+
+.portal-nav__logo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.portal-nav__logo a {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.portal-nav__links {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.portal-nav__links a,
+.portal-nav__links button {
+  color: var(--ink);
+  font-weight: 500;
+  transition: color 0.15s;
+}
+
+.portal-nav__links a:hover {
+  color: var(--clay);
+}
+
+/* Mobile: horizontal scrollable tab strip */
+@media (max-width: 767px) {
+  .portal-nav {
+    padding: 1rem;
+    gap: 1rem;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .portal-nav__logo {
+    font-size: 0.9rem;
+  }
+
+  .portal-nav__logo span {
+    display: none;
+  }
+
+  .portal-nav__links {
+    gap: 1rem;
+    white-space: nowrap;
+    min-width: min-content;
+  }
+
+  .portal-nav__links a,
+  .portal-nav__links button {
+    font-size: 0.9rem;
+    padding: 0.3rem 0.5rem;
+  }
+}
+
 /* Print styles for meeting summary page */
 @media print {
   .no-print { display: none !important; }

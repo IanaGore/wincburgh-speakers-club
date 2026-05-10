@@ -105,7 +105,7 @@ export default async function Home() {
         <section className="home-how" id="about">
           <div className="home-how__inner">
             <div className="home-how__header">
-              <EyebrowLabel className="wsc-eyebrow" color="clay">How it works</EyebrowLabel>
+              <EyebrowLabel tone="clay">How it works</EyebrowLabel>
               <h2>We keep it simple. <em>You keep your seat.</em></h2>
             </div>
             <div className="home-how__steps">
@@ -204,7 +204,7 @@ export default async function Home() {
             </div>
 
             <div className="home-venue__info">
-              <EyebrowLabel color="clay">Find us</EyebrowLabel>
+              <EyebrowLabel tone="clay">Find us</EyebrowLabel>
               <h2>It is the warmest room in Winchburgh on a Tuesday. <em>Honest.</em></h2>
               <div className="home-venue__detail">
                 <div className="home-venue__detail-icon">📍</div>
