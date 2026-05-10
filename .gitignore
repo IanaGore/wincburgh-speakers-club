@@ -45,3 +45,7 @@ next-env.d.ts
 
 # Visual companion brainstorming files
 .superpowers/
+
+# AI tool working directories
+.claude/
+.claire/
