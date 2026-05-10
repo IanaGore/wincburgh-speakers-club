@@ -1,6 +1,8 @@
 import { createClient } from '@/utils/supabase/server'
 import { logSpeech, deleteSpeech } from './actions'
 import FeedbackForm from './FeedbackForm'
+import EyebrowLabel from '@/components/ui/EyebrowLabel'
+import './speeches.css'
 
 function fmtDate(dateStr: string) {
   return new Date(dateStr).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
@@ -11,167 +13,153 @@ export default async function SpeechesPage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return null
 
-  // Session speeches from the dashboard (meeting_assignments)
+  const sortByDate = (a: any, b: any) =>
+    (b.meetings?.meeting_date ?? '').localeCompare(a.meetings?.meeting_date ?? '')
+
   const { data: sessionSpeeches } = await supabase
     .from('meeting_assignments')
-    .select(`id, role_name, speech_title, speech_level, speech_length, meeting_id, meetings ( meeting_date )`)
+    .select('id, role_name, speech_title, speech_level, speech_length, meeting_id, meetings ( meeting_date )')
     .like('role_name', 'Speech%')
     .eq('member_id', user.id)
     .not('speech_title', 'is', null)
+  const sortedSessionSpeeches = (sessionSpeeches ?? []).sort(sortByDate)
 
-  // Session evaluator slots
   const { data: sessionEvals } = await supabase
     .from('meeting_assignments')
-    .select(`id, role_name, meeting_id, meetings ( meeting_date )`)
+    .select('id, role_name, meeting_id, meetings ( meeting_date )')
     .like('role_name', 'Evaluator%')
     .eq('member_id', user.id)
+  const sortedSessionEvals = (sessionEvals ?? []).sort(sortByDate)
 
-  // Sort both by meeting date descending
-  const sortByDate = (a: any, b: any) =>
-    (b.meetings?.meeting_date ?? '').localeCompare(a.meetings?.meeting_date ?? '')
-  const sortedSessionSpeeches = (sessionSpeeches ?? []).sort(sortByDate)
-  const sortedSessionEvals    = (sessionEvals ?? []).sort(sortByDate)
-
-  // Manually logged speeches (speeches table)
   const { data: mySpeeches } = await supabase
     .from('speeches')
-    .select(`*, meeting:meetings(meeting_date), evaluator:profiles!evaluator_id(full_name)`)
+    .select('*, meeting:meetings(meeting_date), evaluator:profiles!evaluator_id(full_name)')
     .eq('member_id', user.id)
     .order('created_at', { ascending: false })
 
-  // Manually logged speeches being evaluated by this user
   const { data: evaluatingSpeeches } = await supabase
     .from('speeches')
-    .select(`*, meeting:meetings(meeting_date), speaker:profiles!member_id(full_name)`)
+    .select('*, meeting:meetings(meeting_date), speaker:profiles!member_id(full_name)')
     .eq('evaluator_id', user.id)
     .order('created_at', { ascending: false })
 
   const { data: profiles } = await supabase.from('profiles').select('id, full_name').order('full_name')
   const { data: meetings } = await supabase.from('meetings').select('id, meeting_date').order('meeting_date', { ascending: false })
-
-  // Exclude current user from evaluator dropdown
   const evaluatorOptions = (profiles ?? []).filter(p => p.id !== user.id)
 
-  const cardStyle = {
-    background: "var(--card-bg)",
-    border: "1px solid var(--card-border)",
-    borderRadius: "12px",
-    padding: "1.5rem"
-  }
-
   return (
-    <main style={{ padding: "2rem", maxWidth: "1200px", margin: "0 auto", width: "100%" }}>
-      <header style={{ marginBottom: "2rem" }}>
-        <h1 style={{ fontSize: "2rem", fontWeight: "700" }}>Speech Tracker</h1>
+    <main className="speeches-page">
+      <header className="speeches-header">
+        <EyebrowLabel>Member</EyebrowLabel>
+        <h1>Speech Tracker</h1>
       </header>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 300px", gap: "2rem", alignItems: "start" }}>
+      <div className="speeches-layout">
+        <div className="speeches-main">
 
-        <div style={{ display: "flex", flexDirection: "column", gap: "2rem" }}>
-
-          {/* ── Session Speeches (from dashboard assignments) ── */}
-          <section>
-            <h2 style={{ fontSize: "1.4rem", marginBottom: "1rem", color: "var(--primary)" }}>Session Speeches</h2>
-            {sortedSessionSpeeches.length > 0 ? (
-              <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-                {sortedSessionSpeeches.map((s: any) => (
-                  <div key={s.id} style={cardStyle}>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: "0.5rem" }}>
-                      <div>
-                        <h3 style={{ fontSize: "1.1rem", fontWeight: "bold", margin: "0 0 0.25rem" }}>{s.speech_title}</h3>
-                        <div style={{ fontSize: "0.9rem", color: "#94a3b8" }}>
-                          {s.speech_level && <span style={{ color: "var(--primary)", marginRight: "0.5rem" }}>[{s.speech_level}]</span>}
-                          {s.speech_length && <span>{s.speech_length}</span>}
-                        </div>
-                      </div>
-                      <span style={{ color: "#94a3b8", fontSize: "0.9rem", whiteSpace: "nowrap" }}>
-                        {s.meetings?.meeting_date ? fmtDate(s.meetings.meeting_date) : 'No date'}
-                      </span>
+          {/* Session Speeches */}
+          <section className="speeches-section">
+            <h2>Session Speeches</h2>
+            <div className="speeches-list">
+              {sortedSessionSpeeches.length > 0 ? sortedSessionSpeeches.map((s: any) => (
+                <div key={s.id} className="wsc-card speech-card">
+                  <div className="speech-card__body">
+                    <h3 className="speech-card__title">{s.speech_title}</h3>
+                    <div className="speech-card__meta">
+                      {s.speech_level && <span className="wsc-tag wsc-tag-gold">{s.speech_level}</span>}
+                      {s.speech_length && <span>{s.speech_length}</span>}
                     </div>
                   </div>
-                ))}
-              </div>
-            ) : (
-              <div style={{ ...cardStyle, textAlign: "center", color: "#94a3b8" }}>
-                No session speeches yet — volunteer for a speech slot on the dashboard.
-              </div>
-            )}
+                  <span className="speech-card__date">
+                    {s.meetings?.meeting_date ? fmtDate(s.meetings.meeting_date) : 'No date'}
+                  </span>
+                </div>
+              )) : (
+                <div className="wsc-card speech-card__empty">
+                  No session speeches yet — volunteer for a speech slot on the dashboard.
+                </div>
+              )}
+            </div>
           </section>
 
-          {/* ── Session Evaluations ── */}
+          {/* Session Evaluations */}
           {sortedSessionEvals.length > 0 && (
-            <section>
-              <h2 style={{ fontSize: "1.4rem", marginBottom: "1rem", color: "#10b981" }}>Session Evaluations</h2>
-              <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+            <section className="speeches-section speeches-section--evals">
+              <h2>Session Evaluations</h2>
+              <div className="speeches-list">
                 {sortedSessionEvals.map((e: any) => (
-                  <div key={e.id} style={{ ...cardStyle, borderLeft: "4px solid #10b981" }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "0.5rem" }}>
-                      <span style={{ fontWeight: "600" }}>{e.role_name}</span>
-                      <span style={{ color: "#94a3b8", fontSize: "0.9rem" }}>
-                        {e.meetings?.meeting_date ? fmtDate(e.meetings.meeting_date) : 'No date'}
-                      </span>
-                    </div>
+                  <div key={e.id} className="wsc-card speech-card speech-card--eval-border">
+                    <span className="speech-card__role-name">{e.role_name}</span>
+                    <span className="speech-card__date">
+                      {e.meetings?.meeting_date ? fmtDate(e.meetings.meeting_date) : 'No date'}
+                    </span>
                   </div>
                 ))}
               </div>
             </section>
           )}
 
-          {/* ── Manually Logged Speeches ── */}
-          <section>
-            <h2 style={{ fontSize: "1.4rem", marginBottom: "0.5rem", color: "var(--primary)" }}>Manually Logged Speeches</h2>
-            <p style={{ fontSize: "0.85rem", color: "#64748b", marginBottom: "1rem" }}>For speeches not recorded through the dashboard (e.g. historical entries).</p>
-            <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+          {/* Manually Logged Speeches */}
+          <section className="speeches-section">
+            <h2>Manually Logged Speeches</h2>
+            <p className="speeches-section__hint">
+              For speeches not recorded through the dashboard (e.g. historical entries).
+            </p>
+            <div className="speeches-list">
               {mySpeeches && mySpeeches.length > 0 ? mySpeeches.map(speech => (
-                <div key={speech.id} style={cardStyle}>
-                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.5rem", flexWrap: "wrap", gap: "0.5rem" }}>
-                    <h3 style={{ fontSize: "1.1rem", fontWeight: "bold", margin: 0 }}>{speech.title}</h3>
-                    <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-                      <span style={{ color: "#94a3b8", fontSize: "0.9rem" }}>
+                <div key={speech.id} className="wsc-card">
+                  <div className="speech-card">
+                    <div className="speech-card__body">
+                      <h3 className="speech-card__title">{speech.title}</h3>
+                    </div>
+                    <div className="speech-card__actions">
+                      <span className="speech-card__date">
                         {speech.meeting?.meeting_date ? fmtDate(speech.meeting.meeting_date) : 'No date'}
                       </span>
-                      <form action={deleteSpeech} onSubmit={(e) => { if (!confirm('Delete this speech entry?')) e.preventDefault() }}>
+                      <form action={deleteSpeech} onSubmit={e => { if (!confirm('Delete this speech entry?')) e.preventDefault() }}>
                         <input type="hidden" name="speechId" value={speech.id} />
-                        <button type="submit" style={{ background: "none", border: "none", color: "#f87171", fontSize: "0.8rem", cursor: "pointer", padding: 0, textDecoration: "underline" }}>Delete</button>
+                        <button type="submit" className="speech-delete-btn">Delete</button>
                       </form>
                     </div>
                   </div>
-                  <div style={{ fontSize: "0.9rem", color: "#cbd5e1", marginBottom: "1rem" }}>
-                    <p style={{ margin: "0.2rem 0" }}><strong>Pathway:</strong> {speech.pathway || '—'}</p>
-                    <p style={{ margin: "0.2rem 0" }}><strong>Project:</strong> {speech.project || '—'}</p>
-                    <p style={{ margin: "0.2rem 0" }}><strong>Evaluator:</strong> {speech.evaluator?.full_name || 'Unassigned'}</p>
+                  <div className="speech-card__details">
+                    <span><strong>Pathway:</strong> {speech.pathway || '—'}</span>
+                    <span><strong>Project:</strong> {speech.project || '—'}</span>
+                    <span><strong>Evaluator:</strong> {speech.evaluator?.full_name || 'Unassigned'}</span>
                   </div>
                   {speech.feedback_notes && (
-                    <div style={{ background: "rgba(0,0,0,0.3)", padding: "1rem", borderRadius: "8px", borderLeft: "3px solid var(--primary)" }}>
-                      <h4 style={{ fontSize: "0.85rem", color: "#94a3b8", marginBottom: "0.5rem", textTransform: "uppercase", letterSpacing: "0.05em" }}>Evaluator Feedback</h4>
-                      <p style={{ whiteSpace: "pre-wrap", fontSize: "0.9rem", lineHeight: "1.5", margin: 0 }}>{speech.feedback_notes}</p>
+                    <div className="speech-card__feedback">
+                      <h4 className="speech-card__feedback-heading">Evaluator Feedback</h4>
+                      <p className="speech-card__feedback-body">{speech.feedback_notes}</p>
                     </div>
                   )}
                 </div>
               )) : (
-                <div style={{ ...cardStyle, textAlign: "center", color: "#94a3b8" }}>
+                <div className="wsc-card speech-card__empty">
                   No manually logged speeches. Use the form to add historical entries.
                 </div>
               )}
             </div>
           </section>
 
-          {/* ── Evaluations I'm assigned (manually logged speeches) ── */}
+          {/* Evaluations I'm Assigned */}
           {evaluatingSpeeches && evaluatingSpeeches.length > 0 && (
-            <section>
-              <h2 style={{ fontSize: "1.4rem", marginBottom: "1rem", color: "#10b981" }}>Evaluating (Logged Speeches)</h2>
-              <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+            <section className="speeches-section speeches-section--evals">
+              <h2>Evaluating (Logged Speeches)</h2>
+              <div className="speeches-list">
                 {evaluatingSpeeches.map(speech => (
-                  <div key={speech.id} style={{ ...cardStyle, borderLeft: "4px solid #10b981" }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.5rem" }}>
-                      <h3 style={{ fontSize: "1.1rem", fontWeight: "bold", margin: 0 }}>{speech.title}</h3>
-                      <span style={{ color: "#94a3b8", fontSize: "0.9rem" }}>
+                  <div key={speech.id} className="wsc-card speech-card--eval-border speech-card--eval-padded">
+                    <div className="speech-card">
+                      <div className="speech-card__body">
+                        <h3 className="speech-card__title">{speech.title}</h3>
+                        <p className="speech-card__speaker">
+                          <strong>Speaker:</strong> {speech.speaker?.full_name || 'Unknown'}
+                        </p>
+                      </div>
+                      <span className="speech-card__date">
                         {speech.meeting?.meeting_date ? fmtDate(speech.meeting.meeting_date) : 'No date'}
                       </span>
                     </div>
-                    <p style={{ fontSize: "0.9rem", color: "#cbd5e1", margin: "0.2rem 0 0.8rem" }}>
-                      <strong>Speaker:</strong> {speech.speaker?.full_name || 'Unknown'}
-                    </p>
                     <FeedbackForm speechId={speech.id} defaultValue={speech.feedback_notes || ''} />
                   </div>
                 ))}
@@ -182,50 +170,43 @@ export default async function SpeechesPage() {
         </div>
 
         {/* Sidebar: Log Speech Form */}
-        <aside style={{ ...cardStyle, position: "sticky", top: "80px" }}>
-          <h2 style={{ fontSize: "1.1rem", marginBottom: "0.25rem", fontWeight: "bold" }}>Log a Historical Speech</h2>
-          <p style={{ fontSize: "0.78rem", color: "#64748b", marginBottom: "1rem" }}>For speeches not recorded through the session dashboard.</p>
-          <form action={logSpeech} style={{ display: "flex", flexDirection: "column", gap: "0.9rem" }}>
-
-            <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem" }}>
-              <label style={{ fontSize: "0.85rem", color: "#94a3b8" }}>Title *</label>
-              <input type="text" name="title" required style={{ padding: "0.6rem", borderRadius: "6px", background: "rgba(0,0,0,0.3)", border: "1px solid var(--card-border)", color: "white" }} />
+        <aside className="speeches-sidebar wsc-card">
+          <h2>Log a Historical Speech</h2>
+          <p className="speeches-sidebar__hint">For speeches not recorded through the session dashboard.</p>
+          <form action={logSpeech} className="speeches-form">
+            <div className="speeches-form__field">
+              <label className="wsc-label" htmlFor="speech-title">Title *</label>
+              <input id="speech-title" type="text" name="title" required className="wsc-input" />
             </div>
-
-            <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem" }}>
-              <label style={{ fontSize: "0.85rem", color: "#94a3b8" }}>Meeting</label>
-              <select name="meeting_id" style={{ padding: "0.6rem", borderRadius: "6px", background: "rgba(0,0,0,0.3)", border: "1px solid var(--card-border)", color: "white" }}>
-                <option value="">Select a meeting...</option>
+            <div className="speeches-form__field">
+              <label className="wsc-label" htmlFor="speech-meeting">Meeting</label>
+              <select id="speech-meeting" name="meeting_id" className="wsc-input">
+                <option value="">Select a meeting…</option>
                 {meetings?.map(m => (
                   <option key={m.id} value={m.id}>{fmtDate(m.meeting_date)}</option>
                 ))}
               </select>
             </div>
-
-            <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem" }}>
-              <label style={{ fontSize: "0.85rem", color: "#94a3b8" }}>Pathway</label>
-              <input type="text" name="pathway" placeholder="e.g. Dynamic Leadership" style={{ padding: "0.6rem", borderRadius: "6px", background: "rgba(0,0,0,0.3)", border: "1px solid var(--card-border)", color: "white" }} />
+            <div className="speeches-form__field">
+              <label className="wsc-label" htmlFor="speech-pathway">Pathway</label>
+              <input id="speech-pathway" type="text" name="pathway" placeholder="e.g. Dynamic Leadership" className="wsc-input" />
             </div>
-
-            <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem" }}>
-              <label style={{ fontSize: "0.85rem", color: "#94a3b8" }}>Project</label>
-              <input type="text" name="project" placeholder="e.g. Ice Breaker" style={{ padding: "0.6rem", borderRadius: "6px", background: "rgba(0,0,0,0.3)", border: "1px solid var(--card-border)", color: "white" }} />
+            <div className="speeches-form__field">
+              <label className="wsc-label" htmlFor="speech-project">Project</label>
+              <input id="speech-project" type="text" name="project" placeholder="e.g. Ice Breaker" className="wsc-input" />
             </div>
-
-            <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem" }}>
-              <label style={{ fontSize: "0.85rem", color: "#94a3b8" }}>Evaluator</label>
-              <select name="evaluator_id" style={{ padding: "0.6rem", borderRadius: "6px", background: "rgba(0,0,0,0.3)", border: "1px solid var(--card-border)", color: "white" }}>
-                <option value="">Select evaluator...</option>
+            <div className="speeches-form__field">
+              <label className="wsc-label" htmlFor="speech-evaluator">Evaluator</label>
+              <select id="speech-evaluator" name="evaluator_id" className="wsc-input">
+                <option value="">Select evaluator…</option>
                 {evaluatorOptions.map(p => (
                   <option key={p.id} value={p.id}>{p.full_name || 'Unnamed'}</option>
                 ))}
               </select>
             </div>
-
-            <button type="submit" className="btn-primary" style={{ padding: "0.7rem", marginTop: "0.25rem" }}>Log Speech</button>
+            <button type="submit" className="wsc-btn wsc-btn-primary">Log Speech</button>
           </form>
         </aside>
-
       </div>
     </main>
   )
