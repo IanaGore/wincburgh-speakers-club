@@ -3,9 +3,10 @@ import { useRef, useState } from 'react'
 import { uploadMediaPhoto } from './actions'
 
 const MEDIA_SLOTS = [
-  { key: 'homepage_hero', label: 'Homepage Hero' },
-  { key: 'about_hero',    label: 'About Page Hero' },
-  { key: 'meetings_hero', label: 'Meetings Page Hero' },
+  { key: 'homepage_hero',           label: 'Homepage Hero (primary)' },
+  { key: 'homepage_hero_secondary', label: 'Homepage Hero (secondary)' },
+  { key: 'about_hero',              label: 'About Page Hero' },
+  { key: 'meetings_hero',           label: 'Meetings Page Hero' },
 ]
 
 interface MediaRow {
