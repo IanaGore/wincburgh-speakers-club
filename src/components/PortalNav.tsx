@@ -6,7 +6,7 @@ import { logout } from '@/app/login/actions'
 
 function activeStyle(pathname: string, href: string) {
   return pathname.startsWith(href)
-    ? { color: 'white', borderBottom: '2px solid var(--clay)', paddingBottom: '2px' }
+    ? { color: 'var(--ink)', borderBottom: '2px solid var(--clay)', paddingBottom: '2px' }
     : {}
 }
 
