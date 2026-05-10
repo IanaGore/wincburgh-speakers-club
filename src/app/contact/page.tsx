@@ -20,12 +20,12 @@ export default function ContactPage() {
               <p>Main Street, Winchburgh</p>
               <p>EH52 6RP</p>
             </address>
-            <p style={{ marginTop: 16, fontSize: 14, color: 'var(--ink-3)' }}>
+            <p className="contact-find-us__access">
               <strong>Parking:</strong> Free parking on site<br />
               <strong>Step-free:</strong> Yes — full wheelchair access<br />
               <strong>Hearing loop:</strong> Available in the main hall
             </p>
-            <a href="https://maps.google.com/?q=Winchburgh+Community+Centre" target="_blank" rel="noopener noreferrer" className="wsc-btn wsc-btn-ghost wsc-btn-sm" style={{ marginTop: 20, display: 'inline-block' }}>
+            <a href="https://maps.google.com/?q=Winchburgh+Community+Centre" target="_blank" rel="noopener noreferrer" className="wsc-btn wsc-btn-ghost wsc-btn-sm contact-find-us__link">
               Get directions
             </a>
           </div>

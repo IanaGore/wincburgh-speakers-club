@@ -11,6 +11,8 @@
 .contact-find-us { margin-bottom: 32px; }
 .contact-find-us h2 { font-size: 22px; margin: 12px 0 8px; }
 .contact-find-us address { font-style: normal; color: var(--ink-2); line-height: 1.7; }
+.contact-find-us__access { margin-top: 16px; font-size: 14px; color: var(--ink-3); }
+.contact-find-us__link { margin-top: 20px; display: inline-block; }
 
 .contact-faqs { display: flex; flex-direction: column; gap: 0; }
 .contact-faq { border-bottom: 1px solid var(--rule); padding: 16px 0; }
@@ -20,7 +22,8 @@
 .contact-faq p { margin-top: 12px; color: var(--ink-2); font-size: 15px; }
 
 @media (max-width: 1023px) {
-  .contact-inner { grid-template-columns: 1fr; gap: 48px; padding: 48px 32px; }
+  .contact-page { padding: 48px 32px; }
+  .contact-inner { grid-template-columns: 1fr; gap: 48px; }
 }
 @media (max-width: 767px) {
   .contact-page { padding: 40px 20px; }

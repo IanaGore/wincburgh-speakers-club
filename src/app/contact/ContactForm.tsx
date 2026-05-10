@@ -29,6 +29,10 @@ export default function ContactForm() {
         </div>
       </div>
       <div className="input-field">
+        <label className="wsc-label" htmlFor="phone">Phone <span style={{ color: 'var(--ink-4)', fontWeight: 400 }}>(optional)</span></label>
+        <input id="phone" name="phone" type="tel" className="wsc-input" placeholder="07700 000000" />
+      </div>
+      <div className="input-field">
         <label className="wsc-label" htmlFor="topic">What&apos;s it about?</label>
         <select id="topic" name="topic" className="wsc-input">
           <option value="">Choose a topic</option>
