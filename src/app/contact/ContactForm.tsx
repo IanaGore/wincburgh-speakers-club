@@ -3,7 +3,7 @@ import { useActionState } from 'react'
 import { sendContactMessage } from './actions'
 import Button from '@/components/ui/Button'
 
-const initialState = { success: false, error: null }
+const initialState: { success: boolean; error: string | null } = { success: false, error: null }
 
 export default function ContactForm() {
   const [state, formAction, pending] = useActionState(sendContactMessage, initialState)
@@ -11,7 +11,7 @@ export default function ContactForm() {
   if (state.success) {
     return (
       <div className="contact-success">
-        <p style={{ fontFamily: 'var(--serif)', fontSize: 20 }}>Message sent. We&apos;ll be in touch shortly.</p>
+        <p className="contact-success__message">Message sent. We&apos;ll be in touch shortly.</p>
       </div>
     )
   }
@@ -35,7 +35,7 @@ export default function ContactForm() {
       <div className="input-field">
         <label className="wsc-label" htmlFor="topic">What&apos;s it about?</label>
         <select id="topic" name="topic" className="wsc-input">
-          <option value="">Choose a topic</option>
+          <option value="general">General enquiry</option>
           <option value="visit">I&apos;d like to visit</option>
           <option value="membership">Membership question</option>
           <option value="venue">Venue / accessibility</option>
@@ -46,8 +46,8 @@ export default function ContactForm() {
         <label className="wsc-label" htmlFor="message">Your message</label>
         <textarea id="message" name="message" className="wsc-input wsc-textarea" required rows={5} placeholder="What would you like to know?" />
       </div>
-      <label className="contact-form__checkbox">
-        <input type="checkbox" name="sms_ok" />
+      <label className="contact-form__checkbox" htmlFor="sms_ok">
+        <input type="checkbox" name="sms_ok" id="sms_ok" />
         <span>It&apos;s OK to text me back on the number above</span>
       </label>
       {state.error && <p className="input-field__error">{state.error}</p>}

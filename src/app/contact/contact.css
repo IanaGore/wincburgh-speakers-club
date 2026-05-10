@@ -8,13 +8,30 @@
 .contact-form__checkbox { display: flex; align-items: center; gap: 10px; font-size: 14px; color: var(--ink-2); cursor: pointer; }
 .contact-form__checkbox input { width: 18px; height: 18px; accent-color: var(--gold); }
 
+/* Contact success state */
+.contact-success__message {
+  font-family: var(--serif);
+  font-size: 20px;
+  color: var(--ink);
+}
+
+/* Select styling */
+select.wsc-input {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 36px;
+}
+
 .contact-find-us { margin-bottom: 32px; }
 .contact-find-us h2 { font-size: 22px; margin: 12px 0 8px; }
 .contact-find-us address { font-style: normal; color: var(--ink-2); line-height: 1.7; }
 .contact-find-us__access { margin-top: 16px; font-size: 14px; color: var(--ink-3); }
 .contact-find-us__link { margin-top: 20px; display: inline-block; }
 
-.contact-faqs { display: flex; flex-direction: column; gap: 0; }
+.contact-faqs { display: flex; flex-direction: column; }
 .contact-faq { border-bottom: 1px solid var(--rule); padding: 16px 0; }
 .contact-faq summary { font-weight: 600; cursor: pointer; list-style: none; display: flex; justify-content: space-between; }
 .contact-faq summary::after { content: '+'; font-size: 20px; color: var(--ink-3); }
