@@ -77,6 +77,7 @@ export default async function Home() {
 
           <div className="home-hero__visual">
             <PhotoSlot
+              mediaKey="homepage_hero"
               label="member at lectern"
               className="home-hero__photo-large"
               style={{ width: '75%', height: '80%', top: 0, left: 0, position: 'absolute' }}
