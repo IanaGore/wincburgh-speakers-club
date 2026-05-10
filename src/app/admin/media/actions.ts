@@ -30,7 +30,10 @@ export async function uploadMediaPhoto(formData: FormData) {
   const { error: uploadError } = await supabase.storage
     .from(BUCKET)
     .upload(storagePath, buffer, { contentType: file.type, upsert: true })
-  if (uploadError) throw new Error(uploadError.message)
+  if (uploadError) {
+    console.error('[media] Storage upload failed:', uploadError.message)
+    throw new Error(`Storage: ${uploadError.message}`)
+  }
 
   const { error: dbError } = await supabase.from('media').upsert({
     key,
@@ -38,7 +41,10 @@ export async function uploadMediaPhoto(formData: FormData) {
     alt_text: altText,
     updated_at: new Date().toISOString(),
   })
-  if (dbError) throw new Error(dbError.message)
+  if (dbError) {
+    console.error('[media] DB upsert failed:', dbError.message)
+    throw new Error(`DB: ${dbError.message}`)
+  }
 
   revalidatePath('/admin/media')
 }
