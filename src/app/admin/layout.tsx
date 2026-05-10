@@ -32,7 +32,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   return (
     <div className="portal-root" style={{ minHeight: '100vh', background: 'var(--paper)', fontFamily: 'var(--sans)' }}>
       <PortalNav isAdminView={true} />
-      <main style={{ maxWidth: 1280, margin: '0 auto', padding: '40px 56px' }}>
+      <main style={{ padding: '40px clamp(24px, 4vw, 72px)' }}>
         {children}
       </main>
     </div>

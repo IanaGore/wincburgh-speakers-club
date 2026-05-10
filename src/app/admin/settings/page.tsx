@@ -14,7 +14,7 @@ export default async function AdminSettingsPage() {
     <div>
       <h1 style={{ fontFamily: 'var(--serif)', fontWeight: 500, fontSize: 32, margin: '8px 0 24px', color: 'var(--ink)' }}>Site Settings</h1>
 
-      <div className="wsc-card" style={{ maxWidth: 800, padding: '2rem' }}>
+      <div className="wsc-card" style={{ maxWidth: 800, padding: '2rem', margin: '0 auto' }}>
         <h2 style={{ fontFamily: 'var(--serif)', fontWeight: 500, fontSize: 22, margin: '0 0 1.5rem', color: 'var(--ink)' }}>Customize Public Homepage</h2>
         <form action={updateSettings} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
 
