@@ -17,7 +17,7 @@ export default function RemoveRoleButton({ assignmentId, meetingId, actionFn }: 
         onClick={() => {
           if (confirm('Remove this role? This cannot be undone.')) formRef.current?.requestSubmit()
         }}
-        style={{ background: "none", color: "#f87171", border: "none", cursor: "pointer", fontSize: "0.85rem" }}
+        className="wsc-btn wsc-btn-sm wsc-btn-ghost"
       >
         Remove
       </button>

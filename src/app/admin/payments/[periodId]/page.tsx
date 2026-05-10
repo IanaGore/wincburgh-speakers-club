@@ -33,87 +33,77 @@ export default async function PaymentPeriodPage({ params }: { params: Promise<{ 
   const unpaid = total - paid
 
   return (
-    <div style={{ padding: "4rem 5%", flex: 1 }}>
-      <div style={{ marginBottom: "2rem" }}>
-        <Link href="/admin/payments" style={{ color: "#94a3b8", fontSize: "0.9rem", textDecoration: "none" }}>
+    <div>
+      <div style={{ marginBottom: '2rem' }}>
+        <Link href="/admin/payments" style={{ color: 'var(--ink-3)', fontSize: '0.9rem', textDecoration: 'none', fontFamily: 'var(--mono)' }}>
           ← Back to Payments
         </Link>
-        <h1 style={{ fontSize: "2.2rem", margin: "0.75rem 0 0.25rem" }}>{period.label}</h1>
-        <p style={{ color: "#94a3b8", margin: 0 }}>
+        <h1 style={{ fontFamily: 'var(--serif)', fontWeight: 500, fontSize: 32, margin: '8px 0 4px', color: 'var(--ink)' }}>{period.label}</h1>
+        <p style={{ color: 'var(--ink-3)', margin: 0 }}>
           {formatDate(period.start_date)} → {formatDate(period.end_date)}
         </p>
       </div>
 
       {/* Summary stats */}
-      <div style={{ display: "flex", gap: "1rem", marginBottom: "2rem", flexWrap: "wrap" }}>
-        <div style={{ background: "var(--card-bg)", padding: "1rem 1.5rem", borderRadius: "12px", border: "1px solid var(--card-border)", textAlign: "center", minWidth: "100px" }}>
-          <div style={{ fontSize: "1.8rem", fontWeight: "bold" }}>{total}</div>
-          <div style={{ fontSize: "0.85rem", color: "#94a3b8" }}>Total</div>
+      <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
+        <div className="wsc-card" style={{ padding: '1rem 1.5rem', textAlign: 'center', minWidth: '100px' }}>
+          <div style={{ fontSize: '1.8rem', fontWeight: 700, color: 'var(--ink)' }}>{total}</div>
+          <div style={{ fontSize: '0.85rem', color: 'var(--ink-3)' }}>Total</div>
         </div>
-        <div style={{ background: "rgba(16, 185, 129, 0.1)", padding: "1rem 1.5rem", borderRadius: "12px", border: "1px solid rgba(16, 185, 129, 0.3)", textAlign: "center", minWidth: "100px" }}>
-          <div style={{ fontSize: "1.8rem", fontWeight: "bold", color: "#10b981" }}>{paid}</div>
-          <div style={{ fontSize: "0.85rem", color: "#94a3b8" }}>Paid</div>
+        <div className="wsc-card" style={{ padding: '1rem 1.5rem', textAlign: 'center', minWidth: '100px' }}>
+          <div style={{ fontSize: '1.8rem', fontWeight: 700, color: 'var(--ink)' }}>{paid}</div>
+          <div style={{ fontSize: '0.85rem' }}><span className="wsc-tag wsc-tag-sage">Paid</span></div>
         </div>
-        <div style={{ background: unpaid > 0 ? "rgba(248, 113, 113, 0.1)" : "rgba(16, 185, 129, 0.05)", padding: "1rem 1.5rem", borderRadius: "12px", border: `1px solid ${unpaid > 0 ? "rgba(248, 113, 113, 0.3)" : "rgba(16, 185, 129, 0.2)"}`, textAlign: "center", minWidth: "100px" }}>
-          <div style={{ fontSize: "1.8rem", fontWeight: "bold", color: unpaid > 0 ? "#f87171" : "#10b981" }}>{unpaid}</div>
-          <div style={{ fontSize: "0.85rem", color: "#94a3b8" }}>Outstanding</div>
+        <div className="wsc-card" style={{ padding: '1rem 1.5rem', textAlign: 'center', minWidth: '100px' }}>
+          <div style={{ fontSize: '1.8rem', fontWeight: 700, color: 'var(--ink)' }}>{unpaid}</div>
+          <div style={{ fontSize: '0.85rem' }}><span className={unpaid > 0 ? 'wsc-tag wsc-tag-gold' : 'wsc-tag wsc-tag-sage'}>Outstanding</span></div>
         </div>
       </div>
 
       {/* Member payment rows */}
-      <div style={{ background: "var(--card-bg)", borderRadius: "16px", border: "1px solid var(--card-border)" }}>
+      <div className="wsc-card" style={{ overflow: 'hidden' }}>
         {!memberPayments || memberPayments.length === 0 ? (
-          <div style={{ padding: "3rem", textAlign: "center", color: "#94a3b8" }}>
+          <div style={{ padding: '3rem', textAlign: 'center', color: 'var(--ink-3)' }}>
             No members found for this period.
           </div>
         ) : (
-          <div style={{ display: "flex", flexDirection: "column" }}>
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
             {memberPayments.map((mp: any) => {
               const profile = mp.profiles
               const hasPaid = mp.has_paid
 
               return (
-                <div key={mp.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "1rem 1.5rem", borderBottom: "1px solid var(--card-border)", flexWrap: "wrap", gap: "0.8rem" }}>
+                <div key={mp.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem 1.5rem', borderBottom: '1px solid var(--rule-soft)', flexWrap: 'wrap', gap: '0.8rem' }}>
                   <div>
-                    <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", flexWrap: "wrap" }}>
-                      <span style={{ fontWeight: "600" }}>{profile.full_name || 'Unnamed'}</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', flexWrap: 'wrap' }}>
+                      <span style={{ fontWeight: 600, color: 'var(--ink)' }}>{profile.full_name || 'Unnamed'}</span>
                       {profile.is_active === false && (
-                        <span style={{ background: "rgba(245, 158, 11, 0.1)", color: "#f59e0b", padding: "0.1rem 0.4rem", borderRadius: "8px", fontSize: "0.72rem" }}>Inactive</span>
+                        <span className="wsc-tag wsc-tag-gold">Inactive</span>
                       )}
                     </div>
                     {profile.club_roles?.length > 0 && (
-                      <div style={{ marginTop: "0.3rem", display: "flex", gap: "0.3rem", flexWrap: "wrap" }}>
+                      <div style={{ marginTop: '0.3rem', display: 'flex', gap: '0.3rem', flexWrap: 'wrap' }}>
                         {profile.club_roles.map((role: string) => (
-                          <span key={role} style={{ background: "rgba(14, 165, 233, 0.1)", color: "var(--primary)", padding: "0.1rem 0.4rem", borderRadius: "6px", fontSize: "0.75rem", border: "1px solid rgba(14, 165, 233, 0.2)" }}>
-                            {role}
-                          </span>
+                          <span key={role} className="wsc-tag wsc-tag-clay">{role}</span>
                         ))}
                       </div>
                     )}
                     {hasPaid && mp.paid_at && (
-                      <div style={{ marginTop: "0.3rem", fontSize: "0.78rem", color: "#64748b" }}>
+                      <div style={{ marginTop: '0.3rem', fontSize: '0.78rem', color: 'var(--ink-4)', fontFamily: 'var(--mono)' }}>
                         Paid {formatDate(mp.paid_at)}
                       </div>
                     )}
                   </div>
 
-                  <div style={{ display: "flex", alignItems: "center", gap: "0.8rem" }}>
-                    <span style={{
-                      background: hasPaid ? "rgba(16, 185, 129, 0.1)" : "rgba(248, 113, 113, 0.1)",
-                      color: hasPaid ? "#10b981" : "#f87171",
-                      padding: "0.3rem 0.7rem",
-                      borderRadius: "12px",
-                      fontSize: "0.85rem",
-                      fontWeight: "600",
-                      border: `1px solid ${hasPaid ? "rgba(16, 185, 129, 0.3)" : "rgba(248, 113, 113, 0.3)"}`
-                    }}>
-                      {hasPaid ? "Paid" : "Unpaid"}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+                    <span className={hasPaid ? 'wsc-tag wsc-tag-sage' : 'wsc-tag wsc-tag-gold'}>
+                      {hasPaid ? 'Paid' : 'Unpaid'}
                     </span>
                     <form action={toggleMemberPayment}>
                       <input type="hidden" name="period_id" value={period.id} />
                       <input type="hidden" name="member_id" value={profile.id} />
                       <input type="hidden" name="has_paid" value={hasPaid ? 'true' : 'false'} />
-                      <button type="submit" className="btn-secondary" style={{ padding: "0.35rem 0.75rem", fontSize: "0.8rem" }}>
+                      <button type="submit" className="wsc-btn wsc-btn-sm wsc-btn-ghost">
                         {hasPaid ? 'Mark Unpaid' : 'Mark Paid'}
                       </button>
                     </form>
