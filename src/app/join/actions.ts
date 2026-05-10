@@ -10,7 +10,7 @@ export async function completeConversion(prevState: { error: string | null }, fo
   // Look up the signup by conversion token
   const { data: signup, error: lookupError } = await supabase
     .from('signups')
-    .select('*')
+    .select('id, email, first_name, last_name, phone')
     .eq('conversion_token', token)
     .is('conversion_token_used_at', null)
     .gt('conversion_token_expires_at', new Date().toISOString())
@@ -31,7 +31,7 @@ export async function completeConversion(prevState: { error: string | null }, fo
   }
 
   // Create profile row
-  await supabase.from('profiles').upsert({
+  const { error: profileError } = await supabase.from('profiles').upsert({
     id: authData.user.id,
     first_name: signup.first_name,
     last_name: signup.last_name,
@@ -39,12 +39,14 @@ export async function completeConversion(prevState: { error: string | null }, fo
     phone: signup.phone,
     is_admin: false,
   })
+  if (profileError) return { error: 'Account created but profile setup failed. Please contact us.' }
 
   // Mark signup as converted
-  await supabase.from('signups').update({
+  const { error: updateError } = await supabase.from('signups').update({
     status: 'converted',
     conversion_token_used_at: new Date().toISOString(),
   }).eq('id', signup.id)
+  if (updateError) console.error('[join] failed to mark signup as converted:', updateError)
 
   redirect('/member/dashboard')
 }

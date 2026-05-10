@@ -26,8 +26,8 @@ export default async function JoinPage({ searchParams }: { searchParams: Promise
       </div>
       <main className="join-main">
         <EyebrowLabel tone="clay">Welcome to the club</EyebrowLabel>
-        <h1>Set up your account, <em style={{fontStyle:'italic',color:'oklch(0.55 0.155 60)'}}>{signup.first_name}</em>.</h1>
-        <p style={{color:'var(--ink-2)',marginBottom:32}}>
+        <h1>Set up your account, <em className="join-main__name-em">{signup.first_name}</em>.</h1>
+        <p className="join-main__intro">
           Your details are already filled in from when you signed up. Just choose a password and you&apos;re in.
         </p>
         <JoinForm
