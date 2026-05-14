@@ -213,7 +213,7 @@
 .dash-meeting-item-date {
   font-family: var(--serif);
   font-size: 17px;
-  color: var(--ink);
+  color: var(--foreground);
 }
 .dash-meeting-item-theme {
   font-family: var(--mono);

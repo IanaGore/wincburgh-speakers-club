@@ -11,7 +11,7 @@
   font-family: var(--serif);
   font-size: 2rem;
   font-weight: 500;
-  color: var(--ink);
+  color: var(--foreground);
   margin: 0;
 }
 
@@ -38,7 +38,7 @@
   font-size: 1.4rem;
   font-weight: 500;
   margin-bottom: 1rem;
-  color: var(--ink);
+  color: var(--foreground);
 }
 
 .speeches-section--evals h2 {
@@ -138,7 +138,8 @@
 
 .speeches-section__hint {
   font-size: 0.85rem;
-  color: var(--ink-4);
+  color: var(--foreground);
+  opacity: 0.6;
   margin-bottom: 1rem;
   margin-top: 0;
 }
