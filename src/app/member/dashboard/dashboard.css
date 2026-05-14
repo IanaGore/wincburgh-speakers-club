@@ -1,7 +1,7 @@
 .dashboard-page { padding: 48px clamp(24px, 4vw, 72px); }
 
 .dashboard-greeting { margin-bottom: 40px; }
-.dashboard-greeting h1 { font-size: 44px; margin-top: 6px; }
+.dashboard-greeting h1 { font-size: 44px; margin-top: 6px; color: oklch(0.92 0.02 240); }
 
 .dashboard-grid {
   display: grid;
