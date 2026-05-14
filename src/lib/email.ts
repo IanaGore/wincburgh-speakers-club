@@ -3,6 +3,15 @@ import { Resend } from 'resend'
 const resend = new Resend(process.env.RESEND_API_KEY)
 const FROM = 'West Lothian Speakers Club noreply@ohthepennydrops.uk'
 
+function esc(s: string): string {
+  return s
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#x27;')
+}
+
 export async function sendInviteEmail(
   to: string,
   firstName: string,
@@ -15,10 +24,10 @@ export async function sendInviteEmail(
     to,
     subject: 'Your invitation to join West Lothian Speakers Club',
     html: `
-      <p>Hi ${firstName},</p>
+      <p>Hi ${esc(firstName)},</p>
       <p>You've been invited to create your member account at West Lothian Speakers Club.</p>
-      <p><a href="${joinUrl}" style="background:#7c3aed;color:#fff;padding:12px 24px;border-radius:6px;text-decoration:none;display:inline-block;margin:16px 0">Set up your account</a></p>
-      <p>This link expires on <strong>${expiry}</strong>.</p>
+      <p><a href="${esc(joinUrl)}" style="background:#7c3aed;color:#fff;padding:12px 24px;border-radius:6px;text-decoration:none;display:inline-block;margin:16px 0">Set up your account</a></p>
+      <p>This link expires on <strong>${esc(expiry)}</strong>.</p>
       <p>If you weren't expecting this, you can ignore it safely.</p>
     `,
   })
@@ -41,11 +50,11 @@ export async function sendContactNotification(
     to: adminEmail,
     subject: `New contact message from ${payload.name}`,
     html: `
-      <p><strong>From:</strong> ${payload.name} (${payload.email})</p>
-      ${payload.phone ? `<p><strong>Phone:</strong> ${payload.phone}</p>` : ''}
-      ${payload.topic ? `<p><strong>Topic:</strong> ${payload.topic}</p>` : ''}
+      <p><strong>From:</strong> ${esc(payload.name)} (${esc(payload.email)})</p>
+      ${payload.phone ? `<p><strong>Phone:</strong> ${esc(payload.phone)}</p>` : ''}
+      ${payload.topic ? `<p><strong>Topic:</strong> ${esc(payload.topic)}</p>` : ''}
       <hr/>
-      <p>${payload.message.replace(/\n/g, '<br/>')}</p>
+      <p>${esc(payload.message).replace(/\n/g, '<br/>')}</p>
     `,
   })
 }

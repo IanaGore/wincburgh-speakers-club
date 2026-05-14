@@ -6,6 +6,16 @@ import { sendInviteEmail } from '@/lib/email'
 
 export async function markAttended(signupId: string) {
   const supabase = await createClient()
+
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Not authenticated')
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('is_admin')
+    .eq('id', user.id)
+    .single()
+  if (!profile?.is_admin) throw new Error('Admin access required')
+
   const { error } = await supabase.from('signups').update({ status: 'attended' }).eq('id', signupId)
   if (error) throw new Error(error.message)
   revalidatePath('/admin/signups')
