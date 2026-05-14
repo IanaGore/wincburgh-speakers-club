@@ -45,8 +45,8 @@ export default async function ProfilePage() {
   return (
     <div style={{ padding: "clamp(2rem, 5vw, 4rem) 5%", flex: 1, maxWidth: "1200px", margin: "0 auto", width: "100%" }}>
       <div style={{ marginBottom: "2rem" }}>
-        <h1 style={{ fontSize: "clamp(1.8rem, 5vw, 2.5rem)", fontWeight: "700", margin: 0 }}>My Profile</h1>
-        <p style={{ color: "#94a3b8", marginTop: "0.5rem" }}>Manage your personal details and track your speech progress.</p>
+        <h1 style={{ fontSize: "clamp(1.8rem, 5vw, 2.5rem)", fontWeight: "700", margin: 0, color: "oklch(0.92 0.02 240)" }}>My Profile</h1>
+        <p style={{ color: "oklch(0.68 0.030 235)", marginTop: "0.5rem" }}>Manage your personal details and track your speech progress.</p>
       </div>
 
       <div style={{ display: "flex", gap: "2rem", flexWrap: "wrap", alignItems: "flex-start" }}>
