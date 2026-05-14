@@ -29,7 +29,8 @@
 }
 
 /* Restore dark ink inside light-background cards so text stays readable */
-.portal-root .wsc-card {
+.portal-root .wsc-card,
+.portal-root .dash-sidebar-card {
   --ink:   oklch(0.24 0.040 245);
   --ink-2: oklch(0.38 0.045 245);
   --ink-3: oklch(0.54 0.040 240);
