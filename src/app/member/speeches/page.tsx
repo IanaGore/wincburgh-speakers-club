@@ -31,17 +31,21 @@ export default async function SpeechesPage() {
     .eq('member_id', user.id)
   const sortedSessionEvals = (sessionEvals ?? []).sort(sortByDate)
 
-  const { data: mySpeeches } = await supabase
+  const { data: mySpeeches, error: mySpeechesError } = await supabase
     .from('speeches')
     .select('*, meeting:meetings(meeting_date), evaluator:profiles!speeches_evaluator_id_fkey(full_name)')
     .eq('member_id', user.id)
     .order('created_at', { ascending: false })
 
-  const { data: evaluatingSpeeches } = await supabase
+  if (mySpeechesError) throw new Error('mySpeeches: ' + mySpeechesError.message)
+
+  const { data: evaluatingSpeeches, error: evalError } = await supabase
     .from('speeches')
     .select('*, meeting:meetings(meeting_date), speaker:profiles!speeches_member_id_fkey(full_name)')
     .eq('evaluator_id', user.id)
     .order('created_at', { ascending: false })
+
+  if (evalError) throw new Error('evaluatingSpeeches: ' + evalError.message)
 
   const { data: profiles } = await supabase.from('profiles').select('id, full_name').order('full_name')
   const { data: meetings } = await supabase.from('meetings').select('id, meeting_date').order('meeting_date', { ascending: false })
