@@ -1,6 +1,7 @@
 import { createClient } from '@/utils/supabase/server'
-import { logSpeech, deleteSpeech } from './actions'
+import { logSpeech } from './actions'
 import FeedbackForm from './FeedbackForm'
+import DeleteSpeechButton from './DeleteSpeechButton'
 import EyebrowLabel from '@/components/ui/EyebrowLabel'
 import './speeches.css'
 
@@ -31,21 +32,17 @@ export default async function SpeechesPage() {
     .eq('member_id', user.id)
   const sortedSessionEvals = (sessionEvals ?? []).sort(sortByDate)
 
-  const { data: mySpeeches, error: mySpeechesError } = await supabase
+  const { data: mySpeeches } = await supabase
     .from('speeches')
     .select('*, meeting:meetings(meeting_date), evaluator:profiles!speeches_evaluator_id_fkey(full_name)')
     .eq('member_id', user.id)
     .order('created_at', { ascending: false })
 
-  if (mySpeechesError) throw new Error('mySpeeches: ' + mySpeechesError.message)
-
-  const { data: evaluatingSpeeches, error: evalError } = await supabase
+  const { data: evaluatingSpeeches } = await supabase
     .from('speeches')
     .select('*, meeting:meetings(meeting_date), speaker:profiles!speeches_member_id_fkey(full_name)')
     .eq('evaluator_id', user.id)
     .order('created_at', { ascending: false })
-
-  if (evalError) throw new Error('evaluatingSpeeches: ' + evalError.message)
 
   const { data: profiles } = await supabase.from('profiles').select('id, full_name').order('full_name')
   const { data: meetings } = await supabase.from('meetings').select('id, meeting_date').order('meeting_date', { ascending: false })
@@ -120,10 +117,7 @@ export default async function SpeechesPage() {
                       <span className="speech-card__date">
                         {speech.meeting?.meeting_date ? fmtDate(speech.meeting.meeting_date) : 'No date'}
                       </span>
-                      <form action={deleteSpeech} onSubmit={e => { if (!confirm('Delete this speech entry?')) e.preventDefault() }}>
-                        <input type="hidden" name="speechId" value={speech.id} />
-                        <button type="submit" className="speech-delete-btn">Delete</button>
-                      </form>
+                      <DeleteSpeechButton speechId={speech.id} />
                     </div>
                   </div>
                   <div className="speech-card__details">
