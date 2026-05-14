@@ -28,6 +28,14 @@
   --ink-4: oklch(0.55 0.020 235);
 }
 
+/* Restore dark ink inside light-background cards so text stays readable */
+.portal-root .wsc-card {
+  --ink:   oklch(0.24 0.040 245);
+  --ink-2: oklch(0.38 0.045 245);
+  --ink-3: oklch(0.54 0.040 240);
+  --ink-4: oklch(0.68 0.030 235);
+}
+
 /* Legacy button classes used by portal pages */
 .portal-root .btn-primary {
   background: var(--primary);
