@@ -33,13 +33,13 @@ export default async function SpeechesPage() {
 
   const { data: mySpeeches } = await supabase
     .from('speeches')
-    .select('*, meeting:meetings(meeting_date), evaluator:profiles!evaluator_id(full_name)')
+    .select('*, meeting:meetings(meeting_date), evaluator:profiles!speeches_evaluator_id_fkey(full_name)')
     .eq('member_id', user.id)
     .order('created_at', { ascending: false })
 
   const { data: evaluatingSpeeches } = await supabase
     .from('speeches')
-    .select('*, meeting:meetings(meeting_date), speaker:profiles!member_id(full_name)')
+    .select('*, meeting:meetings(meeting_date), speaker:profiles!speeches_member_id_fkey(full_name)')
     .eq('evaluator_id', user.id)
     .order('created_at', { ascending: false })
 
