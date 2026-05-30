@@ -23,11 +23,15 @@ if [[ ! -f "$ENV_LOCAL" ]]; then
   exit 1
 fi
 
-set -a; source "$ENV_LOCAL"; set +a
+# Extract only the vars we need — avoids bash parse errors from values with
+# spaces or special characters (e.g. RESEND_FROM_EMAIL=Name <email>)
+get_env_var() {
+  grep -E "^${1}=" "$ENV_LOCAL" | head -1 | cut -d'=' -f2-
+}
 
-SUPABASE_URL="${NEXT_PUBLIC_SUPABASE_URL:-}"
-SERVICE_ROLE_KEY="${SUPABASE_SERVICE_ROLE_KEY:-}"
-ANON_KEY="${NEXT_PUBLIC_SUPABASE_ANON_KEY:-}"
+SUPABASE_URL="$(get_env_var NEXT_PUBLIC_SUPABASE_URL)"
+SERVICE_ROLE_KEY="$(get_env_var SUPABASE_SERVICE_ROLE_KEY)"
+ANON_KEY="$(get_env_var NEXT_PUBLIC_SUPABASE_ANON_KEY)"
 
 if [[ -z "$SUPABASE_URL" || -z "$SERVICE_ROLE_KEY" || -z "$ANON_KEY" ]]; then
   echo "ERROR: Missing required env vars in .env.local:"
