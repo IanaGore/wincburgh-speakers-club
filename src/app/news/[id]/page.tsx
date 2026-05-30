@@ -45,11 +45,11 @@ export default async function SingleNewsPage({ params }: { params: Promise<{ id:
               {new Date(post.published_at).toLocaleDateString('en-GB', { month: 'long', day: 'numeric', year: 'numeric' })}
             </div>
             <h1 style={{ fontSize: "3.5rem", marginBottom: "1rem", lineHeight: "1.2" }}>{post.title}</h1>
-            <div style={{ fontSize: "1rem", color: "var(--muted, #64748b)", marginBottom: "3rem", paddingBottom: "1rem", borderBottom: "1px solid rgba(255,255,255,0.1)" }}>
-              By {(post.profiles as any)?.full_name || 'Club Committee'}
+            <div style={{ fontSize: "1rem", color: "var(--muted, #64748b)", marginBottom: "3rem", paddingBottom: "1rem", borderBottom: "1px solid var(--card-border)" }}>
+              By {(post.profiles as unknown as { full_name: string | null } | null)?.full_name || 'Club Committee'}
             </div>
 
-            <div style={{ fontSize: "1.15rem", lineHeight: "1.8", color: "#cbd5e1", whiteSpace: "pre-wrap" }}>
+            <div style={{ fontSize: "1.15rem", lineHeight: "1.8", color: "var(--foreground)", whiteSpace: "pre-wrap" }}>
               {post.content}
             </div>
           </div>
