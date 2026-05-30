@@ -47,6 +47,17 @@ export default async function Home() {
     .from('profiles')
     .select('*', { count: 'exact', head: true })
 
+  const { data: settings } = await supabase
+    .from('site_settings')
+    .select('how_it_works_eyebrow, how_it_works_heading, how_it_works_heading_em')
+    .eq('id', 1)
+    .single()
+
+  const { data: howItWorksSteps } = await supabase
+    .from('how_it_works_steps')
+    .select('id, title, body')
+    .order('sort_order', { ascending: true })
+
   const nextMeeting = events?.[0]
 
   return (
@@ -117,34 +128,23 @@ export default async function Home() {
         <section className="home-how" id="about">
           <div className="home-how__inner">
             <div className="home-how__header">
-              <EyebrowLabel tone="clay">How it works</EyebrowLabel>
-              <h2>We keep it simple. <em>You keep your seat.</em></h2>
+              <EyebrowLabel tone="clay">{settings?.how_it_works_eyebrow ?? 'How it works'}</EyebrowLabel>
+              <h2>
+                {settings?.how_it_works_heading ?? 'We keep it simple.'}{' '}
+                {settings?.how_it_works_heading_em && <em>{settings.how_it_works_heading_em}</em>}
+              </h2>
             </div>
-            <div className="home-how__steps">
-              {[
-                {
-                  num: 'Step 01',
-                  title: 'Just turn up',
-                  body: 'No booking needed for your first three visits. The kettle goes on at half six. Meeting starts at seven. Someone will meet you at the door.',
-                },
-                {
-                  num: 'Step 02',
-                  title: 'Watch and listen',
-                  body: "You won't be asked to speak until you're ready. Watch how it works, ask questions, eat a biscuit. There's absolutely no pressure.",
-                },
-                {
-                  num: 'Step 03',
-                  title: 'Find your pace',
-                  body: "When you're ready, take a role. Give a speech. Get feedback. We follow the Pathways programme — or we can just be your Tuesday-night practice ground.",
-                },
-              ].map((step) => (
-                <div key={step.num} className="home-how__step">
-                  <div className="home-how__step-num">{step.num}</div>
-                  <h3>{step.title}</h3>
-                  <p>{step.body}</p>
-                </div>
-              ))}
-            </div>
+            {howItWorksSteps && howItWorksSteps.length > 0 && (
+              <div className="home-how__steps">
+                {howItWorksSteps.map((step, i) => (
+                  <div key={step.id} className="home-how__step">
+                    <div className="home-how__step-num">Step {String(i + 1).padStart(2, '0')}</div>
+                    <h3>{step.title}</h3>
+                    <p>{step.body}</p>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </section>
 
