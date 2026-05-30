@@ -213,7 +213,7 @@
 .dash-meeting-item-date {
   font-family: var(--serif);
   font-size: 17px;
-  color: var(--foreground);
+  color: var(--ink);
 }
 .dash-meeting-item-theme {
   font-family: var(--mono);
@@ -226,6 +226,14 @@
   gap: 2px;
   margin-top: 12px;
 }
+
+/* Role rows inside light meeting cards need dark text */
+.dash-meeting-item .dash-role__name { color: var(--ink); }
+.dash-meeting-item .dash-role__status { color: var(--ink-3); }
+.dash-meeting-item .dash-role__speech-detail { color: var(--ink-3); }
+.dash-meeting-item .dash-role:hover { background: oklch(0 0 0 / 0.04); }
+.dash-meeting-item .dash-drop-btn { color: oklch(0.55 0.15 25); }
+.dash-meeting-item .dash-btn-ghost-sm { color: var(--ink-3); }
 
 /* Sidebar */
 .dash-sidebar-card { background: var(--paper); border: 1px solid var(--rule); border-radius: var(--r-lg); padding: 24px; margin-bottom: 16px; }

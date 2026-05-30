@@ -1,4 +1,4 @@
-create table if not exists speeches (
+create table if not exists public.speeches (
   id           uuid primary key default gen_random_uuid(),
   member_id    uuid not null references profiles(id) on delete cascade,
   evaluator_id uuid references profiles(id) on delete set null,
@@ -19,33 +19,43 @@ create index if not exists speeches_meeting_id_idx   on speeches(meeting_id);
 alter table speeches enable row level security;
 
 -- Members can see their own speeches and speeches they are evaluating
-create policy "members read own speeches"
-  on speeches for select
-  using (auth.uid() = member_id or auth.uid() = evaluator_id);
+do $$ begin
+  create policy "members read own speeches"
+    on speeches for select
+    using (auth.uid() = member_id or auth.uid() = evaluator_id);
+exception when duplicate_object then null; end $$;
 
 -- Members can insert their own speeches
-create policy "members insert own speeches"
-  on speeches for insert
-  with check (auth.uid() = member_id);
+do $$ begin
+  create policy "members insert own speeches"
+    on speeches for insert
+    with check (auth.uid() = member_id);
+exception when duplicate_object then null; end $$;
 
 -- Members can delete their own speeches
-create policy "members delete own speeches"
-  on speeches for delete
-  using (auth.uid() = member_id);
+do $$ begin
+  create policy "members delete own speeches"
+    on speeches for delete
+    using (auth.uid() = member_id);
+exception when duplicate_object then null; end $$;
 
 -- Evaluators can update feedback_notes on speeches assigned to them;
 -- members can update their own speech metadata
-create policy "members and evaluators update speeches"
-  on speeches for update
-  using (auth.uid() = member_id or auth.uid() = evaluator_id);
+do $$ begin
+  create policy "members and evaluators update speeches"
+    on speeches for update
+    using (auth.uid() = member_id or auth.uid() = evaluator_id);
+exception when duplicate_object then null; end $$;
 
 -- Admins can read all speeches
-create policy "admins read all speeches"
-  on speeches for select
-  using (
-    exists (
-      select 1 from profiles
-      where profiles.id = auth.uid()
-        and profiles.is_admin = true
-    )
-  );
+do $$ begin
+  create policy "admins read all speeches"
+    on speeches for select
+    using (
+      exists (
+        select 1 from profiles
+        where profiles.id = auth.uid()
+          and profiles.is_admin = true
+      )
+    );
+exception when duplicate_object then null; end $$;

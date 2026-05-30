@@ -15,7 +15,17 @@ export async function volunteerForRole(formData: FormData) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error("Unauthorized")
 
-  const memberId = (targetMemberId && targetMemberId.trim()) ? targetMemberId : user.id
+  // Only admins may assign a role to another member
+  let memberId = user.id
+  if (targetMemberId && targetMemberId.trim() && targetMemberId !== user.id) {
+    const { data: callerProfile } = await supabase
+      .from('profiles')
+      .select('is_admin')
+      .eq('id', user.id)
+      .single()
+    if (!callerProfile?.is_admin) throw new Error('Only admins can assign roles to other members.')
+    memberId = targetMemberId
+  }
 
   // Prevent the same member from holding multiple roles in the same meeting
   if (meetingId) {

@@ -10,13 +10,25 @@ export async function updateProfile(formData: FormData) {
   if (!user) throw new Error("Unauthorized")
 
   const full_name = formData.get('full_name') as string
-  const avatar_url = formData.get('avatar_url') as string
+  const raw_avatar_url = (formData.get('avatar_url') as string | null) ?? ''
   const contact_email = formData.get('contact_email') as string
   const phone = formData.get('phone') as string
-  
+
+  // Only allow https:// URLs to prevent CSS/JS injection via the background-image property
+  let avatar_url: string | null = null
+  if (raw_avatar_url.trim()) {
+    try {
+      const parsed = new URL(raw_avatar_url.trim())
+      if (parsed.protocol !== 'https:') throw new Error('Invalid protocol')
+      avatar_url = parsed.href
+    } catch {
+      throw new Error('Avatar URL must be a valid https:// URL')
+    }
+  }
+
   const { error } = await supabase
     .from('profiles')
-    .update({ 
+    .update({
       full_name,
       avatar_url,
       contact_email,
