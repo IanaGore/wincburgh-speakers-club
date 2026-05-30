@@ -15,12 +15,20 @@ CREATE TABLE IF NOT EXISTS public.member_payments (
 
 -- RLS
 ALTER TABLE public.payment_periods ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Everyone can view payment periods" ON public.payment_periods FOR SELECT USING (true);
-CREATE POLICY "Admins can manage payment periods" ON public.payment_periods FOR ALL USING (public.is_admin());
+DO $$ BEGIN
+  CREATE POLICY "Everyone can view payment periods" ON public.payment_periods FOR SELECT USING (true);
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+DO $$ BEGIN
+  CREATE POLICY "Admins can manage payment periods" ON public.payment_periods FOR ALL USING (public.is_admin());
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
 ALTER TABLE public.member_payments ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Admins can manage payments" ON public.member_payments FOR ALL USING (public.is_admin());
-CREATE POLICY "Members can view own payments" ON public.member_payments FOR SELECT USING (auth.uid() = member_id);
+DO $$ BEGIN
+  CREATE POLICY "Admins can manage payments" ON public.member_payments FOR ALL USING (public.is_admin());
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+DO $$ BEGIN
+  CREATE POLICY "Members can view own payments" ON public.member_payments FOR SELECT USING (auth.uid() = member_id);
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
 -- Add new columns to profiles
 ALTER TABLE public.profiles 

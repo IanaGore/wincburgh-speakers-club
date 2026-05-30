@@ -5,6 +5,7 @@
 drop policy if exists "members and evaluators update speeches" on speeches;
 
 -- Members may update metadata on their own speeches (but not evaluator_id / member_id)
+drop policy if exists "members update own speech metadata" on speeches;
 create policy "members update own speech metadata"
   on speeches for update
   using (auth.uid() = member_id)
@@ -16,6 +17,7 @@ create policy "members update own speech metadata"
 
 -- Evaluators may update only feedback_notes on speeches assigned to them.
 -- The WITH CHECK prevents them from changing ownership or metadata columns.
+drop policy if exists "evaluators update feedback_notes" on speeches;
 create policy "evaluators update feedback_notes"
   on speeches for update
   using (auth.uid() = evaluator_id)
