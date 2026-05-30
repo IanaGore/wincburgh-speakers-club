@@ -1,0 +1,6 @@
+# Copy to terraform.tfvars and fill in your values
+# NEVER commit terraform.tfvars — it contains secrets
+
+grafana_url                   = "https://yourteam.grafana.net"
+grafana_service_account_token = "glsa_xxxxxxxxxxxxxxxxxxxx"
+site_url                      = "https://your-site.vercel.app"

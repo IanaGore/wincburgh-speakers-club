@@ -54,3 +54,10 @@ next-env.d.ts
 # Load test outputs and credentials
 .env.load-test
 load-tests/results/*.json
+
+# Terraform — state and secrets
+infra/.terraform/
+infra/.terraform.lock.hcl
+infra/terraform.tfvars
+infra/terraform.tfstate
+infra/terraform.tfstate.backup
