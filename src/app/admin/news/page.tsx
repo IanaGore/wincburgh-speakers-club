@@ -1,5 +1,6 @@
 import { createClient } from '@/utils/supabase/server'
 import { createPost, deletePost } from './actions'
+import NewsImageUploader from './NewsImageUploader'
 
 export default async function AdminNewsPage() {
   const supabase = await createClient()
@@ -8,6 +9,15 @@ export default async function AdminNewsPage() {
     .from('news_posts')
     .select('*')
     .order('published_at', { ascending: false })
+
+  // Batch-fetch media rows for all post images
+  const mediaKeys = (posts ?? []).map(p => `news_post_${p.id}`)
+  const { data: mediaRows } = mediaKeys.length > 0
+    ? await supabase.from('media').select('key, storage_path, alt_text').in('key', mediaKeys)
+    : { data: [] }
+
+  const bucketUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/site-media`
+  const mediaByKey = Object.fromEntries((mediaRows ?? []).map(r => [r.key, r]))
 
   return (
     <div>
@@ -42,26 +52,37 @@ export default async function AdminNewsPage() {
             </div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              {posts?.map(post => (
-                <div key={post.id} className="wsc-card" style={{ padding: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem' }}>
-                  <div>
-                    <h3 style={{ fontSize: '1.1rem', fontFamily: 'var(--serif)', fontWeight: 500, color: 'var(--ink)', marginBottom: '0.25rem' }}>
-                      {post.title}
-                    </h3>
-                    <p style={{ color: 'var(--ink-4)', fontSize: '0.85rem', fontFamily: 'var(--mono)', margin: 0 }}>{new Date(post.published_at).toLocaleDateString()}</p>
+              {posts?.map(post => {
+                const mediaKey = `news_post_${post.id}`
+                const row = mediaByKey[mediaKey]
+                const existingImageUrl = row ? `${bucketUrl}/${row.storage_path}` : null
+
+                return (
+                  <div key={post.id} className="wsc-card" style={{ padding: '1.5rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem' }}>
+                      <div>
+                        <h3 style={{ fontSize: '1.1rem', fontFamily: 'var(--serif)', fontWeight: 500, color: 'var(--ink)', marginBottom: '0.25rem' }}>
+                          {post.title}
+                        </h3>
+                        <p style={{ color: 'var(--ink-4)', fontSize: '0.85rem', fontFamily: 'var(--mono)', margin: 0 }}>
+                          {new Date(post.published_at).toLocaleDateString()}
+                        </p>
+                      </div>
+                      <form action={async () => {
+                        'use server'
+                        await deletePost(post.id)
+                      }}>
+                        <button className="wsc-btn wsc-btn-sm wsc-btn-ghost">Delete</button>
+                      </form>
+                    </div>
+                    <NewsImageUploader
+                      postId={post.id}
+                      existingImageUrl={existingImageUrl}
+                      existingAltText={row?.alt_text ?? null}
+                    />
                   </div>
-                  <div>
-                    <form action={async () => {
-                      'use server'
-                      await deletePost(post.id)
-                    }}>
-                      <button className="wsc-btn wsc-btn-sm wsc-btn-ghost">
-                        Delete
-                      </button>
-                    </form>
-                  </div>
-                </div>
-              ))}
+                )
+              })}
             </div>
           )}
         </div>
