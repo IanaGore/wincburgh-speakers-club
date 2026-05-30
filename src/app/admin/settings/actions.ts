@@ -46,17 +46,20 @@ export async function addStep() {
 
   const nextOrder = (maxRow?.sort_order ?? 0) + 1
 
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from('how_it_works_steps')
     .insert({ title: 'New step', body: 'Describe this step.', sort_order: nextOrder })
+    .select('id, title, body')
+    .single()
 
-  if (error) {
+  if (error || !data) {
     console.error(error)
     throw new Error('Failed to add step')
   }
 
   revalidatePath('/')
   revalidatePath('/admin/settings')
+  return data
 }
 
 export async function updateStep(id: string, title: string, body: string) {

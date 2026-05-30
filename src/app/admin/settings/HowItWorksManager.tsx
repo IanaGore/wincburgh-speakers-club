@@ -11,6 +11,7 @@ export default function HowItWorksManager({ initialSteps }: { initialSteps: Step
   const [steps, setSteps] = useState<Step[]>(initialSteps)
   const [dragIndex, setDragIndex] = useState<number | null>(null)
   const [isPending, startTransition] = useTransition()
+  const [error, setError] = useState<string | null>(null)
 
   function editField(id: string, field: 'title' | 'body', value: string) {
     setSteps((prev) => prev.map((s) => (s.id === id ? { ...s, [field]: value } : s)))
@@ -18,22 +19,36 @@ export default function HowItWorksManager({ initialSteps }: { initialSteps: Step
 
   function handleSave(step: Step) {
     startTransition(async () => {
-      await updateStep(step.id, step.title, step.body)
-      router.refresh()
+      try {
+        await updateStep(step.id, step.title, step.body)
+        router.refresh()
+      } catch {
+        setError('Could not save that step. Please try again.')
+      }
     })
   }
 
   function handleDelete(id: string) {
+    setSteps((prev) => prev.filter((s) => s.id !== id))
     startTransition(async () => {
-      await deleteStep(id)
-      router.refresh()
+      try {
+        await deleteStep(id)
+        router.refresh()
+      } catch {
+        setError('Could not delete that step. Please reload and try again.')
+      }
     })
   }
 
   function handleAdd() {
     startTransition(async () => {
-      await addStep()
-      router.refresh()
+      try {
+        const newStep = await addStep()
+        setSteps((prev) => [...prev, newStep])
+        router.refresh()
+      } catch {
+        setError('Could not add a step. Please try again.')
+      }
     })
   }
 
@@ -48,13 +63,22 @@ export default function HowItWorksManager({ initialSteps }: { initialSteps: Step
     setSteps(next)
     setDragIndex(null)
     startTransition(async () => {
-      await reorderSteps(next.map((s) => s.id))
-      router.refresh()
+      try {
+        await reorderSteps(next.map((s) => s.id))
+        router.refresh()
+      } catch {
+        setError('Could not save the new order. Please reload and try again.')
+      }
     })
   }
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+      {error && (
+        <p role="alert" style={{ color: 'var(--clay)', margin: 0, fontSize: 14 }}>
+          {error}
+        </p>
+      )}
       {steps.length === 0 && (
         <p style={{ color: 'var(--ink-3)', margin: 0 }}>
           No steps yet. Add one below.
@@ -68,6 +92,7 @@ export default function HowItWorksManager({ initialSteps }: { initialSteps: Step
           onDragStart={() => setDragIndex(i)}
           onDragOver={(e) => e.preventDefault()}
           onDrop={() => handleDrop(i)}
+          onDragEnd={() => setDragIndex(null)}
           className="wsc-card"
           style={{
             padding: '1rem',
