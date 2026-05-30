@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from 'react'
 import { addFeedback } from './actions'
+import { getFaro } from '@/lib/faro'
 
 export default function FeedbackForm({ speechId, defaultValue }: { speechId: string; defaultValue: string }) {
   const [saved, setSaved] = useState(false)
@@ -10,6 +11,7 @@ export default function FeedbackForm({ speechId, defaultValue }: { speechId: str
   function handleSubmit(formData: FormData) {
     startTransition(async () => {
       await addFeedback(formData)
+      getFaro()?.api.pushEvent('speech_submitted', { speechId })
       setSaved(true)
       setTimeout(() => setSaved(false), 3000)
     })

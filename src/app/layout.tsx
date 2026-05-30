@@ -1,6 +1,8 @@
 import type { Metadata } from 'next'
 import { Newsreader, Inter, JetBrains_Mono } from 'next/font/google'
 import './globals.css'
+import FaroInit from '@/components/observability/FaroInit'
+import FaroUserSync from '@/components/observability/FaroUserSync'
 
 const newsreader = Newsreader({
   variable: '--font-newsreader',
@@ -36,7 +38,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${newsreader.variable} ${inter.variable} ${jetbrainsMono.variable}`}>
-      <body>{children}</body>
+      <body>
+        {children}
+        <FaroInit />
+        <FaroUserSync />
+      </body>
     </html>
   )
 }

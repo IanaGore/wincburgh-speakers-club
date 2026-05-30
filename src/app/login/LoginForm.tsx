@@ -1,7 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { getFaro } from '@/lib/faro'
 import { login } from './actions'
 import { createClient } from '@/utils/supabase/client'
 
@@ -10,6 +11,12 @@ interface LoginFormProps {
 }
 
 export default function LoginForm({ error }: LoginFormProps) {
+  useEffect(() => {
+    if (error) {
+      getFaro()?.api.pushEvent('auth_error', { reason: error })
+    }
+  }, [error])
+
   const [showPw, setShowPw] = useState(false)
   const [magicSent, setMagicSent] = useState(false)
   const [magicLoading, setMagicLoading] = useState(false)

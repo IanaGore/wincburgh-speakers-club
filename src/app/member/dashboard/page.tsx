@@ -1,9 +1,10 @@
 import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { volunteerForRole, dropRole } from './actions'
+import { volunteerForRole } from './actions'
 import VolunteerForm from './VolunteerForm'
 import EditSpeechForm from './EditSpeechForm'
+import DropRoleButton from './DropRoleButton'
 import DashboardGreeting from './DashboardGreeting'
 import './dashboard.css'
 
@@ -75,10 +76,7 @@ function RoleRow({
           ) : (
             <>
               <span className="dash-role__status">You</span>
-              <form action={dropRole}>
-                <input type="hidden" name="assignmentId" value={assignment.id} />
-                <button type="submit" className="dash-drop-btn">Drop out</button>
-              </form>
+              <DropRoleButton assignmentId={assignment.id} meetingId={meetingId} />
             </>
           )
         ) : (

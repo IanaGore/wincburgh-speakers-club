@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useTransition } from 'react'
+import { getFaro } from '@/lib/faro'
 
 interface Assignment {
   id: string
@@ -28,8 +29,16 @@ export default function VolunteerForm({
 }: VolunteerFormProps) {
   const [showSpeechForm, setShowSpeechForm] = useState(false)
   const [showAssignOther, setShowAssignOther] = useState(false)
+  const [, startTransition] = useTransition()
 
   const isSpeech = assignment.role_name.startsWith('Speech') || assignment.role_name.startsWith('Speaker')
+
+  function handleVolunteer(formData: FormData) {
+    startTransition(async () => {
+      await actionFn(formData)
+      getFaro()?.api.pushEvent('volunteer_claimed', { meetingId, roleId: assignment.id })
+    })
+  }
 
   const selectClass = dark ? 'dash-select' : 'wsc-input'
   const inputClass  = dark ? 'dash-input'  : 'wsc-input'
@@ -64,7 +73,7 @@ export default function VolunteerForm({
   if (!isSpeech) {
     return (
       <div className="dash-volunteer-form">
-        <form action={actionFn}>
+        <form action={handleVolunteer}>
           <input type="hidden" name="assignmentId" value={assignment.id} />
           <input type="hidden" name="meetingId" value={meetingId} />
           <button type="submit" className="wsc-btn wsc-btn-primary wsc-btn-sm" style={{ width: '100%' }}>
@@ -97,7 +106,7 @@ export default function VolunteerForm({
 
   // ── Speech: expanded form ──────────────────────────────────
   return (
-    <form action={actionFn} className="dash-volunteer-form">
+    <form action={handleVolunteer} className="dash-volunteer-form">
       <input type="hidden" name="assignmentId" value={assignment.id} />
       <input type="hidden" name="meetingId" value={meetingId} />
 
