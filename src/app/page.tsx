@@ -33,6 +33,16 @@ export default async function Home() {
     .order('published_at', { ascending: false })
     .limit(3)
 
+  // Batch-fetch news images — one query, no N+1 (mirrors /news list page)
+  const newsMediaKeys = (news ?? []).map((p: any) => `news_post_${p.id}`)
+  const { data: newsMediaRows } = newsMediaKeys.length > 0
+    ? await supabase.from('media').select('key, storage_path, alt_text').in('key', newsMediaKeys)
+    : { data: [] }
+  const newsBucketUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/site-media`
+  const newsImageByKey: Record<string, { storage_path: string; alt_text: string | null }> = Object.fromEntries(
+    (newsMediaRows ?? []).map((r: any) => [r.key, r])
+  )
+
   const { count: memberCount } = await supabase
     .from('profiles')
     .select('*', { count: 'exact', head: true })
@@ -158,9 +168,20 @@ export default async function Home() {
                 <Link href="/news" className="wsc-btn wsc-btn-ghost wsc-btn-sm">All news →</Link>
               </div>
               <div className="home-news__grid">
-                {news.map((post: any) => (
+                {news.map((post: any) => {
+                  const newsImage = newsImageByKey[`news_post_${post.id}`]
+                  const newsImageUrl = newsImage ? `${newsBucketUrl}/${newsImage.storage_path}` : null
+                  return (
                   <article key={post.id} className="home-news__card">
-                    <PhotoSlot height={180} label="news image" style={{ borderRadius: 0 }} />
+                    {newsImageUrl ? (
+                      <img
+                        src={newsImageUrl}
+                        alt={newsImage?.alt_text ?? post.title}
+                        style={{ width: '100%', height: 180, objectFit: 'cover', display: 'block' }}
+                      />
+                    ) : (
+                      <PhotoSlot height={180} label="news image" style={{ borderRadius: 0 }} />
+                    )}
                     <div className="home-news__card-body">
                       <div className="home-news__card-meta">
                         <Tag variant="clay">Update</Tag>
@@ -176,7 +197,8 @@ export default async function Home() {
                       <p>{post.excerpt || post.content?.slice(0, 100)}</p>
                     </div>
                   </article>
-                ))}
+                  )
+                })}
               </div>
             </div>
           </section>
