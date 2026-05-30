@@ -1,13 +1,13 @@
 import ContactForm from './ContactForm'
 import EyebrowLabel from '@/components/ui/EyebrowLabel'
-import Navbar from '@/components/Navbar'
+import NavbarServer from '@/components/NavbarServer'
 import Footer from '@/components/Footer'
 import './contact.css'
 
 export default function ContactPage() {
   return (
     <>
-    <Navbar />
+    <NavbarServer />
     <main className="contact-page">
       <div className="contact-inner">
         <div className="contact-left">

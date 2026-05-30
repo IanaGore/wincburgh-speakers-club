@@ -1,5 +1,5 @@
 import { createClient } from '@/utils/supabase/server'
-import Navbar from '@/components/Navbar'
+import NavbarServer from '@/components/NavbarServer'
 import Footer from '@/components/Footer'
 import PhotoSlot from '@/components/ui/PhotoSlot'
 import Link from 'next/link'
@@ -28,7 +28,7 @@ export default async function MeetingsPage() {
 
   return (
     <div className="meetings-page">
-      <Navbar />
+      <NavbarServer />
       <main>
         <section className="meetings-hero">
           <PhotoSlot mediaKey="meetings_hero" width="100%" height="100%" label="meetings hero" style={{ position: 'absolute', inset: 0 }} />

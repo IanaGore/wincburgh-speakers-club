@@ -5,8 +5,10 @@ import Wordmark from './Wordmark'
 import { Menu, X } from 'lucide-react'
 import './Navbar.css'
 
-export default function Navbar() {
+export default function Navbar({ portalHref }: { portalHref?: string }) {
   const [open, setOpen] = useState(false)
+  const loginHref = portalHref ?? '/login'
+  const loginLabel = portalHref ? 'Go to portal' : 'Member login'
 
   return (
     <header className="navbar-wrap">
@@ -28,9 +30,9 @@ export default function Navbar() {
           {[['/', 'Home'], ['/about', 'About'], ['/meetings', 'Meetings'], ['/news', 'News'], ['/signup', 'Attend'], ['/contact', 'Contact']].map(([href, label]) => (
             <li key={href}><Link href={href} onClick={() => setOpen(false)}>{label}</Link></li>
           ))}
-          <li className="navbar__links-login"><Link href="/login" onClick={() => setOpen(false)}>Member login</Link></li>
+          <li className="navbar__links-login"><Link href={loginHref} onClick={() => setOpen(false)}>{loginLabel}</Link></li>
         </ul>
-        <Link href="/login" className="navbar__login wsc-btn wsc-btn-sm">Member login</Link>
+        <Link href={loginHref} className="navbar__login wsc-btn wsc-btn-sm">{loginLabel}</Link>
       </nav>
     </header>
   )

@@ -1,6 +1,6 @@
 import { createClient } from '@/utils/supabase/server'
 import Link from 'next/link'
-import Navbar from '@/components/Navbar'
+import NavbarServer from '@/components/NavbarServer'
 
 export default async function NewsPage() {
   const supabase = await createClient()
@@ -24,7 +24,7 @@ export default async function NewsPage() {
 
   return (
     <div>
-      <Navbar />
+      <NavbarServer />
 
       <main style={{ padding: "4rem 5%", maxWidth: "800px", margin: "0 auto", flex: 1 }}>
         <h1 style={{ fontSize: "3rem", marginBottom: "3rem", textAlign: "center" }}>Club News</h1>

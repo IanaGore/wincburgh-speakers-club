@@ -1,13 +1,13 @@
 import { forgotPassword } from './actions'
 import Link from 'next/link'
-import Navbar from '@/components/Navbar'
+import NavbarServer from '@/components/NavbarServer'
 
 export default async function ForgotPasswordPage({ searchParams }: { searchParams: Promise<{ message?: string, success?: string }> }) {
   const resolvedParams = await searchParams;
 
   return (
     <div style={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
-      <Navbar />
+      <NavbarServer />
       <main style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
         <div style={{ background: "rgba(15, 23, 42, 0.6)", padding: "3rem", borderRadius: "16px", border: "1px solid var(--card-border)", width: "100%", maxWidth: "400px", backdropFilter: "blur(10px)" }}>
           <h1 style={{ textAlign: "center", fontSize: "2rem", marginBottom: "0.5rem" }}>Reset Password</h1>

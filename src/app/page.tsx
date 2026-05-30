@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { createClient } from '@/utils/supabase/server'
-import Navbar from '@/components/Navbar'
+import NavbarServer from '@/components/NavbarServer'
 import Footer from '@/components/Footer'
 import PhotoSlot from '@/components/ui/PhotoSlot'
 import EyebrowLabel from '@/components/ui/EyebrowLabel'
@@ -41,7 +41,7 @@ export default async function Home() {
 
   return (
     <>
-      <Navbar />
+      <NavbarServer />
 
       <main>
         {/* Hero */}

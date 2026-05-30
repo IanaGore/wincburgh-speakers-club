@@ -1,7 +1,7 @@
 import { createClient } from '@/utils/supabase/server'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import Navbar from '@/components/Navbar'
+import NavbarServer from '@/components/NavbarServer'
 
 export default async function SingleNewsPage({ params }: { params: Promise<{ id: string }> }) {
   const supabase = await createClient()
@@ -27,7 +27,7 @@ export default async function SingleNewsPage({ params }: { params: Promise<{ id:
 
   return (
     <div>
-      <Navbar />
+      <NavbarServer />
 
       <main style={{ padding: "4rem 5%", maxWidth: "800px", margin: "0 auto", flex: 1 }}>
         <Link href="/news" style={{ color: "var(--primary)", marginBottom: "2rem", display: "inline-block" }}>← Back to News</Link>

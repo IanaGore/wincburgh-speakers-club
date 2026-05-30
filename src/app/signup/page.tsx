@@ -1,5 +1,5 @@
 import { createClient } from '@/utils/supabase/server'
-import Navbar from '@/components/Navbar'
+import NavbarServer from '@/components/NavbarServer'
 import SignupFlow from './SignupFlow'
 import './signup.css'
 
@@ -14,7 +14,7 @@ export default async function SignupPage() {
 
   return (
     <div className="signup-page">
-      <Navbar />
+      <NavbarServer />
       <main className="signup-main">
         <SignupFlow meetings={meetings ?? []} />
       </main>
