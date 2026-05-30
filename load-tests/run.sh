@@ -20,7 +20,7 @@ if [[ "$MODE" == "cloud" ]]; then
   fi
 
   echo "Running load test on Grafana Cloud k6..."
-  k6 cloud \
+  k6 cloud run \
     --env TARGET_URL="${TARGET_URL}" \
     --env SUPABASE_URL="${SUPABASE_URL}" \
     --env SUPABASE_ANON_KEY="${SUPABASE_ANON_KEY}" \
