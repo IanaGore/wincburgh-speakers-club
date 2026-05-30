@@ -26,8 +26,10 @@ if [[ "$MODE" == "cloud" ]]; then
     --env SUPABASE_ANON_KEY="${SUPABASE_ANON_KEY}" \
     --env MEMBER_EMAIL_PREFIX="${MEMBER_EMAIL_PREFIX}" \
     --env MEMBER_PASSWORD="${MEMBER_PASSWORD}" \
+    --env MEMBER_COUNT="${MEMBER_COUNT:-20}" \
     --env ADMIN_EMAIL_PREFIX="${ADMIN_EMAIL_PREFIX}" \
     --env ADMIN_PASSWORD="${ADMIN_PASSWORD}" \
+    --env ADMIN_COUNT="${ADMIN_COUNT:-3}" \
     --env TEST_MEETING_ID="${TEST_MEETING_ID:-}" \
     --env TEST_ASSIGNMENT_ID="${TEST_ASSIGNMENT_ID:-}" \
     --env TEST_NEWS_ID="${TEST_NEWS_ID:-}" \

@@ -1,22 +1,17 @@
 import http from 'k6/http';
 import { sleep, check } from 'k6';
 import {
-  BASE_URL, SUPABASE_URL,
-  ADMIN_PASS, adminEmail,
+  BASE_URL,
   MEETING_ID,
 } from '../k6.config.js';
 
-export function adminScenario() {
-  // ── 1. Authenticate ───────────────────────────────────────────
-  const authRes = http.post(
-    `${SUPABASE_URL}/auth/v1/token?grant_type=password`,
-    JSON.stringify({ email: adminEmail(__VU), password: ADMIN_PASS }),
-    { headers: { 'Content-Type': 'application/json', 'apikey': __ENV.SUPABASE_ANON_KEY } }
-  );
-  const authOk = check(authRes, { 'admin login 200': r => r.status === 200 });
-  if (!authOk) { sleep(2); return; }
+// data is provided by setup() in k6.main.js
+export function adminScenario(data) {
+  // ── 1. Get pre-fetched token for this VU ──────────────────────
+  const auth = data.adminTokens[__VU - 1];
+  if (!auth) { sleep(2); return; } // account failed to auth during setup
 
-  const { access_token } = authRes.json();
+  const { token: access_token } = auth;
   const cookieHeader = { 'Cookie': `sb-access-token=${access_token}` };
 
   sleep(Math.random() * 3 + 2);
@@ -46,16 +41,4 @@ export function adminScenario() {
   });
   check(res, { 'admin signups 200': r => r.status === 200 });
   sleep(Math.random() * 3 + 2);
-
-  // ── 5. Sign out ───────────────────────────────────────────────
-  http.post(
-    `${SUPABASE_URL}/auth/v1/logout`,
-    null,
-    {
-      headers: {
-        'Authorization': `Bearer ${access_token}`,
-        'apikey': __ENV.SUPABASE_ANON_KEY,
-      },
-    }
-  );
 }

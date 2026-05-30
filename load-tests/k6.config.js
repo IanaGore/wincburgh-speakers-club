@@ -18,6 +18,8 @@ export const MEMBER_EMAIL_PREFIX = __ENV.MEMBER_EMAIL_PREFIX || 'loadtest-member
 export const MEMBER_PASS         = __ENV.MEMBER_PASSWORD;
 export const ADMIN_EMAIL_PREFIX  = __ENV.ADMIN_EMAIL_PREFIX  || 'loadtest-admin';
 export const ADMIN_PASS          = __ENV.ADMIN_PASSWORD;
+export const MEMBER_COUNT        = parseInt(__ENV.MEMBER_COUNT  || '20', 10);
+export const ADMIN_COUNT         = parseInt(__ENV.ADMIN_COUNT   || '3',  10);
 
 // Helper: returns the email for a given VU index (1-based)
 export function memberEmail(vuIndex) {

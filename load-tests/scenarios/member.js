@@ -2,35 +2,29 @@ import http from 'k6/http';
 import { sleep, check } from 'k6';
 import {
   BASE_URL, SUPABASE_URL,
-  MEMBER_PASS, memberEmail,
   ASSIGNMENT_ID,
   volunteerSuccessRate, dashboardDuration,
 } from '../k6.config.js';
 
-export function memberScenario() {
-  // ── 1. Authenticate with Supabase ─────────────────────────────
-  const authRes = http.post(
-    `${SUPABASE_URL}/auth/v1/token?grant_type=password`,
-    JSON.stringify({ email: memberEmail(__VU), password: MEMBER_PASS }),
-    { headers: { 'Content-Type': 'application/json', 'apikey': __ENV.SUPABASE_ANON_KEY } }
-  );
-  const authOk = check(authRes, { 'member login 200': r => r.status === 200 });
-  if (!authOk) { sleep(2); return; }
+// data is provided by setup() in k6.main.js
+export function memberScenario(data) {
+  // ── 1. Get pre-fetched token for this VU ──────────────────────
+  const auth = data.memberTokens[__VU - 1];
+  if (!auth) { sleep(2); return; } // account failed to auth during setup
 
-  const { access_token, user } = authRes.json();
-  if (!access_token || !user) { sleep(2); return; }
-  const memberId = user.id;
+  const { token: access_token, userId: memberId } = auth;
   const authHeaders = {
     'Authorization': `Bearer ${access_token}`,
     'apikey': __ENV.SUPABASE_ANON_KEY,
     'Content-Type': 'application/json',
   };
+  const cookieHeader = { 'Cookie': `sb-access-token=${access_token}` };
 
   sleep(Math.random() * 2 + 1);
 
   // ── 2. Dashboard ──────────────────────────────────────────────
   let res = http.get(`${BASE_URL}/member/dashboard`, {
-    headers: { 'Cookie': `sb-access-token=${access_token}` },
+    headers: cookieHeader,
     tags: { scenario: 'member' },
   });
   dashboardDuration.add(res.timings.duration);
@@ -39,14 +33,13 @@ export function memberScenario() {
 
   // ── 3. Speeches page ─────────────────────────────────────────
   res = http.get(`${BASE_URL}/member/speeches`, {
-    headers: { 'Cookie': `sb-access-token=${access_token}` },
+    headers: cookieHeader,
     tags: { scenario: 'member' },
   });
   check(res, { 'speeches 200': r => r.status === 200 });
   sleep(Math.random() * 3 + 2);
 
   // ── 4. Volunteer — claim open assignment slot ─────────────────
-  // If no assignment ID configured, record a pass so the threshold doesn't fail on empty metric
   if (!ASSIGNMENT_ID) { volunteerSuccessRate.add(true); }
 
   if (ASSIGNMENT_ID) {
@@ -72,17 +65,10 @@ export function memberScenario() {
 
   // ── 6. Dashboard reload ───────────────────────────────────────
   res = http.get(`${BASE_URL}/member/dashboard`, {
-    headers: { 'Cookie': `sb-access-token=${access_token}` },
+    headers: cookieHeader,
     tags: { scenario: 'member' },
   });
   dashboardDuration.add(res.timings.duration);
   check(res, { 'dashboard reload 200': r => r.status === 200 });
   sleep(Math.random() * 2 + 1);
-
-  // ── 7. Sign out ───────────────────────────────────────────────
-  http.post(
-    `${SUPABASE_URL}/auth/v1/logout`,
-    null,
-    { headers: authHeaders }
-  );
 }
