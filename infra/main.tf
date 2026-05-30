@@ -8,13 +8,14 @@ terraform {
 }
 
 # ── Provider ──────────────────────────────────────────────────────────────────
-# Authenticates with your Grafana Cloud stack.
-# Get your service account token from:
-#   Grafana Cloud → Administration → Service accounts → Add service account token
-# The account needs the "Editor" role to create synthetic monitoring checks.
+# Synthetic Monitoring resources require a separate sm_access_token.
+# Get it from: Grafana Cloud → Testing & synthetics → Synthetics → Settings → Access Tokens
+# The sm_url is your Synthetic Monitoring backend URL (shown on that same page).
 provider "grafana" {
-  url  = var.grafana_url
-  auth = var.grafana_service_account_token
+  url            = var.grafana_url
+  auth           = var.grafana_service_account_token
+  sm_access_token = var.grafana_sm_access_token
+  sm_url         = var.grafana_sm_url
 }
 
 # ── Variables ─────────────────────────────────────────────────────────────────
@@ -27,6 +28,17 @@ variable "grafana_service_account_token" {
   description = "Grafana service account token with Editor role"
   type        = string
   sensitive   = true
+}
+
+variable "grafana_sm_access_token" {
+  description = "Synthetic Monitoring access token — from Grafana Cloud → Testing & synthetics → Synthetics → Settings → Access Tokens"
+  type        = string
+  sensitive   = true
+}
+
+variable "grafana_sm_url" {
+  description = "Synthetic Monitoring backend URL — shown on the same Access Tokens page, e.g. https://synthetic-monitoring-api.grafana.net"
+  type        = string
 }
 
 variable "site_url" {

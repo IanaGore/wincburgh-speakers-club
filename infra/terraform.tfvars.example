@@ -3,4 +3,10 @@
 
 grafana_url                   = "https://yourteam.grafana.net"
 grafana_service_account_token = "glsa_xxxxxxxxxxxxxxxxxxxx"
+
+# From: Grafana Cloud → Testing & synthetics → Synthetics → Settings → Access Tokens
+grafana_sm_access_token       = "your-sm-access-token-here"
+# Shown on the same Access Tokens page (the "Backend URL" field)
+grafana_sm_url                = "https://synthetic-monitoring-api.grafana.net"
+
 site_url                      = "https://your-site.vercel.app"
