@@ -24,6 +24,7 @@ done
 
 TIMESTAMP=$(date +%Y-%m-%d-%H-%M)
 RESULTS_FILE="${SCRIPT_DIR}/results/${TIMESTAMP}.json"
+mkdir -p "${SCRIPT_DIR}/results"
 
 echo "Running load test against: $TARGET_URL"
 echo "Results will be saved to: $RESULTS_FILE"
