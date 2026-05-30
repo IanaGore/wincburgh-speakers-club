@@ -39,8 +39,11 @@ export default async function AdminNewsPage() {
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-              <label htmlFor="image" className="wsc-label">Image (optional — JPEG / PNG / WebP, max 5 MB)</label>
+              <label htmlFor="image" className="wsc-label">Image (optional)</label>
               <input type="file" id="image" name="image" accept="image/jpeg,image/png,image/webp" className="wsc-input" />
+              <p style={{ fontSize: '0.8rem', color: 'var(--ink-4)', margin: 0 }}>
+                JPEG, PNG or WebP · max 5 MB · recommended size 1200 × 480 px (landscape 2.5:1)
+              </p>
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>

@@ -65,7 +65,7 @@ export default function NewsImageUploader({ postId, existingImageUrl, existingAl
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
           <label className="wsc-label" htmlFor={`file-${postId}`}>
-            {previewUrl ? 'Replace image' : 'Add image'} (JPEG / PNG / WebP, max 5 MB)
+            {previewUrl ? 'Replace image' : 'Add image'}
           </label>
           <input
             id={`file-${postId}`}
@@ -75,6 +75,9 @@ export default function NewsImageUploader({ postId, existingImageUrl, existingAl
             className="wsc-input"
             required
           />
+          <p style={{ fontSize: '0.8rem', color: 'var(--ink-4)', margin: 0 }}>
+            JPEG, PNG or WebP · max 5 MB · recommended size 1200 × 480 px (landscape 2.5:1)
+          </p>
         </div>
         <button
           type="submit"
