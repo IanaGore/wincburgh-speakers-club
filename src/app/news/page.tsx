@@ -50,11 +50,11 @@ export default async function NewsPage() {
                   <h2 style={{ fontSize: "2rem", marginBottom: "1rem" }}>
                     <Link href={`/news/${post.id}`}>{post.title}</Link>
                   </h2>
-                  <p style={{ color: "#94a3b8", lineHeight: "1.6", marginBottom: "1.5rem" }}>
-                    {post.content.substring(0, 200)}...
+                  <p style={{ color: "var(--muted, #94a3b8)", lineHeight: "1.6", marginBottom: "1.5rem" }}>
+                    {(post.content ?? '').substring(0, 200)}...
                   </p>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <span style={{ fontSize: "0.9rem", color: "#64748b" }}>By {post.profiles?.full_name || 'Club Committee'}</span>
+                    <span style={{ fontSize: "0.9rem", color: "var(--muted, #64748b)" }}>By {post.profiles?.full_name || 'Club Committee'}</span>
                     <Link href={`/news/${post.id}`} style={{ color: "var(--primary)", fontWeight: "600" }}>Read More →</Link>
                   </div>
                 </div>
@@ -64,7 +64,7 @@ export default async function NewsPage() {
 
           {(!posts || posts.length === 0) && (
             <div style={{ textAlign: "center", padding: "3rem", border: "1px dashed var(--card-border)", borderRadius: "16px" }}>
-              <p style={{ color: "#94a3b8" }}>No news posts available yet.</p>
+              <p style={{ color: "var(--muted, #94a3b8)" }}>No news posts available yet.</p>
             </div>
           )}
         </div>
