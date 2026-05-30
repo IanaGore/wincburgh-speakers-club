@@ -35,25 +35,30 @@ variable "site_url" {
 }
 
 # ── Probe location ────────────────────────────────────────────────────────────
-# List available probes: https://grafana.com/docs/grafana-cloud/testing/synthetic-monitoring/references/probe-reference/
+# probes is map(number): { "London" = 1, "Frankfurt" = 2, ... }
 data "grafana_synthetic_monitoring_probes" "main" {}
 
 locals {
-  # Use London probe (EU-West). Falls back to first available probe if not found.
+  # Find the London probe ID; fall back to the first available probe.
   london_probe_id = try(
-    [for p in data.grafana_synthetic_monitoring_probes.main.probes : p if can(regex("(?i)london|eu-west", p))][0],
+    data.grafana_synthetic_monitoring_probes.main.probes["London"],
     values(data.grafana_synthetic_monitoring_probes.main.probes)[0]
   )
 }
 
 # ── Synthetic monitoring checks ───────────────────────────────────────────────
+# alert_sensitivity controls when Grafana fires alerts:
+#   "none" = no alerts, "low" = tolerant, "medium" = default, "high" = strict
 
 resource "grafana_synthetic_monitoring_check" "homepage" {
-  job     = "homepage"
-  target  = "${var.site_url}/"
-  enabled = true
-  probes  = [local.london_probe_id]
-  labels  = { environment = "production" }
+  job               = "homepage"
+  target            = "${var.site_url}/"
+  enabled           = true
+  probes            = [local.london_probe_id]
+  labels            = { environment = "production" }
+  frequency         = 60000  # ms — 1 minute
+  timeout           = 10000  # ms — 10 seconds
+  alert_sensitivity = "medium"
 
   settings {
     http {
@@ -62,24 +67,18 @@ resource "grafana_synthetic_monitoring_check" "homepage" {
       no_follow_redirects = false
       valid_status_codes  = [200]
     }
-  }
-
-  frequency = 60000  # milliseconds — 1 minute
-  timeout   = 10000  # milliseconds — 10 seconds
-
-  alerts {
-    enabled                = true
-    period                 = "2m"
-    evaluation_interval    = "1m"
   }
 }
 
 resource "grafana_synthetic_monitoring_check" "login_page" {
-  job     = "login-page"
-  target  = "${var.site_url}/login"
-  enabled = true
-  probes  = [local.london_probe_id]
-  labels  = { environment = "production" }
+  job               = "login-page"
+  target            = "${var.site_url}/login"
+  enabled           = true
+  probes            = [local.london_probe_id]
+  labels            = { environment = "production" }
+  frequency         = 60000
+  timeout           = 10000
+  alert_sensitivity = "medium"
 
   settings {
     http {
@@ -88,24 +87,18 @@ resource "grafana_synthetic_monitoring_check" "login_page" {
       no_follow_redirects = false
       valid_status_codes  = [200]
     }
-  }
-
-  frequency = 60000
-  timeout   = 10000
-
-  alerts {
-    enabled                = true
-    period                 = "2m"
-    evaluation_interval    = "1m"
   }
 }
 
 resource "grafana_synthetic_monitoring_check" "health_api" {
-  job     = "health-api"
-  target  = "${var.site_url}/api/health"
-  enabled = true
-  probes  = [local.london_probe_id]
-  labels  = { environment = "production" }
+  job               = "health-api"
+  target            = "${var.site_url}/api/health"
+  enabled           = true
+  probes            = [local.london_probe_id]
+  labels            = { environment = "production" }
+  frequency         = 60000
+  timeout           = 10000
+  alert_sensitivity = "medium"
 
   settings {
     http {
@@ -114,14 +107,5 @@ resource "grafana_synthetic_monitoring_check" "health_api" {
       no_follow_redirects = false
       valid_status_codes  = [200]
     }
-  }
-
-  frequency = 60000
-  timeout   = 10000
-
-  alerts {
-    enabled                = true
-    period                 = "2m"
-    evaluation_interval    = "1m"
   }
 }
