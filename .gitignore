@@ -32,6 +32,7 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.load-test.example
 
 # vercel
 .vercel
@@ -49,3 +50,7 @@ next-env.d.ts
 # AI tool working directories
 .claude/
 .claire/
+
+# Load test outputs and credentials
+.env.load-test
+load-tests/results/*.json
