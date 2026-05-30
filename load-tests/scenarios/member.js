@@ -2,7 +2,7 @@ import http from 'k6/http';
 import { sleep, check } from 'k6';
 import {
   BASE_URL, SUPABASE_URL,
-  MEMBER_EMAIL, MEMBER_PASS,
+  MEMBER_PASS, memberEmail,
   ASSIGNMENT_ID,
   volunteerSuccessRate, dashboardDuration,
 } from '../k6.config.js';
@@ -11,7 +11,7 @@ export function memberScenario() {
   // ── 1. Authenticate with Supabase ─────────────────────────────
   const authRes = http.post(
     `${SUPABASE_URL}/auth/v1/token?grant_type=password`,
-    JSON.stringify({ email: MEMBER_EMAIL, password: MEMBER_PASS }),
+    JSON.stringify({ email: memberEmail(__VU), password: MEMBER_PASS }),
     { headers: { 'Content-Type': 'application/json', 'apikey': __ENV.SUPABASE_ANON_KEY } }
   );
   const authOk = check(authRes, { 'member login 200': r => r.status === 200 });

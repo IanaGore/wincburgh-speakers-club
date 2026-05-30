@@ -2,7 +2,7 @@ import http from 'k6/http';
 import { sleep, check } from 'k6';
 import {
   BASE_URL, SUPABASE_URL,
-  ADMIN_EMAIL, ADMIN_PASS,
+  ADMIN_PASS, adminEmail,
   MEETING_ID,
 } from '../k6.config.js';
 
@@ -10,7 +10,7 @@ export function adminScenario() {
   // ── 1. Authenticate ───────────────────────────────────────────
   const authRes = http.post(
     `${SUPABASE_URL}/auth/v1/token?grant_type=password`,
-    JSON.stringify({ email: ADMIN_EMAIL, password: ADMIN_PASS }),
+    JSON.stringify({ email: adminEmail(__VU), password: ADMIN_PASS }),
     { headers: { 'Content-Type': 'application/json', 'apikey': __ENV.SUPABASE_ANON_KEY } }
   );
   const authOk = check(authRes, { 'admin login 200': r => r.status === 200 });

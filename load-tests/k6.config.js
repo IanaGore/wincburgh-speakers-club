@@ -8,13 +8,24 @@ export const homeDuration         = new Trend('home_duration', true);
 // ── Environment ───────────────────────────────────────────────────
 export const BASE_URL      = __ENV.TARGET_URL      || 'http://localhost:3000';
 export const SUPABASE_URL  = __ENV.SUPABASE_URL;
-export const MEMBER_EMAIL  = __ENV.MEMBER_EMAIL;
-export const MEMBER_PASS   = __ENV.MEMBER_PASSWORD;
-export const ADMIN_EMAIL   = __ENV.ADMIN_EMAIL;
-export const ADMIN_PASS    = __ENV.ADMIN_PASSWORD;
 export const MEETING_ID    = __ENV.TEST_MEETING_ID;
 export const ASSIGNMENT_ID = __ENV.TEST_ASSIGNMENT_ID;
 export const NEWS_ID       = __ENV.TEST_NEWS_ID;
+
+// Per-VU credentials — each VU gets its own account to avoid auth rate limiting.
+// setup-test-users.sh creates these accounts automatically.
+export const MEMBER_EMAIL_PREFIX = __ENV.MEMBER_EMAIL_PREFIX || 'loadtest-member';
+export const MEMBER_PASS         = __ENV.MEMBER_PASSWORD;
+export const ADMIN_EMAIL_PREFIX  = __ENV.ADMIN_EMAIL_PREFIX  || 'loadtest-admin';
+export const ADMIN_PASS          = __ENV.ADMIN_PASSWORD;
+
+// Helper: returns the email for a given VU index (1-based)
+export function memberEmail(vuIndex) {
+  return `${MEMBER_EMAIL_PREFIX}-${String(vuIndex).padStart(2, '0')}@loadtest.invalid`;
+}
+export function adminEmail(vuIndex) {
+  return `${ADMIN_EMAIL_PREFIX}-${String(vuIndex).padStart(2, '0')}@loadtest.invalid`;
+}
 
 // ── Thresholds ────────────────────────────────────────────────────
 export const thresholds = {

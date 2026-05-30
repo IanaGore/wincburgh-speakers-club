@@ -9,13 +9,13 @@ if [[ "$MODE" == "cloud" ]]; then
   # k6 cloud does not inherit the local shell environment by default.
   ENV_FILE="${SCRIPT_DIR}/../.env.load-test"
   if [[ ! -f "$ENV_FILE" ]]; then
-    echo "ERROR: .env.load-test not found. Copy load-tests/.env.load-test.example to .env.load-test and fill in values."
+    echo "ERROR: .env.load-test not found. Run ./load-tests/setup-test-users.sh to create it."
     exit 1
   fi
   set -a; source "$ENV_FILE"; set +a
 
   if [[ -z "${K6_CLOUD_TOKEN:-}" ]]; then
-    echo "ERROR: K6_CLOUD_TOKEN is not set in .env.load-test. Get it from Grafana Cloud → Testing & synthetics → Performance → Settings."
+    echo "ERROR: K6_CLOUD_TOKEN is not set in .env.load-test. Get it from Grafana Cloud → Performance Testing → Settings."
     exit 1
   fi
 
@@ -24,9 +24,9 @@ if [[ "$MODE" == "cloud" ]]; then
     --env TARGET_URL="${TARGET_URL}" \
     --env SUPABASE_URL="${SUPABASE_URL}" \
     --env SUPABASE_ANON_KEY="${SUPABASE_ANON_KEY}" \
-    --env MEMBER_EMAIL="${MEMBER_EMAIL}" \
+    --env MEMBER_EMAIL_PREFIX="${MEMBER_EMAIL_PREFIX}" \
     --env MEMBER_PASSWORD="${MEMBER_PASSWORD}" \
-    --env ADMIN_EMAIL="${ADMIN_EMAIL}" \
+    --env ADMIN_EMAIL_PREFIX="${ADMIN_EMAIL_PREFIX}" \
     --env ADMIN_PASSWORD="${ADMIN_PASSWORD}" \
     --env TEST_MEETING_ID="${TEST_MEETING_ID:-}" \
     --env TEST_ASSIGNMENT_ID="${TEST_ASSIGNMENT_ID:-}" \
@@ -40,7 +40,7 @@ fi
 ENV_FILE="${SCRIPT_DIR}/../.env.load-test"
 
 if [[ ! -f "$ENV_FILE" ]]; then
-  echo "ERROR: .env.load-test not found. Copy load-tests/.env.load-test.example to .env.load-test and fill in values."
+  echo "ERROR: .env.load-test not found. Run ./load-tests/setup-test-users.sh to create it."
   exit 1
 fi
 
@@ -48,9 +48,9 @@ set -a
 source "$ENV_FILE"
 set +a
 
-for var in TARGET_URL SUPABASE_URL SUPABASE_ANON_KEY MEMBER_EMAIL MEMBER_PASSWORD ADMIN_EMAIL ADMIN_PASSWORD; do
+for var in TARGET_URL SUPABASE_URL SUPABASE_ANON_KEY MEMBER_EMAIL_PREFIX MEMBER_PASSWORD ADMIN_EMAIL_PREFIX ADMIN_PASSWORD; do
   if [[ -z "${!var:-}" ]]; then
-    echo "ERROR: $var is not set in .env.load-test"
+    echo "ERROR: $var is not set in .env.load-test. Run ./load-tests/setup-test-users.sh to regenerate."
     exit 1
   fi
 done
