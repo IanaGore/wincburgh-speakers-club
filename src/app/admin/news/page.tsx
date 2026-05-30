@@ -38,6 +38,16 @@ export default async function AdminNewsPage() {
               <textarea id="content" name="content" required rows={8} className="wsc-input" style={{ resize: 'vertical' }} />
             </div>
 
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+              <label htmlFor="image" className="wsc-label">Image (optional — JPEG / PNG / WebP, max 5 MB)</label>
+              <input type="file" id="image" name="image" accept="image/jpeg,image/png,image/webp" className="wsc-input" />
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+              <label htmlFor="image_alt" className="wsc-label">Image alt text</label>
+              <input type="text" id="image_alt" name="image_alt" className="wsc-input" placeholder="Describe the image" />
+            </div>
+
             <button type="submit" className="wsc-btn wsc-btn-primary" style={{ marginTop: '0.5rem' }}>Publish Post</button>
           </form>
         </div>
