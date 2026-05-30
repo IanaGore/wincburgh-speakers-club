@@ -42,7 +42,7 @@ variable "grafana_sm_url" {
 }
 
 variable "site_url" {
-  description = "Production site URL, e.g. https://your-site.vercel.app"
+  description = "Production site URL, e.g. https://your-site.vercel.app (no trailing slash)"
   type        = string
 }
 
@@ -51,6 +51,7 @@ variable "site_url" {
 data "grafana_synthetic_monitoring_probes" "main" {}
 
 locals {
+  site_url = trimsuffix(var.site_url, "/")
   # Find the London probe ID; fall back to the first available probe.
   london_probe_id = try(
     data.grafana_synthetic_monitoring_probes.main.probes["London"],
@@ -64,13 +65,13 @@ locals {
 
 resource "grafana_synthetic_monitoring_check" "homepage" {
   job               = "homepage"
-  target            = "${var.site_url}/"
+  target            = "${local.site_url}/"
   enabled           = true
   probes            = [local.london_probe_id]
   labels            = { environment = "production" }
   frequency         = 60000  # ms — 1 minute
   timeout           = 10000  # ms — 10 seconds
-  alert_sensitivity = "medium"
+  alert_sensitivity = "none"
 
   settings {
     http {
@@ -84,13 +85,13 @@ resource "grafana_synthetic_monitoring_check" "homepage" {
 
 resource "grafana_synthetic_monitoring_check" "login_page" {
   job               = "login-page"
-  target            = "${var.site_url}/login"
+  target            = "${local.site_url}/login"
   enabled           = true
   probes            = [local.london_probe_id]
   labels            = { environment = "production" }
   frequency         = 60000
   timeout           = 10000
-  alert_sensitivity = "medium"
+  alert_sensitivity = "none"
 
   settings {
     http {
@@ -104,13 +105,13 @@ resource "grafana_synthetic_monitoring_check" "login_page" {
 
 resource "grafana_synthetic_monitoring_check" "health_api" {
   job               = "health-api"
-  target            = "${var.site_url}/api/health"
+  target            = "${local.site_url}/api/health"
   enabled           = true
   probes            = [local.london_probe_id]
   labels            = { environment = "production" }
   frequency         = 60000
   timeout           = 10000
-  alert_sensitivity = "medium"
+  alert_sensitivity = "none"
 
   settings {
     http {
