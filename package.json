@@ -11,6 +11,9 @@
   "dependencies": {
     "@grafana/faro-web-sdk": "^2.7.0",
     "@grafana/faro-web-tracing": "^2.7.0",
+    "@opentelemetry/auto-instrumentations-node": "^0.76.0",
+    "@opentelemetry/exporter-trace-otlp-http": "^0.218.0",
+    "@opentelemetry/sdk-node": "^0.218.0",
     "@supabase/ssr": "^0.10.2",
     "@supabase/supabase-js": "^2.105.1",
     "lucide-react": "^1.14.0",
