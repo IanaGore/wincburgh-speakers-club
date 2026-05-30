@@ -7,7 +7,7 @@ export default async function AdminNewsPage() {
 
   const { data: posts } = await supabase
     .from('news_posts')
-    .select('*')
+    .select('id, title, published_at')
     .order('published_at', { ascending: false })
 
   // Batch-fetch media rows for all post images
@@ -17,7 +17,7 @@ export default async function AdminNewsPage() {
     : { data: [] }
 
   const bucketUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/site-media`
-  const mediaByKey = Object.fromEntries((mediaRows ?? []).map(r => [r.key, r]))
+  const mediaByKey: Record<string, { key: string; storage_path: string; alt_text: string | null }> = Object.fromEntries((mediaRows ?? []).map(r => [r.key, r]))
 
   return (
     <div>
@@ -46,7 +46,7 @@ export default async function AdminNewsPage() {
         <div style={{ flex: '2', minWidth: '400px' }}>
           <h2 style={{ fontFamily: 'var(--serif)', fontWeight: 500, fontSize: 20, margin: '0 0 1.5rem', color: 'var(--ink)' }}>Published Posts</h2>
 
-          {posts?.length === 0 ? (
+          {(!posts || posts.length === 0) ? (
             <div className="wsc-card" style={{ padding: '2rem', textAlign: 'center', color: 'var(--ink-3)', borderStyle: 'dashed' }}>
               No news posts published yet.
             </div>
@@ -68,10 +68,7 @@ export default async function AdminNewsPage() {
                           {new Date(post.published_at).toLocaleDateString()}
                         </p>
                       </div>
-                      <form action={async () => {
-                        'use server'
-                        await deletePost(post.id)
-                      }}>
+                      <form action={deletePost.bind(null, post.id)}>
                         <button className="wsc-btn wsc-btn-sm wsc-btn-ghost">Delete</button>
                       </form>
                     </div>
