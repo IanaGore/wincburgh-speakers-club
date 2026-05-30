@@ -1,5 +1,5 @@
 'use client'
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { uploadMediaPhoto } from '../media/actions'
 
 interface Props {
@@ -15,6 +15,12 @@ export default function NewsImageUploader({ postId, existingImageUrl, existingAl
   const [success, setSuccess] = useState(false)
   const [previewUrl, setPreviewUrl] = useState<string | null>(existingImageUrl)
   const formRef = useRef<HTMLFormElement>(null)
+
+  useEffect(() => {
+    return () => {
+      if (previewUrl?.startsWith('blob:')) URL.revokeObjectURL(previewUrl)
+    }
+  }, [previewUrl])
 
   async function handleUpload(e: React.FormEvent) {
     e.preventDefault()
@@ -79,7 +85,7 @@ export default function NewsImageUploader({ postId, existingImageUrl, existingAl
           {uploading ? 'Uploading…' : previewUrl ? 'Replace Image' : 'Upload Image'}
         </button>
         {error && <p style={{ color: 'var(--error)', fontSize: '0.85rem', margin: 0 }}>{error}</p>}
-        {success && <p style={{ color: 'var(--success, green)', fontSize: '0.85rem', margin: 0 }}>Uploaded ✓</p>}
+        {success && <p style={{ color: 'oklch(0.55 0.18 145)', fontSize: '0.85rem', margin: 0 }}>Uploaded ✓</p>}
       </form>
     </div>
   )
