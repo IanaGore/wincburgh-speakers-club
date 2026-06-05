@@ -61,3 +61,7 @@ infra/.terraform.lock.hcl
 infra/terraform.tfvars
 infra/terraform.tfstate
 infra/terraform.tfstate.backup
+
+/test-results/
+/playwright-report/
+/playwright/.cache/
