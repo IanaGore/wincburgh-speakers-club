@@ -12,9 +12,11 @@ export default defineConfig({
   },
   projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
   webServer: {
-    command: 'npm run build && npx next start -p 3100',
+    command: process.env.CI
+      ? 'npm run build && npx next start -p 3100'
+      : 'npx next dev -p 3100',
     url: 'http://localhost:3100',
     reuseExistingServer: !process.env.CI,
-    timeout: 720_000,
+    timeout: process.env.CI ? 600_000 : 300_000,
   },
 })
