@@ -23,8 +23,8 @@ export default async function MeetingsPage() {
     .eq('id', 1)
     .single()
 
-  const venueName  = settings?.venue_name  ?? 'Wincburgh Village Hall'
-  const meetingTime = settings?.meeting_time ?? '7:00 PM'
+  const venueName  = settings?.venue_name  ?? 'Winchburgh Community Centre'
+  const meetingTime = settings?.meeting_time ?? '7:00pm'
 
   return (
     <div className="meetings-page">
