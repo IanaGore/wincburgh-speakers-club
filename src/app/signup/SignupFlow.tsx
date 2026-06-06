@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { submitSignup, type SignupData } from './actions'
 import EyebrowLabel from '@/components/ui/EyebrowLabel'
 import Button from '@/components/ui/Button'
+import { mapsUrl, type VenueSettings } from '@/lib/venue'
 
 type Meeting = { id: string; meeting_date: string; theme: string | null; meeting_type: string | null }
 
@@ -23,18 +24,20 @@ function formatFullDate(d: string) {
   return date.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' })
 }
 
-function calendarUrl(meeting: Meeting) {
+function calendarUrl(meeting: Meeting, venue: VenueSettings | null) {
   const date = meeting.meeting_date.replace(/-/g, '')
   const start = `${date}T190000`
   const end = `${date}T210000`
   const title = encodeURIComponent(`Winchburgh Speakers Club — ${meeting.theme || 'Open session'}`)
-  const location = encodeURIComponent('Winchburgh Community Centre, Main Street')
+  const venueName = venue?.venue_name ?? 'Winchburgh Community Centre'
+  const venueAddress = venue?.venue_address ?? 'Main Street, Winchburgh, EH52 6QF'
+  const location = encodeURIComponent(`${venueName}, ${venueAddress}`)
   return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${start}/${end}&location=${location}`
 }
 
 type Step = 1 | 2 | 3 | 4
 
-export default function SignupFlow({ meetings }: { meetings: Meeting[] }) {
+export default function SignupFlow({ meetings, venue }: { meetings: Meeting[]; venue: VenueSettings | null }) {
   const [step, setStep] = useState<Step>(1)
   const [submitting, setSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
@@ -179,7 +182,7 @@ export default function SignupFlow({ meetings }: { meetings: Meeting[] }) {
                 <div className="signup-meeting__info">
                   <span className="wsc-eyebrow">{m.meeting_type || 'Regular meeting'}</span>
                   <strong style={{fontFamily:'var(--serif)',fontSize:18}}>{m.theme || 'Open session'}</strong>
-                  <span style={{fontFamily:'var(--mono)',fontSize:12,color:'var(--ink-4)'}}>7:00pm · Community Centre, Main Street</span>
+                  <span style={{fontFamily:'var(--mono)',fontSize:12,color:'var(--ink-4)'}}>{venue?.meeting_time ?? '7:00pm'} · {venue?.venue_name ?? 'Community Centre'}</span>
                 </div>
                 <div className={`signup-meeting__radio${form.meetingId === m.id ? ' signup-meeting__radio--active' : ''}`}>
                   {form.meetingId === m.id && '✓'}
@@ -231,14 +234,14 @@ export default function SignupFlow({ meetings }: { meetings: Meeting[] }) {
                 </div>
               </div>
               <div style={{display:'flex',gap:12,flexWrap:'wrap'}}>
-                <Button href={calendarUrl(selectedMeeting)}>Add to calendar</Button>
-                <Button variant="ghost-light" href="https://maps.google.com/?q=Winchburgh+Community+Centre">Get directions</Button>
+                <Button href={calendarUrl(selectedMeeting, venue)}>Add to calendar</Button>
+                <Button variant="ghost-light" href={mapsUrl(venue ?? {})}>Get directions</Button>
               </div>
             </div>
           )}
           <div className="signup-expect wsc-card" style={{marginTop:24}}>
             <p className="wsc-eyebrow" style={{marginBottom:16}}>What to expect</p>
-            {['Someone will meet you at the door', 'Doors open at 6:30, kettle on, meeting starts at 7:00', "You don't have to speak — just watch", "Nothing to bring, nothing to pay"].map(item => (
+            {['Someone will meet you at the door', `Doors open at ${venue?.meeting_doors_time ?? '6:30pm'}, kettle on, meeting starts at ${venue?.meeting_time ?? '7:00pm'}`, "You don't have to speak — just watch", "Nothing to bring, nothing to pay"].map(item => (
               <div key={item} style={{display:'flex',gap:12,alignItems:'center',padding:'10px 0',borderBottom:'1px solid var(--rule-soft)'}}>
                 <span style={{width:28,height:28,borderRadius:'50%',background:'var(--clay-soft)',display:'inline-flex',alignItems:'center',justifyContent:'center',fontSize:14}}>&#10003;</span>
                 <span style={{color:'var(--ink-2)'}}>{item}</span>
