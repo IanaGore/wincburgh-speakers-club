@@ -17,6 +17,8 @@ export default defineConfig({
       : 'npx next dev -p 3100',
     url: 'http://localhost:3100',
     reuseExistingServer: !process.env.CI,
-    timeout: process.env.CI ? 600_000 : 300_000,
+    // This machine's cold Turbopack dev start can take ~11 min; locally it's far
+    // faster to start the dev server yourself first (reuseExistingServer picks it up).
+    timeout: process.env.CI ? 600_000 : 900_000,
   },
 })

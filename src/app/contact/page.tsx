@@ -3,7 +3,7 @@ import EyebrowLabel from '@/components/ui/EyebrowLabel'
 import NavbarServer from '@/components/NavbarServer'
 import Footer from '@/components/Footer'
 import { createClient } from '@/utils/supabase/server'
-import { mapsUrl, VENUE_COLUMNS } from '@/lib/venue'
+import { mapsUrl, venueName, venueAddress, VENUE_COLUMNS } from '@/lib/venue'
 import './contact.css'
 
 export default async function ContactPage() {
@@ -32,9 +32,9 @@ export default async function ContactPage() {
         <aside className="contact-right">
           <div className="contact-find-us wsc-card" id="find-us">
             <EyebrowLabel>Find us</EyebrowLabel>
-            <h2>{settings?.venue_name}</h2>
+            <h2>{venueName(settings ?? {})}</h2>
             <address>
-              <p>{settings?.venue_address}</p>
+              <p>{venueAddress(settings ?? {})}</p>
             </address>
             {facilities && facilities.length > 0 && (
               <p className="contact-find-us__access">

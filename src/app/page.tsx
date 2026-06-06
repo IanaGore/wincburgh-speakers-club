@@ -6,7 +6,7 @@ import PhotoSlot from '@/components/ui/PhotoSlot'
 import EyebrowLabel from '@/components/ui/EyebrowLabel'
 import Button from '@/components/ui/Button'
 import Tag from '@/components/ui/Tag'
-import { formatScheduleLine, formatTimesLine, mapsUrl, VENUE_COLUMNS } from '@/lib/venue'
+import { formatScheduleLine, formatTimesLine, mapsUrl, venueName, venueAddress, VENUE_COLUMNS } from '@/lib/venue'
 import './page.css'
 
 function formatDay(dateStr: string) {
@@ -239,8 +239,8 @@ export default async function Home() {
               <div className="home-venue__detail">
                 <div className="home-venue__detail-icon">📍</div>
                 <div>
-                  <strong>{settings?.venue_name}</strong><br />
-                  {settings?.venue_address}
+                  <strong>{venueName(settings ?? {})}</strong><br />
+                  {venueAddress(settings ?? {})}
                 </div>
               </div>
               <div className="home-venue__detail">

@@ -51,6 +51,16 @@ export function formatTimesLine(s: Partial<VenueSettings>): string {
   return line
 }
 
+/** Venue name, falling back to the default if unset/unreadable. */
+export function venueName(s: Partial<VenueSettings>): string {
+  return val(s, 'venue_name')
+}
+
+/** Venue address, falling back to the default if unset/unreadable. */
+export function venueAddress(s: Partial<VenueSettings>): string {
+  return val(s, 'venue_address')
+}
+
 /** Google Maps directions URL from venue name + address. */
 export function mapsUrl(s: Partial<VenueSettings>): string {
   const q = encodeURIComponent(`${val(s, 'venue_name')}, ${val(s, 'venue_address')}`)
