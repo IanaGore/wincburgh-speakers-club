@@ -1,4 +1,5 @@
 import { createClient } from '@/utils/supabase/server'
+import { formatMeetingShort, VENUE_COLUMNS } from '@/lib/venue'
 import Navbar from './Navbar'
 
 export default async function NavbarServer() {
@@ -15,5 +16,11 @@ export default async function NavbarServer() {
     portalHref = profile?.is_admin ? '/admin/meetings' : '/member/dashboard'
   }
 
-  return <Navbar portalHref={portalHref} />
+  const { data: settings } = await supabase
+    .from('site_settings')
+    .select(VENUE_COLUMNS)
+    .eq('id', 1)
+    .single()
+
+  return <Navbar portalHref={portalHref} meetingShort={formatMeetingShort(settings ?? {})} />
 }
