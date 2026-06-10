@@ -1,6 +1,7 @@
 import { createClient } from '@/utils/supabase/server'
 import { updateSettings } from './actions'
 import HowItWorksManager from './HowItWorksManager'
+import FacilitiesManager from './FacilitiesManager'
 
 export default async function AdminSettingsPage() {
   const supabase = await createClient()
@@ -14,6 +15,11 @@ export default async function AdminSettingsPage() {
   const { data: steps } = await supabase
     .from('how_it_works_steps')
     .select('id, title, body')
+    .order('sort_order', { ascending: true })
+
+  const { data: facilities } = await supabase
+    .from('facilities')
+    .select('id, icon, label')
     .order('sort_order', { ascending: true })
 
   return (
@@ -51,6 +57,31 @@ export default async function AdminSettingsPage() {
             <textarea id="venue_address" name="venue_address" defaultValue={settings?.venue_address} required rows={2} className="wsc-input" />
           </div>
 
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+            <label htmlFor="meeting_day" className="wsc-label">Meeting Day</label>
+            <input type="text" id="meeting_day" name="meeting_day" defaultValue={settings?.meeting_day ?? ''} className="wsc-input" placeholder="Tuesday" />
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+            <label htmlFor="meeting_frequency" className="wsc-label">Meeting Frequency</label>
+            <input type="text" id="meeting_frequency" name="meeting_frequency" defaultValue={settings?.meeting_frequency ?? ''} className="wsc-input" placeholder="1st & 3rd of the month" />
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+            <label htmlFor="meeting_doors_time" className="wsc-label">Doors Open</label>
+            <input type="text" id="meeting_doors_time" name="meeting_doors_time" defaultValue={settings?.meeting_doors_time ?? ''} className="wsc-input" placeholder="6:30pm" />
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+            <label htmlFor="meeting_time" className="wsc-label">Meeting Start Time</label>
+            <input type="text" id="meeting_time" name="meeting_time" defaultValue={settings?.meeting_time ?? ''} className="wsc-input" placeholder="7:00pm" />
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+            <label htmlFor="meeting_end_time" className="wsc-label">Meeting End Time <span style={{ color: 'var(--ink-3)', fontWeight: 400 }}>(optional)</span></label>
+            <input type="text" id="meeting_end_time" name="meeting_end_time" defaultValue={settings?.meeting_end_time ?? ''} className="wsc-input" placeholder="9:00pm" />
+          </div>
+
           <h2 style={{ fontFamily: 'var(--serif)', fontWeight: 500, fontSize: 20, margin: '0.5rem 0 0', color: 'var(--ink)' }}>How It Works — Header</h2>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
@@ -78,6 +109,12 @@ export default async function AdminSettingsPage() {
           Drag the cards to reorder. Step numbers update automatically.
         </p>
         <HowItWorksManager initialSteps={steps ?? []} />
+
+        <h2 style={{ fontFamily: 'var(--serif)', fontWeight: 500, fontSize: 22, margin: '2rem 0 1rem', color: 'var(--ink)' }}>Facilities</h2>
+        <p style={{ color: 'var(--ink-3)', fontSize: 14, margin: '0 0 1rem' }}>
+          Shown on the homepage and contact page. Drag to reorder.
+        </p>
+        <FacilitiesManager initialFacilities={facilities ?? []} />
       </div>
     </div>
   )

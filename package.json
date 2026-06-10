@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test:e2e": "playwright test",
+    "check:migrations": "node scripts/check-migration-grants.mjs"
   },
   "dependencies": {
     "@grafana/faro-web-sdk": "^2.7.0",
@@ -23,6 +25,7 @@
     "resend": "^6.12.3"
   },
   "devDependencies": {
+    "@playwright/test": "^1.60.0",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",

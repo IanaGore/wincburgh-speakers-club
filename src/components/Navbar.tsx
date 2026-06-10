@@ -5,7 +5,7 @@ import Wordmark from './Wordmark'
 import { Menu, X } from 'lucide-react'
 import './Navbar.css'
 
-export default function Navbar({ portalHref }: { portalHref?: string }) {
+export default function Navbar({ portalHref, meetingShort }: { portalHref?: string; meetingShort?: string }) {
   const [open, setOpen] = useState(false)
   const loginHref = portalHref ?? '/login'
   const loginLabel = portalHref ? 'Go to portal' : 'Member login'
@@ -13,7 +13,7 @@ export default function Navbar({ portalHref }: { portalHref?: string }) {
   return (
     <header className="navbar-wrap">
       <div className="nav-ribbon">
-        <span>Tuesday meetings · 7pm · Community Centre, Main Street</span>
+        <span>{meetingShort ?? 'Tuesday meetings · 7:00pm · Winchburgh Community Centre'}</span>
         <span>First three visits free</span>
       </div>
       <nav className="navbar">

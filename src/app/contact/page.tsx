@@ -2,9 +2,22 @@ import ContactForm from './ContactForm'
 import EyebrowLabel from '@/components/ui/EyebrowLabel'
 import NavbarServer from '@/components/NavbarServer'
 import Footer from '@/components/Footer'
+import { createClient } from '@/utils/supabase/server'
+import { mapsUrl, venueName, venueAddress, VENUE_COLUMNS } from '@/lib/venue'
 import './contact.css'
 
-export default function ContactPage() {
+export default async function ContactPage() {
+  const supabase = await createClient()
+  const { data: settings } = await supabase
+    .from('site_settings')
+    .select(VENUE_COLUMNS)
+    .eq('id', 1)
+    .single()
+  const { data: facilities } = await supabase
+    .from('facilities')
+    .select('id, icon, label')
+    .order('sort_order', { ascending: true })
+
   return (
     <>
     <NavbarServer />
@@ -19,17 +32,18 @@ export default function ContactPage() {
         <aside className="contact-right">
           <div className="contact-find-us wsc-card" id="find-us">
             <EyebrowLabel>Find us</EyebrowLabel>
-            <h2>Winchburgh Community Centre</h2>
+            <h2>{venueName(settings ?? {})}</h2>
             <address>
-              <p>Main Street, Winchburgh</p>
-              <p>EH52 6RP</p>
+              <p>{venueAddress(settings ?? {})}</p>
             </address>
-            <p className="contact-find-us__access">
-              <strong>Parking:</strong> Free parking on site<br />
-              <strong>Step-free:</strong> Yes — full wheelchair access<br />
-              <strong>Hearing loop:</strong> Available in the main hall
-            </p>
-            <a href="https://maps.google.com/?q=Winchburgh+Community+Centre" target="_blank" rel="noopener noreferrer" className="wsc-btn wsc-btn-ghost wsc-btn-sm contact-find-us__link">
+            {facilities && facilities.length > 0 && (
+              <p className="contact-find-us__access">
+                {facilities.map((f) => (
+                  <span key={f.id} style={{ display: 'block' }}>{f.icon} {f.label}</span>
+                ))}
+              </p>
+            )}
+            <a href={mapsUrl(settings ?? {})} target="_blank" rel="noopener noreferrer" className="wsc-btn wsc-btn-ghost wsc-btn-sm contact-find-us__link">
               Get directions
             </a>
           </div>

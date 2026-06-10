@@ -6,6 +6,7 @@ import PhotoSlot from '@/components/ui/PhotoSlot'
 import EyebrowLabel from '@/components/ui/EyebrowLabel'
 import Button from '@/components/ui/Button'
 import Tag from '@/components/ui/Tag'
+import { formatScheduleLine, formatTimesLine, mapsUrl, venueName, venueAddress, VENUE_COLUMNS } from '@/lib/venue'
 import './page.css'
 
 function formatDay(dateStr: string) {
@@ -49,13 +50,18 @@ export default async function Home() {
 
   const { data: settings } = await supabase
     .from('site_settings')
-    .select('how_it_works_eyebrow, how_it_works_heading, how_it_works_heading_em')
+    .select(`how_it_works_eyebrow, how_it_works_heading, how_it_works_heading_em, ${VENUE_COLUMNS}`)
     .eq('id', 1)
     .single()
 
   const { data: howItWorksSteps } = await supabase
     .from('how_it_works_steps')
     .select('id, title, body')
+    .order('sort_order', { ascending: true })
+
+  const { data: facilities } = await supabase
+    .from('facilities')
+    .select('id, icon, label')
     .order('sort_order', { ascending: true })
 
   const nextMeeting = events?.[0]
@@ -233,22 +239,29 @@ export default async function Home() {
               <div className="home-venue__detail">
                 <div className="home-venue__detail-icon">📍</div>
                 <div>
-                  <strong>Winchburgh Community Centre</strong><br />
-                  Main Street, Winchburgh, EH52 6QF
+                  <strong>{venueName(settings ?? {})}</strong><br />
+                  {venueAddress(settings ?? {})}
                 </div>
               </div>
               <div className="home-venue__detail">
                 <div className="home-venue__detail-icon">🕖</div>
                 <div>
-                  <strong>1st &amp; 3rd Tuesday of the month</strong><br />
-                  Doors 6:30pm · Meeting 7:00pm
+                  <strong>{formatScheduleLine(settings ?? {})}</strong><br />
+                  {formatTimesLine(settings ?? {})}
                 </div>
               </div>
-              <div className="home-venue__access">
-                ✅ Step-free access &nbsp;·&nbsp; 🔊 Hearing loop &nbsp;·&nbsp; 🚗 Free parking on-site
-              </div>
+              {facilities && facilities.length > 0 && (
+                <div className="home-venue__access">
+                  {facilities.map((f, i) => (
+                    <span key={f.id}>
+                      {i > 0 && <>&nbsp;·&nbsp;</>}
+                      {f.icon} {f.label}
+                    </span>
+                  ))}
+                </div>
+              )}
               <div style={{ marginTop: 28 }}>
-                <Button href="https://maps.google.com/?q=Winchburgh+Community+Centre" variant="ghost">
+                <Button href={mapsUrl(settings ?? {})} variant="ghost">
                   Get directions →
                 </Button>
               </div>

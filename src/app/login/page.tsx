@@ -36,6 +36,12 @@ export default async function LoginPage({
 
   const nextMeeting = meetings?.[0]
 
+  const { data: settings } = await supabase
+    .from('site_settings')
+    .select('meeting_time')
+    .eq('id', 1)
+    .single()
+
   return (
     <div className="login-page">
       {/* Left: welcome panel */}
@@ -58,7 +64,7 @@ export default async function LoginPage({
               <div className="login-meeting-card__info">
                 <div className="label">Next meeting</div>
                 <div className="title">{nextMeeting.theme || "Members' Meeting"}</div>
-                <div className="detail">{formatDate(nextMeeting.meeting_date)} · 7pm</div>
+                <div className="detail">{formatDate(nextMeeting.meeting_date)} · {settings?.meeting_time ?? '7:00pm'}</div>
               </div>
             </div>
           )}
