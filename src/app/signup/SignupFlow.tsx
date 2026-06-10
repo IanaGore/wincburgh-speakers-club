@@ -182,7 +182,7 @@ export default function SignupFlow({ meetings, venue }: { meetings: Meeting[]; v
                 <div className="signup-meeting__info">
                   <span className="wsc-eyebrow">{m.meeting_type || 'Regular meeting'}</span>
                   <strong style={{fontFamily:'var(--serif)',fontSize:18}}>{m.theme || 'Open session'}</strong>
-                  <span style={{fontFamily:'var(--mono)',fontSize:12,color:'var(--ink-4)'}}>{venue?.meeting_time ?? '7:00pm'} · {venue?.venue_name ?? 'Community Centre'}</span>
+                  <span style={{fontFamily:'var(--mono)',fontSize:12,color:'var(--ink-4)'}}>{venue?.meeting_time ?? '7:00pm'} · {venue?.venue_name ?? 'Winchburgh Community Centre'}</span>
                 </div>
                 <div className={`signup-meeting__radio${form.meetingId === m.id ? ' signup-meeting__radio--active' : ''}`}>
                   {form.meetingId === m.id && '✓'}
@@ -230,7 +230,7 @@ export default function SignupFlow({ meetings, venue }: { meetings: Meeting[]; v
                 <div>
                   <p className="wsc-eyebrow" style={{color:'var(--gold)'}}>Your visit</p>
                   <p style={{fontFamily:'var(--serif)',fontSize:20,fontWeight:500}}>{selectedMeeting.theme || 'Open session'}</p>
-                  <p style={{fontFamily:'var(--mono)',fontSize:12,color:'oklch(0.78 0.04 240)'}}>{formatFullDate(selectedMeeting.meeting_date)} · 7:00pm</p>
+                  <p style={{fontFamily:'var(--mono)',fontSize:12,color:'oklch(0.78 0.04 240)'}}>{formatFullDate(selectedMeeting.meeting_date)} · {venue?.meeting_time ?? '7:00pm'}</p>
                 </div>
               </div>
               <div style={{display:'flex',gap:12,flexWrap:'wrap'}}>
