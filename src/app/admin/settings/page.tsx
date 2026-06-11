@@ -82,6 +82,25 @@ export default async function AdminSettingsPage() {
             <input type="text" id="meeting_end_time" name="meeting_end_time" defaultValue={settings?.meeting_end_time ?? ''} className="wsc-input" placeholder="9:00pm" />
           </div>
 
+          <h2 style={{ fontFamily: 'var(--serif)', fontWeight: 500, fontSize: 20, margin: '0.5rem 0 0', color: 'var(--ink)' }}>President&apos;s Quote</h2>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+            <label htmlFor="president_quote" className="wsc-label">Quote</label>
+            <textarea id="president_quote" name="president_quote" defaultValue={settings?.president_quote ?? ''} rows={3} className="wsc-input" placeholder="You don't need to be confident…" />
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+            <label htmlFor="president_name_fallback" className="wsc-label">Fallback Name <span style={{ color: 'var(--ink-3)', fontWeight: 400 }}>(used if no member is assigned the President role)</span></label>
+            <input type="text" id="president_name_fallback" name="president_name_fallback" defaultValue={settings?.president_name_fallback ?? ''} className="wsc-input" placeholder="Margaret" />
+          </div>
+
+          <h2 style={{ fontFamily: 'var(--serif)', fontWeight: 500, fontSize: 20, margin: '0.5rem 0 0', color: 'var(--ink)' }}>Homepage Call to Action</h2>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+            <label htmlFor="cta_body" className="wsc-label">CTA Text</label>
+            <textarea id="cta_body" name="cta_body" defaultValue={settings?.cta_body ?? ''} rows={3} className="wsc-input" placeholder="No booking needed for your first visit…" />
+          </div>
+
           <h2 style={{ fontFamily: 'var(--serif)', fontWeight: 500, fontSize: 20, margin: '0.5rem 0 0', color: 'var(--ink)' }}>How It Works — Header</h2>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>

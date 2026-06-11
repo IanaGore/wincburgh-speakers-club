@@ -7,6 +7,8 @@ import EyebrowLabel from '@/components/ui/EyebrowLabel'
 import Button from '@/components/ui/Button'
 import Tag from '@/components/ui/Tag'
 import { formatScheduleLine, formatTimesLine, mapsUrl, venueName, venueAddress, VENUE_COLUMNS } from '@/lib/venue'
+import { presidentQuote, getPresidentName, PRESIDENT_COLUMNS } from '@/lib/president'
+import { ctaBody, CTA_COLUMNS } from '@/lib/cta'
 import './page.css'
 
 function formatDay(dateStr: string) {
@@ -50,9 +52,11 @@ export default async function Home() {
 
   const { data: settings } = await supabase
     .from('site_settings')
-    .select(`how_it_works_eyebrow, how_it_works_heading, how_it_works_heading_em, ${VENUE_COLUMNS}`)
+    .select(`how_it_works_eyebrow, how_it_works_heading, how_it_works_heading_em, ${VENUE_COLUMNS}, ${PRESIDENT_COLUMNS}, ${CTA_COLUMNS}`)
     .eq('id', 1)
     .single()
+
+  const presidentName = await getPresidentName(supabase, settings ?? {})
 
   const { data: howItWorksSteps } = await supabase
     .from('how_it_works_steps')
@@ -159,9 +163,9 @@ export default async function Home() {
           <div className="home-quote__inner">
             <span className="home-quote__mark">&ldquo;</span>
             <blockquote>
-              You don&apos;t need to be confident. You don&apos;t need to have anything to say. You just need to turn up.
+              {presidentQuote(settings ?? {})}
             </blockquote>
-            <p className="home-quote__attribution">— Margaret, Club President</p>
+            <p className="home-quote__attribution">— {presidentName}, Club President</p>
           </div>
         </section>
 
@@ -275,7 +279,7 @@ export default async function Home() {
             <EyebrowLabel>Ready when you are</EyebrowLabel>
             <h2>Come and <em>try us.</em></h2>
             <p>
-              No booking needed for your first visit. Margaret, our president, will drop you a quick hello in the next day or two.
+              {ctaBody(settings ?? {})}
             </p>
             <div className="home-cta__actions">
               <Button href="/signup" variant="primary">Come to a meeting</Button>

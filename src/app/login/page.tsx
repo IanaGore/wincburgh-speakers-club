@@ -1,6 +1,7 @@
 import { createClient } from '@/utils/supabase/server'
 import Wordmark from '@/components/Wordmark'
 import LoginForm from './LoginForm'
+import { presidentQuote, getPresidentName, PRESIDENT_COLUMNS } from '@/lib/president'
 import './login.css'
 
 function formatDay(dateStr: string) {
@@ -38,9 +39,11 @@ export default async function LoginPage({
 
   const { data: settings } = await supabase
     .from('site_settings')
-    .select('meeting_time')
+    .select(`meeting_time, ${PRESIDENT_COLUMNS}`)
     .eq('id', 1)
     .single()
+
+  const presidentName = await getPresidentName(supabase, settings ?? {})
 
   return (
     <div className="login-page">
@@ -71,9 +74,9 @@ export default async function LoginPage({
 
           <div className="login-left__quote">
             <blockquote>
-              It is the warmest room in Winchburgh on a Tuesday. Honest.
+              {presidentQuote(settings ?? {})}
             </blockquote>
-            <cite>— Margaret, Club President</cite>
+            <cite>— {presidentName}, Club President</cite>
           </div>
         </div>
       </div>
