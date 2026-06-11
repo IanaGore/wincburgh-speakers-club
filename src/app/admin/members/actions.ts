@@ -62,6 +62,9 @@ export async function updateMemberRoles(formData: FormData) {
   }
 
   revalidatePath('/admin/members')
+  // club_roles drives the public president attribution (#30)
+  revalidatePath('/')
+  revalidatePath('/login')
 }
 
 export async function toggleActive(formData: FormData) {

@@ -2,9 +2,10 @@ import { test, expect } from '@playwright/test'
 
 // #30/#31 regression: the pull-quote, its attribution, and the CTA paragraph must
 // render from `site_settings` (president_quote / president_name_fallback / cta_body)
-// and the get_president_name() rpc — not hardcoded copy. Asserts against the
-// migration's canonical seed values. REQUIRES the 20260610130000 migration to be
-// applied to the DB the app points at. Until then these fail — expected, not a defect.
+// and the get_president_name() rpc — not hardcoded copy. Asserts the canonical copy
+// (seeded by the 20260610130000 migration; the lib helpers fall back to identical
+// defaults, so these guard the copy itself — e.g. no stranded "Margaret, our
+// president" — rather than proving the DB roundtrip).
 
 test.describe('#30 president quote renders from site_settings', () => {
   test('homepage shows the seeded quote with a derived attribution', async ({ page }) => {
