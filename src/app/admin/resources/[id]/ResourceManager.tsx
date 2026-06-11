@@ -83,6 +83,10 @@ export default function ResourceManager({ roleId, initialResources }: { roleId: 
   }
 
   function handleDrop(targetIndex: number) {
+    if (isPending) {
+      setDragIndex(null)
+      return
+    }
     if (dragIndex === null || dragIndex === targetIndex) {
       setDragIndex(null)
       return

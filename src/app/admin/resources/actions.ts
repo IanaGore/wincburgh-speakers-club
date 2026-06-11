@@ -24,6 +24,11 @@ function getAdminClient() {
   )
 }
 
+// Slugs become one URL path segment on the member side — keep them routable.
+function normaliseSlug(input: string): string {
+  return input.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')
+}
+
 function revalidateResources() {
   // 'layout' covers the dynamic /member/resources/[slug] and /admin/resources/[id] children
   revalidatePath('/member/resources', 'layout')
@@ -44,7 +49,7 @@ export async function addRole() {
   const nextOrder = (maxRow?.sort_order ?? 0) + 1
   const { data, error } = await supabase
     .from('roles')
-    .insert({ name: 'New role', slug: `new-role-${nextOrder}`, description: '', sort_order: nextOrder })
+    .insert({ name: 'New role', slug: `new-role-${crypto.randomUUID().slice(0, 8)}`, description: '', sort_order: nextOrder })
     .select('id, name, slug, description')
     .single()
   if (error || !data) throw new Error('Failed to add role')
@@ -55,9 +60,11 @@ export async function addRole() {
 export async function updateRole(id: string, name: string, slug: string, description: string) {
   await checkAdmin()
   const supabase = await createClient()
+  const safeSlug = normaliseSlug(slug) || normaliseSlug(name)
+  if (!safeSlug) throw new Error('Role needs a name or slug')
   const { error } = await supabase
     .from('roles')
-    .update({ name, slug, description, updated_at: new Date().toISOString() })
+    .update({ name, slug: safeSlug, description, updated_at: new Date().toISOString() })
     .eq('id', id)
   if (error) throw new Error('Failed to update role')
   revalidateResources()
@@ -68,10 +75,12 @@ export async function deleteRole(id: string) {
   const supabase = await createClient()
 
   // Remove the role's attachment files from Storage before the cascade deletes the rows
-  const { data: files } = await supabase
+  const { data: files, error: filesError } = await supabase
     .from('role_resource_files')
     .select('storage_path, role_resources!inner(role_id)')
     .eq('role_resources.role_id', id)
+  // Abort rather than cascade-delete rows whose storage objects we could not enumerate
+  if (filesError) throw new Error('Failed to delete role')
   if (files && files.length > 0) {
     await getAdminClient().storage.from(BUCKET).remove(files.map((f) => f.storage_path))
   }
