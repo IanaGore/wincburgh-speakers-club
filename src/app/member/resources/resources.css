@@ -1,0 +1,151 @@
+.resources-main {
+  max-width: 880px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 40px clamp(24px, 4vw, 72px);
+}
+
+.resources-main h1 {
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: 2rem;
+  color: var(--foreground);
+  margin: 0 0 0.5rem;
+}
+
+.resources-intro {
+  color: var(--foreground);
+  opacity: 0.75;
+  margin: 0 0 2rem;
+}
+
+.resources-empty {
+  color: var(--foreground);
+  opacity: 0.6;
+}
+
+.resources-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 1rem;
+}
+
+.resources-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1.25rem;
+  border: 1px solid rgba(248, 250, 252, 0.15);
+  border-radius: 12px;
+  background: rgba(248, 250, 252, 0.04);
+  text-decoration: none;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.resources-card:hover {
+  border-color: var(--clay);
+  background: rgba(248, 250, 252, 0.07);
+}
+
+.resources-card h2 {
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: 1.2rem;
+  color: var(--foreground);
+  margin: 0;
+}
+
+.resources-card p {
+  color: var(--foreground);
+  opacity: 0.7;
+  font-size: 0.9rem;
+  margin: 0;
+  flex: 1;
+}
+
+.resources-card__cta {
+  color: var(--clay);
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.resources-role-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+
+.resources-back {
+  color: var(--clay);
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-decoration: none;
+}
+
+.resources-resource {
+  margin: 0 0 2rem;
+  padding: 1.5rem;
+  border: 1px solid rgba(248, 250, 252, 0.15);
+  border-radius: 12px;
+  background: rgba(248, 250, 252, 0.04);
+}
+
+.resources-resource h2 {
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: 1.35rem;
+  color: var(--foreground);
+  margin: 0 0 0.75rem;
+}
+
+.resources-body {
+  color: var(--foreground);
+  opacity: 0.9;
+  line-height: 1.7;
+  white-space: pre-wrap;
+}
+
+.resources-files {
+  list-style: none;
+  margin: 1rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.resources-files a {
+  color: var(--clay);
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+.resources-files a:hover {
+  text-decoration: underline;
+}
+
+/* Clean prep-sheet print: black on white, no chrome (portal.css already hides nav) */
+@media print {
+  .resources-main {
+    padding: 0;
+  }
+
+  .resources-sheet,
+  .resources-sheet h1,
+  .resources-sheet h2,
+  .resources-sheet .resources-intro,
+  .resources-sheet .resources-body {
+    color: black !important;
+    opacity: 1 !important;
+  }
+
+  .resources-resource {
+    border: none;
+    border-top: 1px solid #ccc;
+    border-radius: 0;
+    background: white;
+    padding: 1rem 0;
+    break-inside: avoid;
+  }
+}
