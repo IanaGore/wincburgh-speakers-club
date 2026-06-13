@@ -1,31 +1,53 @@
 import { createClient } from '@/utils/supabase/server'
-import { markAsRead } from '../messages/actions'
 import DeleteMessageButton from '../messages/DeleteMessageButton'
 import { MarkAttendedButton, InviteButton } from '../signups/RSVPActions'
+import { updateMessageStatus, updateMessageNotes, updateSignupStatus, updateSignupNotes } from './actions'
 
 export const metadata = { title: 'Enquiries | Admin' }
+
+const MESSAGE_STATUSES = ['new', 'replied', 'closed'] as const
+const SIGNUP_STATUSES = ['pending', 'contacted', 'attended', 'no_show', 'joined', 'converted'] as const
+
+function statusTag(status: string) {
+  const colours: Record<string, string> = {
+    new: 'wsc-tag-clay',
+    replied: 'wsc-tag-gold',
+    closed: 'wsc-tag-sage',
+    pending: 'wsc-tag-gold',
+    contacted: 'wsc-tag-gold',
+    attended: 'wsc-tag-sage',
+    no_show: '',
+    joined: 'wsc-tag-sage',
+    converted: 'wsc-tag-clay',
+  }
+  return `wsc-tag ${colours[status] ?? ''}`
+}
 
 export default async function EnquiriesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ tab?: string; status?: string }>
+  searchParams: Promise<{ tab?: string; status?: string; mstatus?: string }>
 }) {
-  const { tab = 'messages', status = 'pending' } = await searchParams
+  const { tab = 'messages', status = 'pending', mstatus = 'new' } = await searchParams
   const supabase = await createClient()
 
-  const [{ data: messages }, { data: signups }] = await Promise.all([
+  const [{ data: messages }, { data: signups }, { data: allMessages }] = await Promise.all([
     supabase
       .from('contact_messages')
       .select('*')
+      .eq('status', mstatus)
       .order('created_at', { ascending: false }),
     supabase
       .from('signups')
       .select('*, meetings(meeting_date, theme)')
       .eq('status', status)
       .order('created_at', { ascending: false }),
+    supabase
+      .from('contact_messages')
+      .select('status'),
   ])
 
-  const unreadCount = messages?.filter(m => !m.is_read).length ?? 0
+  const newCount = allMessages?.filter((m: { status: string }) => m.status === 'new').length ?? 0
 
   return (
     <div>
@@ -39,8 +61,8 @@ export default async function EnquiriesPage({
           href="?tab=messages"
           className={`wsc-btn wsc-btn-sm${tab === 'messages' ? ' wsc-btn-primary' : ' wsc-btn-ghost'}`}
         >
-          Messages{unreadCount > 0 && (
-            <span className="wsc-tag wsc-tag-clay" style={{ marginLeft: 8 }}>{unreadCount}</span>
+          Messages{newCount > 0 && (
+            <span className="wsc-tag wsc-tag-clay" style={{ marginLeft: 8 }}>{newCount}</span>
           )}
         </a>
         <a
@@ -53,101 +75,127 @@ export default async function EnquiriesPage({
 
       {/* Messages tab */}
       {tab === 'messages' && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-          {!messages?.length ? (
-            <div className="wsc-card" style={{ padding: '3rem', textAlign: 'center', color: 'var(--ink-3)', borderStyle: 'dashed' }}>
-              No messages yet.
-            </div>
-          ) : (
-            messages.map(msg => (
-              <div key={msg.id} className="wsc-card" style={{
-                padding: '1.5rem',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '1rem',
-                borderColor: msg.is_read ? 'var(--rule)' : 'var(--clay)',
-              }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '0.5rem' }}>
-                  <div>
-                    <h3 style={{ fontSize: '1.1rem', fontFamily: 'var(--serif)', fontWeight: 500, margin: '0 0 0.2rem', color: 'var(--ink)' }}>{msg.name}</h3>
-                    <a href={`mailto:${msg.email}`} style={{ color: 'var(--clay)', fontSize: '0.9rem' }}>{msg.email}</a>
-                  </div>
-                  <div style={{ color: 'var(--ink-4)', fontSize: '0.85rem', textAlign: 'right', fontFamily: 'var(--mono)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    {new Date(msg.created_at).toLocaleString()}
-                    {!msg.is_read && <span className="wsc-tag wsc-tag-clay">New</span>}
-                  </div>
-                </div>
-                <div style={{ background: 'var(--paper-2)', padding: '1rem', borderRadius: '8px', whiteSpace: 'pre-wrap', color: 'var(--ink-2)', lineHeight: '1.5', border: '1px solid var(--rule-soft)' }}>
-                  {msg.message}
-                </div>
-                <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
-                  {!msg.is_read && (
-                    <form action={markAsRead}>
-                      <input type="hidden" name="message_id" value={msg.id} />
-                      <button type="submit" className="wsc-btn wsc-btn-sm wsc-btn-ghost">Mark as Read</button>
-                    </form>
-                  )}
-                  <DeleteMessageButton messageId={msg.id} />
-                </div>
+        <div>
+          <div style={{ display: 'flex', gap: 8, marginBottom: 24 }}>
+            {MESSAGE_STATUSES.map(s => (
+              <a key={s} href={`?tab=messages&mstatus=${s}`}
+                className={`wsc-btn wsc-btn-sm${mstatus === s ? ' wsc-btn-primary' : ' wsc-btn-ghost'}`}>
+                {s.charAt(0).toUpperCase() + s.slice(1)}
+              </a>
+            ))}
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            {!messages?.length ? (
+              <div className="wsc-card" style={{ padding: '3rem', textAlign: 'center', color: 'var(--ink-3)', borderStyle: 'dashed' }}>
+                No {mstatus} messages.
               </div>
-            ))
-          )}
+            ) : (
+              messages.map((msg: Record<string, string>) => (
+                <div key={msg.id} className="wsc-card" style={{
+                  padding: '1.5rem',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '1rem',
+                  borderColor: msg.status === 'new' ? 'var(--clay)' : 'var(--rule)',
+                }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '0.5rem' }}>
+                    <div>
+                      <h3 style={{ fontSize: '1.1rem', fontFamily: 'var(--serif)', fontWeight: 500, margin: '0 0 0.2rem', color: 'var(--ink)' }}>{msg.name}</h3>
+                      <a href={`mailto:${msg.email}`} style={{ color: 'var(--clay)', fontSize: '0.9rem' }}>{msg.email}</a>
+                      {msg.phone && <span style={{ marginLeft: 12, color: 'var(--ink-3)', fontSize: '0.85rem' }}>{msg.phone}</span>}
+                      {msg.topic && <span style={{ marginLeft: 12, fontSize: 12, fontFamily: 'var(--mono)', color: 'var(--ink-3)' }}>Topic: {msg.topic}</span>}
+                    </div>
+                    <div style={{ color: 'var(--ink-4)', fontSize: '0.85rem', textAlign: 'right', fontFamily: 'var(--mono)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                      {new Date(msg.created_at).toLocaleString()}
+                      <span className={statusTag(msg.status)}>{msg.status}</span>
+                    </div>
+                  </div>
+
+                  <div style={{ background: 'var(--paper-2)', padding: '1rem', borderRadius: '8px', whiteSpace: 'pre-wrap', color: 'var(--ink-2)', lineHeight: '1.5', border: '1px solid var(--rule-soft)' }}>
+                    {msg.message}
+                  </div>
+
+                  <form action={updateMessageStatus} style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexWrap: 'wrap' }}>
+                    <input type="hidden" name="message_id" value={msg.id} />
+                    <label className="wsc-label" style={{ margin: 0 }}>Status:</label>
+                    <select name="status" defaultValue={msg.status} className="wsc-input" style={{ width: 'auto', padding: '0.25rem 0.5rem', fontSize: 13 }}>
+                      {MESSAGE_STATUSES.map(s => <option key={s} value={s}>{s}</option>)}
+                    </select>
+                    <button type="submit" className="wsc-btn wsc-btn-sm wsc-btn-ghost">Update</button>
+                    <DeleteMessageButton messageId={msg.id} />
+                  </form>
+
+                  <form action={updateMessageNotes} style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                    <input type="hidden" name="message_id" value={msg.id} />
+                    <label className="wsc-label" htmlFor={`notes-${msg.id}`}>Admin notes</label>
+                    <textarea id={`notes-${msg.id}`} name="notes" className="wsc-input" rows={2} defaultValue={msg.admin_notes ?? ''} placeholder="Internal notes…" />
+                    <div><button type="submit" className="wsc-btn wsc-btn-sm wsc-btn-ghost">Save notes</button></div>
+                  </form>
+                </div>
+              ))
+            )}
+          </div>
         </div>
       )}
 
       {/* RSVPs tab */}
       {tab === 'rsvps' && (
         <div>
-          {/* Status filter */}
-          <div style={{ display: 'flex', gap: 8, marginBottom: 24 }}>
-            {['pending', 'attended', 'converted'].map(s => (
+          <div style={{ display: 'flex', gap: 8, marginBottom: 24, flexWrap: 'wrap' }}>
+            {SIGNUP_STATUSES.map(s => (
               <a key={s} href={`?tab=rsvps&status=${s}`}
                 className={`wsc-btn wsc-btn-sm${status === s ? ' wsc-btn-primary' : ' wsc-btn-ghost'}`}>
-                {s.charAt(0).toUpperCase() + s.slice(1)}
+                {s.replace('_', ' ').replace(/\b\w/g, (c: string) => c.toUpperCase())}
               </a>
             ))}
           </div>
 
-          <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
-              <thead>
-                <tr style={{ borderBottom: '1px solid var(--rule)' }}>
-                  {['Name', 'Email', 'Meeting', 'Heard from', 'Status', 'Actions'].map(h => (
-                    <th key={h} style={{ textAlign: 'left', padding: '10px 12px', fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.08em', color: 'var(--ink-3)', textTransform: 'uppercase' }}>{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {signups?.map(s => (
-                  <tr key={s.id} style={{ borderBottom: '1px solid var(--rule-soft)' }}>
-                    <td style={{ padding: '12px', color: 'var(--ink)', fontWeight: 500 }}>{s.first_name} {s.last_name}</td>
-                    <td style={{ padding: '12px', color: 'var(--ink-2)' }}>{s.email}</td>
-                    <td style={{ padding: '12px', fontFamily: 'var(--mono)', fontSize: 12, color: 'var(--ink-3)' }}>
-                      {s.meetings ? new Date(s.meetings.meeting_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) : '—'}
-                    </td>
-                    <td style={{ padding: '12px', color: 'var(--ink-3)', fontSize: 13 }}>{s.heard_from || '—'}</td>
-                    <td style={{ padding: '12px' }}>
-                      <span className={`wsc-tag${s.status === 'attended' ? ' wsc-tag-sage' : s.status === 'converted' ? ' wsc-tag-clay' : ' wsc-tag-gold'}`}>
-                        {s.status}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            {signups?.map((s: Record<string, string | Record<string, string> | null>) => (
+              <div key={s.id as string} className="wsc-card" style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '0.5rem' }}>
+                  <div>
+                    <strong style={{ color: 'var(--ink)', fontWeight: 500 }}>{s.first_name as string} {s.last_name as string}</strong>
+                    <span style={{ marginLeft: 12, color: 'var(--ink-2)', fontSize: 14 }}>{s.email as string}</span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap', fontSize: 13 }}>
+                    {s.meetings && (
+                      <span style={{ fontFamily: 'var(--mono)', color: 'var(--ink-3)', fontSize: 12 }}>
+                        {new Date((s.meetings as Record<string, string>).meeting_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
                       </span>
-                    </td>
-                    <td style={{ padding: '12px' }}>
-                      <div style={{ display: 'flex', gap: 8 }}>
-                        {s.status === 'pending' && <MarkAttendedButton signupId={s.id} />}
-                        {s.status === 'attended' && <InviteButton signupId={s.id} />}
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-                {(!signups || signups.length === 0) && (
-                  <tr>
-                    <td colSpan={6} style={{ padding: '32px 12px', textAlign: 'center', color: 'var(--ink-4)', fontFamily: 'var(--mono)', fontSize: 13 }}>
-                      No {status} RSVPs
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+                    )}
+                    {s.heard_from && <span style={{ color: 'var(--ink-3)', fontSize: 12 }}>via {s.heard_from as string}</span>}
+                    <span className={statusTag(s.status as string)}>{(s.status as string).replace('_', ' ')}</span>
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexWrap: 'wrap' }}>
+                  <form action={updateSignupStatus} style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                    <input type="hidden" name="signup_id" value={s.id as string} />
+                    <label className="wsc-label" style={{ margin: 0, fontSize: 13 }}>Status:</label>
+                    <select name="status" defaultValue={s.status as string} className="wsc-input" style={{ width: 'auto', padding: '0.25rem 0.5rem', fontSize: 13 }}>
+                      {SIGNUP_STATUSES.map(st => <option key={st} value={st}>{st.replace('_', ' ')}</option>)}
+                    </select>
+                    <button type="submit" className="wsc-btn wsc-btn-sm wsc-btn-ghost">Update</button>
+                  </form>
+                  {(s.status as string) === 'pending' && <MarkAttendedButton signupId={s.id as string} />}
+                  {(s.status as string) === 'attended' && <InviteButton signupId={s.id as string} />}
+                </div>
+
+                <form action={updateSignupNotes} style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                  <input type="hidden" name="signup_id" value={s.id as string} />
+                  <label className="wsc-label" htmlFor={`signup-notes-${s.id as string}`} style={{ fontSize: 13 }}>Admin notes</label>
+                  <textarea id={`signup-notes-${s.id as string}`} name="notes" className="wsc-input" rows={2} defaultValue={(s.admin_notes as string) ?? ''} placeholder="Internal notes…" />
+                  <div><button type="submit" className="wsc-btn wsc-btn-sm wsc-btn-ghost">Save notes</button></div>
+                </form>
+              </div>
+            ))}
+            {(!signups || signups.length === 0) && (
+              <div className="wsc-card" style={{ padding: '3rem', textAlign: 'center', color: 'var(--ink-4)', borderStyle: 'dashed' }}>
+                No {status.replace('_', ' ')} RSVPs
+              </div>
+            )}
           </div>
         </div>
       )}
