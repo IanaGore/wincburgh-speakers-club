@@ -4,10 +4,9 @@ import { useState } from 'react'
 import SignupFlow from '@/app/signup/SignupFlow'
 import ContactForm from '@/app/contact/ContactForm'
 import EyebrowLabel from '@/components/ui/EyebrowLabel'
-import { mapsUrl, venueName, venueAddress } from '@/lib/venue'
+import { mapsUrl, venueName, venueAddress, type VenueSettings } from '@/lib/venue'
 
 type Meeting = { id: string; meeting_date: string; theme: string | null; meeting_type: string | null }
-type VenueSettings = Parameters<typeof venueName>[0]
 type Facility = { id: string; icon: string; label: string }
 
 interface Props {
