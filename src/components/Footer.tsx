@@ -14,8 +14,8 @@ export default function Footer() {
           <h4>Visit</h4>
           <ul>
             <li><Link href="/meetings">Upcoming meetings</Link></li>
-            <li><Link href="/contact#find-us">Find us</Link></li>
-            <li><Link href="/contact#find-us">Accessibility</Link></li>
+            <li><Link href="/get-started?intent=ask#find-us">Find us</Link></li>
+            <li><Link href="/get-started?intent=ask#find-us">Accessibility</Link></li>
           </ul>
         </div>
         <div className="footer__col">
@@ -30,7 +30,7 @@ export default function Footer() {
           <h4>Contact</h4>
           <ul>
             <li><a href="mailto:hello@winchburghsc.co.uk">hello@winchburghsc.co.uk</a></li>
-            <li><Link href="/contact">Send a message</Link></li>
+            <li><Link href="/get-started?intent=ask">Send a message</Link></li>
             <li><a href="https://www.facebook.com" target="_blank" rel="noopener noreferrer">Facebook</a></li>
           </ul>
         </div>

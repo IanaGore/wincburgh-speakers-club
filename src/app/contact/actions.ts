@@ -19,7 +19,7 @@ export async function sendContactMessage(
   const supabase = await createClient()
   const { error } = await supabase
     .from('contact_messages')
-    .insert({ name, email, message })
+    .insert({ name, email, phone: phone || null, topic: topic || null, message })
 
   if (error) return { success: false, error: error.message }
 

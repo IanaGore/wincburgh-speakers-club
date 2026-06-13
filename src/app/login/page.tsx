@@ -85,7 +85,7 @@ export default async function LoginPage({
       <div className="login-right">
         <p className="login-right__new-here">
           New here?{' '}
-          <a href="/contact">Get in touch</a>
+          <a href="/get-started?intent=ask">Get in touch</a>
         </p>
         <LoginForm error={params.error} />
       </div>

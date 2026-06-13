@@ -89,7 +89,7 @@ export default async function Home() {
               We&apos;re a friendly bunch who meet twice a month to practise speaking, try new things, and have a proper cup of tea. No experience needed. No booking required for your first visit.
             </p>
             <div className="home-hero__actions">
-              <Button href="/signup" variant="primary">Come to a meeting</Button>
+              <Button href="/get-started?intent=attend" variant="primary">Come to a meeting</Button>
               <Button href="/#about" variant="ghost">What happens?</Button>
             </div>
             {memberCount != null && (
@@ -282,8 +282,8 @@ export default async function Home() {
               {ctaBody(settings ?? {})}
             </p>
             <div className="home-cta__actions">
-              <Button href="/signup" variant="primary">Come to a meeting</Button>
-              <Button href="/contact" variant="ghost-light">Get in touch</Button>
+              <Button href="/get-started?intent=attend" variant="primary">Come to a meeting</Button>
+              <Button href="/get-started?intent=ask" variant="ghost-light">Get in touch</Button>
             </div>
           </div>
         </section>
