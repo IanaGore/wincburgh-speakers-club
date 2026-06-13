@@ -1,0 +1,203 @@
+/* get-started page */
+.get-started-page {
+  min-height: 80vh;
+  padding: var(--section-v) var(--section-h);
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+/* Intent chooser */
+.gs-chooser {
+  max-width: 600px;
+  margin: 4rem auto;
+  text-align: center;
+}
+
+.gs-chooser h1 {
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: clamp(2rem, 4vw, 2.8rem);
+  margin: 0.5rem 0;
+  color: var(--foreground);
+}
+
+.gs-chooser__intro {
+  color: var(--foreground-muted, var(--ink-3));
+  margin-bottom: 2.5rem;
+}
+
+.gs-chooser__cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  text-align: left;
+}
+
+@media (max-width: 560px) {
+  .gs-chooser__cards {
+    grid-template-columns: 1fr;
+  }
+}
+
+.gs-chooser__card {
+  all: unset;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 1.8rem 1.5rem;
+  border-radius: var(--radius, 12px);
+  border: 1.5px solid var(--rule);
+  background: var(--glass-bg, rgba(255,255,255,0.04));
+  transition: border-color 0.15s, transform 0.15s;
+}
+
+.gs-chooser__card:hover,
+.gs-chooser__card:focus-visible {
+  border-color: var(--clay);
+  transform: translateY(-2px);
+}
+
+.gs-chooser__icon {
+  font-size: 2rem;
+}
+
+.gs-chooser__card strong {
+  font-size: 1.15rem;
+  font-family: var(--serif);
+  font-weight: 500;
+  color: var(--foreground);
+}
+
+.gs-chooser__card span:last-child {
+  font-size: 0.9rem;
+  color: var(--foreground-muted, var(--ink-3));
+  line-height: 1.5;
+}
+
+/* Back button */
+.gs-back {
+  all: unset;
+  cursor: pointer;
+  color: var(--clay);
+  font-size: 0.9rem;
+  margin-bottom: 1.5rem;
+  display: inline-block;
+}
+
+.gs-back:hover {
+  text-decoration: underline;
+}
+
+/* Attend branch */
+.gs-attend {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Ask branch */
+.gs-ask {
+  display: flex;
+  flex-direction: column;
+}
+
+.gs-ask__inner {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 3rem;
+  align-items: start;
+}
+
+@media (max-width: 860px) {
+  .gs-ask__inner {
+    grid-template-columns: 1fr;
+  }
+}
+
+.gs-ask__left h1 {
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+  margin: 0.5rem 0;
+  color: var(--foreground);
+}
+
+.gs-ask__intro {
+  color: var(--foreground-muted, var(--ink-3));
+  margin-bottom: 1.5rem;
+}
+
+/* Find us card */
+.gs-find-us {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.gs-find-us h2 {
+  font-family: var(--serif);
+  font-size: 1.2rem;
+  font-weight: 500;
+  margin: 0;
+  color: var(--ink);
+}
+
+.gs-find-us address {
+  font-style: normal;
+  color: var(--ink-2);
+  font-size: 0.95rem;
+}
+
+.gs-find-us__access {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--ink-3);
+  line-height: 1.8;
+}
+
+.gs-find-us__link {
+  align-self: flex-start;
+}
+
+/* FAQs */
+.gs-faqs {
+  margin-top: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.gs-faq {
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.gs-faq summary {
+  padding: 0.85rem 1rem;
+  cursor: pointer;
+  font-weight: 500;
+  color: var(--ink);
+  list-style: none;
+  display: flex;
+  justify-content: space-between;
+}
+
+.gs-faq summary::-webkit-details-marker { display: none; }
+
+.gs-faq summary::after {
+  content: '+';
+  font-size: 1.1rem;
+  color: var(--clay);
+}
+
+.gs-faq[open] summary::after { content: '−'; }
+
+.gs-faq p {
+  margin: 0;
+  padding: 0 1rem 0.85rem;
+  color: var(--ink-3);
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
