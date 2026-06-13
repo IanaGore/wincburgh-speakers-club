@@ -28,6 +28,7 @@ export default function PortalNav({ isAdminView = false }: { isAdminView?: boole
             <Link href="/admin/news" style={activeStyle(pathname, '/admin/news')}>News</Link>
             <Link href="/admin/enquiries" style={activeStyle(pathname, '/admin/enquiries')}>Enquiries</Link>
             <Link href="/admin/media" style={activeStyle(pathname, '/admin/media')}>Media</Link>
+            <Link href="/admin/resources" style={activeStyle(pathname, '/admin/resources')}>Resources</Link>
             <Link href="/admin/settings" style={activeStyle(pathname, '/admin/settings')}>Settings</Link>
             <Link href="/member/dashboard" style={{ color: "var(--clay)", marginLeft: "1rem", fontWeight: "bold" }}>Member View →</Link>
           </>
@@ -36,6 +37,7 @@ export default function PortalNav({ isAdminView = false }: { isAdminView?: boole
             <Link href="/member/dashboard" style={activeStyle(pathname, '/member/dashboard')}>Dashboard</Link>
             <Link href="/member/profile" style={activeStyle(pathname, '/member/profile')}>Profile</Link>
             <Link href="/member/speeches" style={activeStyle(pathname, '/member/speeches')}>Speeches</Link>
+            <Link href="/member/resources" style={activeStyle(pathname, '/member/resources')}>Resources</Link>
             <Link href="/admin/meetings" style={{ color: "var(--clay)", marginLeft: "1rem", fontWeight: "bold" }}>Admin Tools →</Link>
           </>
         )}
