@@ -131,7 +131,7 @@ export default function LoginForm({ error }: LoginFormProps) {
 
       <p className="login-form__help">
         Not a member yet?{' '}
-        <Link href="/contact" style={{ color: 'var(--clay)', textDecoration: 'underline', textUnderlineOffset: 3 }}>
+        <Link href="/get-started?intent=ask" style={{ color: 'var(--clay)', textDecoration: 'underline', textUnderlineOffset: 3 }}>
           Come to a meeting
         </Link>
       </p>

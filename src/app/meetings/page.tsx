@@ -56,7 +56,7 @@ export default async function MeetingsPage() {
                         <span className="meeting-card__venue">{venueName}</span>
                         {m.theme && <span style={{ fontSize: '0.85rem', color: 'var(--primary)', marginTop: '0.2rem' }}>{m.theme}</span>}
                       </div>
-                      <Link href="/signup" className="wsc-btn wsc-btn-primary wsc-btn-sm">
+                      <Link href="/get-started?intent=attend" className="wsc-btn wsc-btn-primary wsc-btn-sm">
                         RSVP
                       </Link>
                     </div>

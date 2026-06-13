@@ -27,7 +27,7 @@ export default async function AboutPage() {
           <div className="about-hero__overlay">
             <h1 className="about-hero__title">West Lothian Speakers Club</h1>
             <p className="about-hero__mission">{mission}</p>
-            <Link href="/signup" className="wsc-btn wsc-btn-primary">Come to a meeting</Link>
+            <Link href="/get-started?intent=attend" className="wsc-btn wsc-btn-primary">Come to a meeting</Link>
           </div>
         </section>
 
@@ -39,7 +39,7 @@ export default async function AboutPage() {
           <div className="about-cta__inner">
             <h2 className="about-cta__heading">Ready to give it a try?</h2>
             <p className="about-cta__tagline">Your first three visits are free.</p>
-            <Link href="/signup" className="wsc-btn wsc-btn-primary wsc-btn-lg">RSVP for a meeting</Link>
+            <Link href="/get-started?intent=attend" className="wsc-btn wsc-btn-primary wsc-btn-lg">RSVP for a meeting</Link>
           </div>
         </section>
       </main>
