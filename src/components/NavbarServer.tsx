@@ -18,9 +18,9 @@ export default async function NavbarServer() {
 
   const { data: settings } = await supabase
     .from('site_settings')
-    .select(VENUE_COLUMNS)
+    .select(`${VENUE_COLUMNS}, free_visits_label`)
     .eq('id', 1)
     .single()
 
-  return <Navbar portalHref={portalHref} meetingShort={formatMeetingShort(settings ?? {})} />
+  return <Navbar portalHref={portalHref} meetingShort={formatMeetingShort(settings ?? {})} freeVisitsLabel={settings?.free_visits_label ?? undefined} />
 }

@@ -83,7 +83,7 @@ export default async function Home() {
             </div>
             <h1>
               The warmest room in Winchburgh{' '}
-              <em>on a Tuesday.</em>
+              <em>on a {settings?.meeting_day ?? 'Tuesday'}.</em>
             </h1>
             <p className="home-hero__body">
               We&apos;re a friendly bunch who meet twice a month to practise speaking, try new things, and have a proper cup of tea. No experience needed. No booking required for your first visit.
@@ -239,7 +239,7 @@ export default async function Home() {
 
             <div className="home-venue__info">
               <EyebrowLabel tone="clay">Find us</EyebrowLabel>
-              <h2>It is the warmest room in Winchburgh on a Tuesday. <em>Honest.</em></h2>
+              <h2>It is the warmest room in Winchburgh on a {settings?.meeting_day ?? 'Tuesday'}. <em>Honest.</em></h2>
               <div className="home-venue__detail">
                 <div className="home-venue__detail-icon">📍</div>
                 <div>

@@ -8,7 +8,10 @@ import { mapsUrl, type VenueSettings } from '@/lib/venue'
 type Meeting = { id: string; meeting_date: string; theme: string | null; meeting_type: string | null }
 
 const HEARD_OPTIONS = ['A friend or family member', 'Social media', 'Local noticeboard', 'Search engine', 'Walked past', 'Other']
-const HOPE_OPTIONS = ['Build my confidence', 'Get better at work presentations', 'Meet new people in Winchburgh', 'Practice for a wedding / event', 'Have a go at competitions', 'Just have a fun Tuesday night']
+
+function hopeOptions(day: string) {
+  return ['Build my confidence', 'Get better at work presentations', 'Meet new people in Winchburgh', 'Practice for a wedding / event', 'Have a go at competitions', `Just have a fun ${day} night`]
+}
 
 function formatDay(d: string) {
   const [,, day] = d.split('-')
@@ -141,7 +144,7 @@ export default function SignupFlow({ meetings, venue }: { meetings: Meeting[]; v
             <div>
               <p className="wsc-label" style={{marginBottom:12}}>What are you hoping for? <span style={{color:'var(--ink-4)'}}>(pick all that apply)</span></p>
               <div className="signup-chips">
-                {HOPE_OPTIONS.map(o => {
+                {hopeOptions(venue?.meeting_day ?? 'Tuesday').map(o => {
                   const active = form.hopes.includes(o)
                   return (
                     <button key={o} type="button"
@@ -167,7 +170,7 @@ export default function SignupFlow({ meetings, venue }: { meetings: Meeting[]; v
         <div className="signup-step" key="step3">
           <EyebrowLabel tone="clay">Step 3 of 4</EyebrowLabel>
           <h2>Your first visit</h2>
-          <p style={{color:'var(--ink-2)',marginBottom:24}}>Pick a Tuesday that works for you. No pressure — you can always come along without booking.</p>
+          <p style={{color:'var(--ink-2)',marginBottom:24}}>Pick a {venue?.meeting_day ?? 'Tuesday'} that works for you. No pressure — you can always come along without booking.</p>
           <div className="signup-meetings">
             {meetings.length === 0 && <p style={{color:'var(--ink-3)'}}>No upcoming meetings scheduled yet. Check back soon.</p>}
             {meetings.map(m => (
