@@ -23,6 +23,7 @@ export async function updateSettings(formData: FormData) {
   const president_quote = (formData.get('president_quote') as string) || null
   const president_name_fallback = (formData.get('president_name_fallback') as string) || null
   const cta_body = (formData.get('cta_body') as string) || null
+  const free_visits_label = (formData.get('free_visits_label') as string) || null
 
   const { error } = await supabase
     .from('site_settings')
@@ -30,7 +31,7 @@ export async function updateSettings(formData: FormData) {
       hero_title, hero_subtitle, about_text, venue_name, venue_address,
       meeting_day, meeting_frequency, meeting_doors_time, meeting_time, meeting_end_time,
       how_it_works_eyebrow, how_it_works_heading, how_it_works_heading_em,
-      president_quote, president_name_fallback, cta_body,
+      president_quote, president_name_fallback, cta_body, free_visits_label,
     })
     .eq('id', 1)
 

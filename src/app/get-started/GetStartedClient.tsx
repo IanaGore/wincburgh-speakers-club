@@ -14,9 +14,10 @@ interface Props {
   meetings: Meeting[]
   venue: VenueSettings | null
   facilities: Facility[]
+  freeVisitsLabel: string
 }
 
-export default function GetStartedClient({ initialIntent, meetings, venue, facilities }: Props) {
+export default function GetStartedClient({ initialIntent, meetings, venue, facilities, freeVisitsLabel }: Props) {
   const [intent, setIntent] = useState<'attend' | 'ask' | null>(initialIntent)
 
   if (!intent) {
@@ -29,7 +30,7 @@ export default function GetStartedClient({ initialIntent, meetings, venue, facil
           <button className="gs-chooser__card" onClick={() => setIntent('attend')}>
             <span className="gs-chooser__icon" aria-hidden>🎙️</span>
             <strong>Come to a meeting</strong>
-            <span>Reserve your spot for an upcoming session — your first three visits are free.</span>
+            <span>Reserve your spot for an upcoming session — {freeVisitsLabel.toLowerCase()}.</span>
           </button>
           <button className="gs-chooser__card" onClick={() => setIntent('ask')}>
             <span className="gs-chooser__icon" aria-hidden>✉️</span>
@@ -82,7 +83,7 @@ export default function GetStartedClient({ initialIntent, meetings, venue, facil
             <EyebrowLabel>Common questions</EyebrowLabel>
             <details className="gs-faq">
               <summary>Do I need to book?</summary>
-              <p>No booking needed for your first three visits. Just turn up. If you&apos;d like to let us know you&apos;re coming, you can use the form above — but it&apos;s not required.</p>
+              <p>No booking needed for your first visit. Just turn up. If you&apos;d like to let us know you&apos;re coming, you can use the form above — but it&apos;s not required.</p>
             </details>
             <details className="gs-faq">
               <summary>Will I have to speak?</summary>
@@ -90,7 +91,7 @@ export default function GetStartedClient({ initialIntent, meetings, venue, facil
             </details>
             <details className="gs-faq">
               <summary>What does it cost?</summary>
-              <p>Your first three visits are completely free. After that, membership is £3 per meeting. No hidden costs, no annual fee.</p>
+              <p>{freeVisitsLabel}. After that, membership is £3 per meeting. No hidden costs, no annual fee.</p>
             </details>
           </div>
         </aside>

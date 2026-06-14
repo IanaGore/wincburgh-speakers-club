@@ -15,7 +15,7 @@ export default async function GetStartedPage({
 
   const supabase = await createClient()
 
-  const [{ data: meetings }, { data: venue }, { data: facilities }] = await Promise.all([
+  const [{ data: meetings }, { data: settings }, { data: facilities }] = await Promise.all([
     supabase
       .from('meetings')
       .select('id, meeting_date, theme, meeting_type')
@@ -24,7 +24,7 @@ export default async function GetStartedPage({
       .limit(5),
     supabase
       .from('site_settings')
-      .select(VENUE_COLUMNS)
+      .select(`${VENUE_COLUMNS}, free_visits_label`)
       .eq('id', 1)
       .single(),
     supabase
@@ -40,8 +40,9 @@ export default async function GetStartedPage({
         <GetStartedClient
           initialIntent={validIntent}
           meetings={meetings ?? []}
-          venue={venue ?? null}
+          venue={settings ?? null}
           facilities={facilities ?? []}
+          freeVisitsLabel={settings?.free_visits_label ?? 'First visit free'}
         />
       </main>
       <Footer />

@@ -82,6 +82,11 @@ export default async function AdminSettingsPage() {
             <input type="text" id="meeting_end_time" name="meeting_end_time" defaultValue={settings?.meeting_end_time ?? ''} className="wsc-input" placeholder="9:00pm" />
           </div>
 
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+            <label htmlFor="free_visits_label" className="wsc-label">Navbar &ldquo;Free Visits&rdquo; Label</label>
+            <input type="text" id="free_visits_label" name="free_visits_label" defaultValue={settings?.free_visits_label ?? ''} className="wsc-input" placeholder="First visit free" />
+          </div>
+
           <h2 style={{ fontFamily: 'var(--serif)', fontWeight: 500, fontSize: 20, margin: '0.5rem 0 0', color: 'var(--ink)' }}>President&apos;s Quote</h2>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
