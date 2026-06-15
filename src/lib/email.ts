@@ -79,3 +79,23 @@ export async function sendRsvpConfirmation(
     `,
   })
 }
+
+export async function sendMemberRequestNotification(
+  adminEmail: string,
+  firstName: string,
+  lastName: string | null,
+  email: string
+): Promise<void> {
+  const adminUrl = process.env.NEXT_PUBLIC_SITE_URL ?? ''
+  const fullName = [firstName, lastName].filter(Boolean).join(' ')
+  await resend.emails.send({
+    from: FROM,
+    to: adminEmail,
+    subject: `Member registration request from ${esc(fullName)}`,
+    html: `
+      <p>${esc(fullName)} (${esc(email)}) has requested access to the member portal.</p>
+      <p>They have identified themselves as an existing club member.</p>
+      <p><a href="${esc(adminUrl)}/admin/enquiries?tab=rsvps">Review and send invite →</a></p>
+    `,
+  })
+}
