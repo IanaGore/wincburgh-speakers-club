@@ -39,7 +39,7 @@ export default async function EnquiriesPage({
       .order('created_at', { ascending: false }),
     supabase
       .from('signups')
-      .select('*, meetings(meeting_date, theme)')
+      .select('*, source, meetings(meeting_date, theme)')
       .eq('status', status)
       .order('created_at', { ascending: false }),
     supabase
@@ -166,6 +166,12 @@ export default async function EnquiriesPage({
                       </span>
                     )}
                     {s.heard_from && <span style={{ color: 'var(--ink-3)', fontSize: 12 }}>via {s.heard_from as string}</span>}
+                    {(s.source as string) === 'existing_member' && (
+                      <span className="wsc-tag wsc-tag-sage">Existing member</span>
+                    )}
+                    {(s.source as string) === 'admin_invite' && (
+                      <span className="wsc-tag wsc-tag-sage">Admin invite</span>
+                    )}
                     <span className={statusTag(s.status as string)}>{(s.status as string).replace('_', ' ')}</span>
                   </div>
                 </div>
@@ -179,8 +185,13 @@ export default async function EnquiriesPage({
                     </select>
                     <button type="submit" className="wsc-btn wsc-btn-sm wsc-btn-ghost">Update</button>
                   </form>
-                  {(s.status as string) === 'pending' && <MarkAttendedButton signupId={s.id as string} />}
-                  {(s.status as string) === 'attended' && <InviteButton signupId={s.id as string} />}
+                  {(s.status as string) === 'pending' && (s.source as string) !== 'existing_member' && (s.source as string) !== 'admin_invite' && (
+                    <MarkAttendedButton signupId={s.id as string} />
+                  )}
+                  {((s.status as string) === 'attended' ||
+                    ((s.status as string) === 'pending' && (s.source as string) === 'existing_member')) && (
+                    <InviteButton signupId={s.id as string} />
+                  )}
                 </div>
 
                 <form action={updateSignupNotes} style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
