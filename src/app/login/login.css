@@ -358,6 +358,8 @@
   cursor: pointer;
   list-style: none;
   user-select: none;
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 
 .login-member-request > summary::after {
