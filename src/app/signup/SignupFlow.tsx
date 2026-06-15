@@ -251,7 +251,7 @@ export default function SignupFlow({ meetings, venue }: { meetings: Meeting[]; v
               </div>
             ))}
           </div>
-          <p style={{marginTop:24,fontSize:14,color:'var(--ink-4)'}}>Questions? Email us at <a href="mailto:hello@winchburghsc.co.uk" style={{color:'var(--clay)'}}>hello@winchburghsc.co.uk</a></p>
+          <p style={{marginTop:24,fontSize:14,color:'var(--ink-4)'}}>Questions? Email us at <a href="mailto:hello@winchburghspeakersclub.uk" style={{color:'var(--clay)'}}>hello@winchburghspeakersclub.uk</a></p>
         </div>
       )}
     </div>
