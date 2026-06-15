@@ -62,6 +62,7 @@ export async function submitSignup(data: SignupData) {
     meeting_id: data.meetingId || null,
     notes: data.notes?.trim().slice(0, 2000) || null,
     status: 'pending',
+    source: 'rsvp',
   })
 
   if (error) throw new Error(error.message)
