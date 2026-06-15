@@ -1,7 +1,7 @@
 import { Resend } from 'resend'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
-const FROM = 'West Lothian Speakers Club noreply@ohthepennydrops.uk'
+const FROM = 'West Lothian Speakers Club <noreply@winchburghspeakersclub.uk>'
 
 function esc(s: string): string {
   return s
