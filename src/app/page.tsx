@@ -49,6 +49,7 @@ export default async function Home() {
   const { count: memberCount } = await supabase
     .from('profiles')
     .select('*', { count: 'exact', head: true })
+    .eq('is_active', true)
 
   const { data: settings } = await supabase
     .from('site_settings')
