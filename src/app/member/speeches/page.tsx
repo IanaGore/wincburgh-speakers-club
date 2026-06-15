@@ -9,7 +9,12 @@ function fmtDate(dateStr: string) {
   return new Date(dateStr).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
 }
 
-export default async function SpeechesPage() {
+export default async function SpeechesPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ logged?: string; error?: string }>
+}) {
+  const { logged, error: logError } = await searchParams
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return null
@@ -34,7 +39,7 @@ export default async function SpeechesPage() {
 
   const { data: mySpeeches } = await supabase
     .from('speeches')
-    .select('*, meeting:meetings(meeting_date), evaluator:profiles!speeches_evaluator_id_fkey(full_name)')
+    .select('*, speech_date, meeting:meetings(meeting_date), evaluator:profiles!speeches_evaluator_id_fkey(full_name)')
     .eq('member_id', user.id)
     .order('created_at', { ascending: false })
 
@@ -115,7 +120,11 @@ export default async function SpeechesPage() {
                     </div>
                     <div className="speech-card__actions">
                       <span className="speech-card__date">
-                        {speech.meeting?.meeting_date ? fmtDate(speech.meeting.meeting_date) : 'No date'}
+                        {speech.speech_date
+                          ? fmtDate(speech.speech_date)
+                          : speech.meeting?.meeting_date
+                            ? fmtDate(speech.meeting.meeting_date)
+                            : 'No date'}
                       </span>
                       <DeleteSpeechButton speechId={speech.id} />
                     </div>
@@ -169,41 +178,63 @@ export default async function SpeechesPage() {
 
         {/* Sidebar: Log Speech Form */}
         <aside className="speeches-sidebar wsc-card">
-          <h2>Log a Historical Speech</h2>
-          <p className="speeches-sidebar__hint">For speeches not recorded through the session dashboard.</p>
-          <form action={logSpeech} className="speeches-form">
-            <div className="speeches-form__field">
-              <label className="wsc-label" htmlFor="speech-title">Title *</label>
-              <input id="speech-title" type="text" name="title" required className="wsc-input" />
+          {logged ? (
+            <div className="speeches-confirm">
+              <div className="speeches-confirm__icon">✓</div>
+              <h2>Speech logged!</h2>
+              <p className="speeches-sidebar__hint">
+                &ldquo;{decodeURIComponent(logged)}&rdquo; added to your tracker.
+              </p>
+              <a href="/member/speeches" className="speeches-confirm__link">+ Log another</a>
             </div>
-            <div className="speeches-form__field">
-              <label className="wsc-label" htmlFor="speech-meeting">Meeting</label>
-              <select id="speech-meeting" name="meeting_id" className="wsc-input">
-                <option value="">Select a meeting…</option>
-                {meetings?.map(m => (
-                  <option key={m.id} value={m.id}>{fmtDate(m.meeting_date)}</option>
-                ))}
-              </select>
+          ) : logError ? (
+            <div className="speeches-error">
+              <p className="speeches-error__message">Something went wrong saving your speech.</p>
+              <a href="/member/speeches" className="speeches-confirm__link">Try again</a>
             </div>
-            <div className="speeches-form__field">
-              <label className="wsc-label" htmlFor="speech-pathway">Pathway</label>
-              <input id="speech-pathway" type="text" name="pathway" placeholder="e.g. Dynamic Leadership" className="wsc-input" />
-            </div>
-            <div className="speeches-form__field">
-              <label className="wsc-label" htmlFor="speech-project">Project</label>
-              <input id="speech-project" type="text" name="project" placeholder="e.g. Ice Breaker" className="wsc-input" />
-            </div>
-            <div className="speeches-form__field">
-              <label className="wsc-label" htmlFor="speech-evaluator">Evaluator</label>
-              <select id="speech-evaluator" name="evaluator_id" className="wsc-input">
-                <option value="">Select evaluator…</option>
-                {evaluatorOptions.map(p => (
-                  <option key={p.id} value={p.id}>{p.full_name || 'Unnamed'}</option>
-                ))}
-              </select>
-            </div>
-            <button type="submit" className="wsc-btn wsc-btn-primary">Log Speech</button>
-          </form>
+          ) : (
+            <>
+              <h2>Log a Historical Speech</h2>
+              <p className="speeches-sidebar__hint">For speeches not recorded through the session dashboard.</p>
+              <form action={logSpeech} className="speeches-form">
+                <div className="speeches-form__field">
+                  <label className="wsc-label" htmlFor="speech-title">Title *</label>
+                  <input id="speech-title" type="text" name="title" required className="wsc-input" />
+                </div>
+                <div className="speeches-form__field">
+                  <label className="wsc-label" htmlFor="speech-date">Speech Date *</label>
+                  <input id="speech-date" type="date" name="speech_date" required className="wsc-input" />
+                </div>
+                <div className="speeches-form__field">
+                  <label className="wsc-label" htmlFor="speech-meeting">Link to a session (optional)</label>
+                  <select id="speech-meeting" name="meeting_id" className="wsc-input">
+                    <option value="">Select a meeting…</option>
+                    {meetings?.map(m => (
+                      <option key={m.id} value={m.id}>{fmtDate(m.meeting_date)}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="speeches-form__field">
+                  <label className="wsc-label" htmlFor="speech-pathway">Pathway</label>
+                  <input id="speech-pathway" type="text" name="pathway" placeholder="e.g. Dynamic Leadership" className="wsc-input" />
+                </div>
+                <div className="speeches-form__field">
+                  <label className="wsc-label" htmlFor="speech-project">Project</label>
+                  <input id="speech-project" type="text" name="project" placeholder="e.g. Ice Breaker" className="wsc-input" />
+                </div>
+                <div className="speeches-form__field">
+                  <label className="wsc-label" htmlFor="speech-evaluator">Evaluator</label>
+                  <select id="speech-evaluator" name="evaluator_id" className="wsc-input">
+                    <option value="">Select evaluator…</option>
+                    {evaluatorOptions.map(p => (
+                      <option key={p.id} value={p.id}>{p.full_name || 'Unnamed'}</option>
+                    ))}
+                  </select>
+                </div>
+                <button type="submit" className="wsc-btn wsc-btn-primary">Log Speech</button>
+              </form>
+            </>
+          )}
         </aside>
       </div>
     </main>
