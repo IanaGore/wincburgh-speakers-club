@@ -2,6 +2,7 @@ import { createClient } from '@/utils/supabase/server'
 import Wordmark from '@/components/Wordmark'
 import LoginForm from './LoginForm'
 import { presidentQuote, getPresidentName, PRESIDENT_COLUMNS } from '@/lib/president'
+import { requestMemberAccess } from './actions'
 import './login.css'
 
 function formatDay(dateStr: string) {
@@ -23,7 +24,7 @@ function formatDate(dateStr: string) {
 export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string }>
+  searchParams: Promise<{ error?: string; registered?: string }>
 }) {
   const params = await searchParams
   const supabase = await createClient()
@@ -88,6 +89,38 @@ export default async function LoginPage({
           <a href="/get-started?intent=ask">Get in touch</a>
         </p>
         <LoginForm error={params.error} />
+
+        {params.registered === '1' ? (
+          <div className="login-member-request login-member-request--confirm">
+            <p><strong>Thanks — we&apos;ll send your invite link shortly.</strong></p>
+            <p style={{ fontSize: 13, color: 'var(--ink-3)', marginTop: 4 }}>Keep an eye on your inbox over the next day or two.</p>
+          </div>
+        ) : params.registered === 'duplicate' ? (
+          <div className="login-member-request login-member-request--confirm">
+            <p>Looks like you already have an account — try logging in above or <a href="/forgot-password">reset your password</a>.</p>
+          </div>
+        ) : (
+          <details className="login-member-request">
+            <summary>Already a club member but not on the website yet?</summary>
+            <form action={requestMemberAccess} className="login-member-request__form">
+              <div>
+                <label className="wsc-label" htmlFor="mreg-fname">First name *</label>
+                <input id="mreg-fname" name="first_name" type="text" required className="wsc-input" placeholder="Your first name" />
+              </div>
+              <div>
+                <label className="wsc-label" htmlFor="mreg-lname">Last name <span style={{ color: 'var(--ink-4)' }}>(optional)</span></label>
+                <input id="mreg-lname" name="last_name" type="text" className="wsc-input" placeholder="Your last name" />
+              </div>
+              <div>
+                <label className="wsc-label" htmlFor="mreg-email">Email address *</label>
+                <input id="mreg-email" name="email" type="email" required className="wsc-input" placeholder="you@example.com" />
+              </div>
+              <button type="submit" className="wsc-btn wsc-btn-primary" style={{ width: '100%', marginTop: 4 }}>
+                Request access
+              </button>
+            </form>
+          </details>
+        )}
       </div>
     </div>
   )

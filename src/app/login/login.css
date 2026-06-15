@@ -339,6 +339,49 @@
   margin-bottom: 16px;
 }
 
+/* Existing member self-registration */
+.login-member-request {
+  margin-top: 24px;
+  border-top: 1px solid var(--rule);
+  padding-top: 16px;
+  max-width: 420px;
+}
+
+.login-member-request > summary {
+  font-size: 13px;
+  color: var(--ink-3);
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+}
+
+.login-member-request > summary::after {
+  content: ' →';
+}
+
+.login-member-request[open] > summary::after {
+  content: ' ↓';
+}
+
+.login-member-request__form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.login-member-request--confirm {
+  font-size: 14px;
+  color: var(--ink-2);
+  line-height: 1.5;
+}
+
+.login-member-request--confirm a {
+  color: var(--clay);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
 @media (max-width: 767px) {
   .login-page {
     grid-template-columns: 1fr;
