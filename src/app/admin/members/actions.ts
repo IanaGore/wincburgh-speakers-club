@@ -3,6 +3,9 @@
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/utils/supabase/server'
 import { checkAdmin } from '@/utils/supabase/auth-helpers'
+import { randomUUID } from 'crypto'
+import { sendInviteEmail } from '@/lib/email'
+import { redirect } from 'next/navigation'
 
 export async function toggleMemberActive(formData: FormData) {
   await checkAdmin()
@@ -85,4 +88,62 @@ export async function toggleActive(formData: FormData) {
   }
 
   revalidatePath('/admin/members')
+}
+
+export async function inviteMember(formData: FormData) {
+  await checkAdmin()
+  const supabase = await createClient()
+
+  const firstName = (formData.get('first_name') as string)?.trim()
+  const lastName = (formData.get('last_name') as string)?.trim() || null
+  const email = (formData.get('email') as string)?.trim().toLowerCase()
+
+  if (!firstName || !email || !/\S+@\S+\.\S+/.test(email)) {
+    redirect('/admin/members?invite_error=invalid')
+  }
+
+  // Guard: account already exists
+  const { data: existing } = await supabase
+    .from('profiles')
+    .select('id')
+    .eq('contact_email', email)
+    .maybeSingle()
+
+  if (existing) {
+    redirect('/admin/members?invite_error=duplicate')
+  }
+
+  // Create signups row
+  const { data: signup, error: insertError } = await supabase
+    .from('signups')
+    .insert({
+      first_name: firstName.slice(0, 100),
+      last_name: lastName ? lastName.slice(0, 100) : null,
+      email: email.slice(0, 254),
+      source: 'admin_invite',
+      status: 'pending',
+    })
+    .select('id')
+    .single()
+
+  if (insertError || !signup) {
+    redirect('/admin/members?invite_error=failed')
+  }
+
+  // Generate token and send invite immediately
+  const token = randomUUID()
+  const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? ''
+  const joinUrl = `${siteUrl}/join?token=${token}`
+
+  await supabase.from('signups').update({
+    conversion_token: token,
+    conversion_token_expires_at: expiresAt.toISOString(),
+    invite_sent_at: new Date().toISOString(),
+    invite_count: 1,
+  }).eq('id', signup.id)
+
+  await sendInviteEmail(email, firstName, joinUrl, expiresAt)
+
+  redirect(`/admin/members?invited=${encodeURIComponent(firstName)}`)
 }

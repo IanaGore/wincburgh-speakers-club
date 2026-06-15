@@ -1,5 +1,5 @@
 import { createClient } from '@/utils/supabase/server'
-import { toggleAdmin, updateMemberRoles, toggleActive } from './actions'
+import { toggleAdmin, updateMemberRoles, toggleActive, inviteMember } from './actions'
 
 const AVAILABLE_ROLES = [
   "Guest",
@@ -79,7 +79,12 @@ function MemberRow({ profile }: { profile: any }) {
   )
 }
 
-export default async function AdminMembersPage() {
+export default async function AdminMembersPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ invited?: string; invite_error?: string }>
+}) {
+  const { invited, invite_error: inviteError } = await searchParams
   const supabase = await createClient()
 
   const { data: profiles } = await supabase
@@ -93,6 +98,48 @@ export default async function AdminMembersPage() {
   return (
     <div>
       <h1 style={{ fontFamily: 'var(--serif)', fontWeight: 500, fontSize: 32, margin: '8px 0 24px', color: 'var(--ink)' }}>Members &amp; Guests</h1>
+
+      {invited && (
+        <div style={{ padding: '12px 16px', background: 'oklch(0.93 0.06 160)', border: '1px solid oklch(0.70 0.12 160)', borderRadius: 8, color: 'oklch(0.30 0.10 160)', fontSize: 14, marginBottom: 16 }}>
+          Invite sent to {decodeURIComponent(invited)}.
+        </div>
+      )}
+      {inviteError === 'duplicate' && (
+        <div style={{ padding: '12px 16px', background: 'oklch(0.95 0.04 25)', border: '1px solid oklch(0.80 0.10 25)', borderRadius: 8, color: 'oklch(0.40 0.15 25)', fontSize: 14, marginBottom: 16 }}>
+          An account already exists for that email address.
+        </div>
+      )}
+      {(inviteError === 'invalid' || inviteError === 'failed') && (
+        <div style={{ padding: '12px 16px', background: 'oklch(0.95 0.04 25)', border: '1px solid oklch(0.80 0.10 25)', borderRadius: 8, color: 'oklch(0.40 0.15 25)', fontSize: 14, marginBottom: 16 }}>
+          Something went wrong. Please check the details and try again.
+        </div>
+      )}
+
+      <details style={{ marginBottom: '1.5rem', background: 'var(--paper-2)', borderRadius: 12, border: '1px solid var(--rule)', padding: '1rem 1.25rem' }}>
+        <summary style={{ cursor: 'pointer', fontWeight: 600, color: 'var(--ink)', fontSize: '0.95rem', userSelect: 'none' }}>
+          + Invite a member directly
+        </summary>
+        <p style={{ fontSize: 13, color: 'var(--ink-3)', marginTop: 8, marginBottom: 16 }}>
+          Send an invite link to someone who is already a club member. They will receive an email to set up their account.
+        </p>
+        <form action={inviteMember} style={{ display: 'flex', flexDirection: 'column', gap: '1rem', maxWidth: 400 }}>
+          <div>
+            <label className="wsc-label" htmlFor="inv-fname">First name *</label>
+            <input id="inv-fname" name="first_name" type="text" required className="wsc-input" placeholder="First name" />
+          </div>
+          <div>
+            <label className="wsc-label" htmlFor="inv-lname">Last name <span style={{ color: 'var(--ink-4)', fontWeight: 400 }}>(optional)</span></label>
+            <input id="inv-lname" name="last_name" type="text" className="wsc-input" placeholder="Last name" />
+          </div>
+          <div>
+            <label className="wsc-label" htmlFor="inv-email">Email address *</label>
+            <input id="inv-email" name="email" type="email" required className="wsc-input" placeholder="member@example.com" />
+          </div>
+          <div>
+            <button type="submit" className="wsc-btn wsc-btn-primary">Send invite</button>
+          </div>
+        </form>
+      </details>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '3rem' }}>
         {/* Members Section */}
