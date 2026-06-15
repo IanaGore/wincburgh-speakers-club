@@ -194,7 +194,6 @@
 
 .login-form {
   width: 100%;
-  max-width: 420px;
 }
 
 .login-form .wsc-eyebrow {
@@ -339,12 +338,18 @@
   margin-bottom: 16px;
 }
 
+.login-right__body {
+  width: 100%;
+  max-width: 420px;
+  display: flex;
+  flex-direction: column;
+}
+
 /* Existing member self-registration */
 .login-member-request {
   margin-top: 24px;
   border-top: 1px solid var(--rule);
   padding-top: 16px;
-  max-width: 420px;
 }
 
 .login-member-request > summary {
