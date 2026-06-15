@@ -202,6 +202,51 @@
   color: var(--ink);
 }
 
+/* Confirmation / error states in sidebar */
+.speeches-confirm,
+.speeches-error {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.speeches-confirm__icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(16, 185, 129, 0.15);
+  border: 2px solid rgba(16, 185, 129, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  color: #10b981;
+  margin-bottom: 0.25rem;
+}
+
+.speeches-confirm h2,
+.speeches-error h2 {
+  font-family: var(--serif);
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: var(--ink);
+  margin: 0;
+}
+
+.speeches-confirm__link {
+  font-size: 0.875rem;
+  color: var(--primary);
+  text-decoration: underline;
+  margin-top: 0.25rem;
+}
+
+.speeches-error__message {
+  font-size: 0.875rem;
+  color: var(--error, #ef4444);
+  margin: 0;
+}
+
 @media (max-width: 767px) {
   .speeches-layout {
     grid-template-columns: 1fr;
@@ -209,7 +254,6 @@
 
   .speeches-sidebar {
     position: static;
-    order: -1;
   }
 }
 
