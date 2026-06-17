@@ -11,7 +11,6 @@ type EnquiryMessage = {
   direction: string
   body: string
   sent_at: string
-  profiles: { full_name: string } | null
 }
 
 const MESSAGE_STATUSES = ['new', 'replied', 'closed', 'spam'] as const
@@ -44,7 +43,7 @@ export default async function EnquiriesPage({
   const [{ data: messages }, { data: signups }, { data: allMessages }] = await Promise.all([
     supabase
       .from('contact_messages')
-      .select('*, enquiry_messages(id, direction, body, sent_at, profiles(full_name))')
+      .select('*, enquiry_messages(id, direction, body, sent_at)')
       .eq('status', mstatus)
       .order('created_at', { ascending: false }),
     supabase
