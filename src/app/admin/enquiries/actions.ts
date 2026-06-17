@@ -77,13 +77,13 @@ export async function sendEnquiryMessage(
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: 'Not authenticated.' }
 
-  const { data: enquiry } = await supabase
+  const { data: enquiry, error: enquiryError } = await supabase
     .from('contact_messages')
     .select('name, email, message, status')
     .eq('id', enquiryId)
     .single()
 
-  if (!enquiry) return { error: 'Enquiry not found.' }
+  if (enquiryError || !enquiry) return { error: 'Enquiry not found.' }
 
   const { data: profile } = await supabase
     .from('profiles')
@@ -115,10 +115,11 @@ export async function sendEnquiryMessage(
   }
 
   if (enquiry.status === 'new') {
-    await supabase
+    const { error: statusError } = await supabase
       .from('contact_messages')
       .update({ status: 'replied', handled_at: new Date().toISOString(), is_read: true })
       .eq('id', enquiryId)
+    if (statusError) console.error('[sendEnquiryMessage] status update failed:', statusError)
   }
 
   revalidatePath('/admin/enquiries')
