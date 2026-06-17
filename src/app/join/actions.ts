@@ -43,15 +43,18 @@ export async function completeConversion(prevState: { error: string | null }, fo
   // Create profile row — service role needed: SSR session isn't set within the same server action
   // request after signUp(), so the regular client is still unauthenticated and no INSERT policy exists
   const serviceClient = getServiceClient()
+  const fullName = [signup.first_name, signup.last_name].filter(Boolean).join(' ')
   const { error: profileError } = await serviceClient.from('profiles').upsert({
     id: authData.user.id,
-    first_name: signup.first_name,
-    last_name: signup.last_name,
-    email: signup.email,
-    phone: signup.phone,
+    full_name: fullName,
+    contact_email: signup.email,
+    phone: signup.phone || null,
     is_admin: false,
   })
-  if (profileError) return { error: 'Account created but profile setup failed. Please contact us.' }
+  if (profileError) {
+    console.error('[join] profile upsert failed:', profileError.message, profileError.details)
+    return { error: 'Account created but profile setup failed. Please contact us.' }
+  }
 
   // Mark signup as converted
   const { error: updateError } = await serviceClient.from('signups').update({
