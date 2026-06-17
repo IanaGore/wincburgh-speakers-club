@@ -93,8 +93,8 @@ export default async function LoginPage({
 
           {params.registered === '1' ? (
             <div className="login-member-request login-member-request--confirm">
-              <p><strong>Thanks — we&apos;ll send your invite link shortly.</strong></p>
-              <p style={{ fontSize: 13, color: 'var(--ink-3)', marginTop: 4 }}>Keep an eye on your inbox over the next day or two.</p>
+              <p><strong>Check your inbox — your invite link is on its way.</strong></p>
+              <p style={{ fontSize: 13, color: 'var(--ink-3)', marginTop: 4 }}>We&apos;ve just emailed you a link to set up your account. It&apos;s valid for 7 days. Check your spam folder if you don&apos;t see it, or email <a href="mailto:hello@winchburghspeakersclub.uk">hello@winchburghspeakersclub.uk</a>.</p>
             </div>
           ) : params.registered === 'duplicate' ? (
             <div className="login-member-request login-member-request--confirm">

@@ -1,13 +1,36 @@
 import { createClient } from '@/utils/supabase/server'
-import { notFound } from 'next/navigation'
 import Wordmark from '@/components/Wordmark'
 import EyebrowLabel from '@/components/ui/EyebrowLabel'
 import JoinForm from './JoinForm'
 import './join.css'
 
+function ExpiredPage() {
+  return (
+    <div className="join-page">
+      <div className="join-topbar">
+        <Wordmark />
+      </div>
+      <main className="join-main">
+        <EyebrowLabel tone="clay">Invite link expired</EyebrowLabel>
+        <h1>This link is no longer valid.</h1>
+        <p className="join-main__intro">
+          Invite links expire after 7 days, or stop working once you&apos;ve already used them to create an account.
+        </p>
+        <p className="join-main__intro">
+          If you still need access, email us at{' '}
+          <a href="mailto:hello@winchburghspeakersclub.uk" style={{ color: 'var(--clay)' }}>
+            hello@winchburghspeakersclub.uk
+          </a>{' '}
+          and we&apos;ll send you a fresh link.
+        </p>
+      </main>
+    </div>
+  )
+}
+
 export default async function JoinPage({ searchParams }: { searchParams: Promise<{ token?: string }> }) {
   const { token } = await searchParams
-  if (!token) notFound()
+  if (!token) return <ExpiredPage />
 
   const supabase = await createClient()
   const { data: signup } = await supabase
@@ -16,8 +39,8 @@ export default async function JoinPage({ searchParams }: { searchParams: Promise
     .eq('conversion_token', token)
     .single()
 
-  if (!signup || signup.conversion_token_used_at) notFound()
-  if (signup.conversion_token_expires_at && new Date(signup.conversion_token_expires_at) < new Date()) notFound()
+  if (!signup || signup.conversion_token_used_at) return <ExpiredPage />
+  if (signup.conversion_token_expires_at && new Date(signup.conversion_token_expires_at) < new Date()) return <ExpiredPage />
 
   return (
     <div className="join-page">

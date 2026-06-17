@@ -3,7 +3,8 @@
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/utils/supabase/server'
-import { sendMemberRequestNotification } from '@/lib/email'
+import { randomUUID } from 'crypto'
+import { sendInviteEmail, sendMemberRequestNotification } from '@/lib/email'
 
 export async function login(formData: FormData) {
   const supabase = await createClient()
@@ -51,20 +52,42 @@ export async function requestMemberAccess(formData: FormData) {
     redirect('/login?registered=duplicate')
   }
 
-  await supabase.from('signups').insert({
+  const { data: signup } = await supabase.from('signups').insert({
     first_name: firstName.slice(0, 100),
     last_name: lastName ? lastName.slice(0, 100) : null,
     email: email.slice(0, 254),
     source: 'existing_member',
     status: 'pending',
-  })
+  }).select('id').single()
 
+  // Generate and send invite immediately — no admin bottleneck for existing members
+  if (signup) {
+    const token = randomUUID()
+    const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? ''
+    const joinUrl = `${siteUrl}/join?token=${token}`
+
+    await supabase.from('signups').update({
+      conversion_token: token,
+      conversion_token_expires_at: expiresAt.toISOString(),
+      invite_sent_at: new Date().toISOString(),
+      invite_count: 1,
+    }).eq('id', signup.id)
+
+    try {
+      await sendInviteEmail(email, firstName, joinUrl, expiresAt)
+    } catch (err) {
+      console.error('[requestMemberAccess] invite email failed:', err)
+    }
+  }
+
+  // Notify admin as FYI
   const adminEmail = process.env.ADMIN_EMAIL
   if (adminEmail) {
     try {
       await sendMemberRequestNotification(adminEmail, firstName, lastName, email)
     } catch (err) {
-      console.error('[requestMemberAccess] notification email failed:', err)
+      console.error('[requestMemberAccess] admin notification failed:', err)
     }
   }
 
