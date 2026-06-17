@@ -42,7 +42,7 @@ export async function sendEnquiryReply(
 ): Promise<void> {
   await resend.emails.send({
     from: `${esc(adminName)} · Winchburgh Speakers Club <noreply@winchburghspeakersclub.uk>`,
-    reply_to: 'replies@winchburghspeakersclub.uk',
+    replyTo: 'replies@winchburghspeakersclub.uk',
     to,
     subject: 'Re: Your message to Winchburgh Speakers Club',
     html: `
