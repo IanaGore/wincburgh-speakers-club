@@ -18,7 +18,7 @@ export async function markAttended(signupId: string) {
 
   const { error } = await supabase.from('signups').update({ status: 'attended' }).eq('id', signupId)
   if (error) throw new Error(error.message)
-  revalidatePath('/admin/signups')
+  revalidatePath('/admin/enquiries')
 }
 
 export async function sendConversionInvite(signupId: string) {
@@ -78,5 +78,5 @@ export async function sendConversionInvite(signupId: string) {
     throw new Error('Invite saved but email failed to send. Check server logs.')
   }
 
-  revalidatePath('/admin/signups')
+  revalidatePath('/admin/enquiries')
 }

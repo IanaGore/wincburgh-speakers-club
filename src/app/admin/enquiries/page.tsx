@@ -186,11 +186,11 @@ export default async function EnquiriesPage({
                     </select>
                     <button type="submit" className="wsc-btn wsc-btn-sm wsc-btn-ghost">Update</button>
                   </form>
-                  {(s.status as string) === 'pending' && (s.source as string) !== 'existing_member' && (s.source as string) !== 'admin_invite' && (
+                  {(s.status as string) === 'pending' && (s.source as string) !== 'admin_invite' && (
                     <MarkAttendedButton signupId={s.id as string} />
                   )}
                   {((s.status as string) === 'attended' ||
-                    ((s.status as string) === 'pending' && (s.source as string) === 'existing_member')) && (
+                    ((s.status as string) === 'pending' && (s.source as string) === 'admin_invite')) && (
                     <InviteButton signupId={s.id as string} />
                   )}
                 </div>
