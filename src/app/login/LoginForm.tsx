@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { getFaro } from '@/lib/faro'
 import { login } from './actions'
-import { createClient } from '@/utils/supabase/client'
 
 interface LoginFormProps {
   error?: string
@@ -18,38 +17,16 @@ export default function LoginForm({ error }: LoginFormProps) {
   }, [error])
 
   const [showPw, setShowPw] = useState(false)
-  const [magicSent, setMagicSent] = useState(false)
-  const [magicLoading, setMagicLoading] = useState(false)
-  const [email, setEmail] = useState('')
-
-  async function handleMagicLink() {
-    if (!email) return
-    setMagicLoading(true)
-    const supabase = createClient()
-    await supabase.auth.signInWithOtp({
-      email,
-      options: {
-        emailRedirectTo: `${window.location.origin}/auth/callback`,
-      },
-    })
-    setMagicSent(true)
-    setMagicLoading(false)
-  }
 
   return (
     <div className="login-form">
       <span className="wsc-eyebrow">Member portal</span>
       <h1>Sign in to your portal</h1>
       <p className="login-form__sub">
-        Good to have you back. Sign in with your email and password, or get a magic link sent straight to your inbox.
+        Good to have you back. Sign in with your email and password below.
       </p>
 
       {error && <div className="login-form__error">{error}</div>}
-      {magicSent && (
-        <div className="login-form__magic-sent">
-          Magic link sent! Check your inbox and click the link to sign in.
-        </div>
-      )}
 
       <form>
         <div className="login-form__fields">
@@ -62,8 +39,6 @@ export default function LoginForm({ error }: LoginFormProps) {
               required
               autoComplete="email"
               className="wsc-input"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
               placeholder="you@example.com"
             />
           </div>
@@ -117,17 +92,6 @@ export default function LoginForm({ error }: LoginFormProps) {
           Sign in
         </button>
       </form>
-
-      <div className="login-form__or">or</div>
-
-      <button
-        type="button"
-        onClick={handleMagicLink}
-        disabled={magicLoading || !email}
-        className="login-form__magic"
-      >
-        {magicLoading ? 'Sending…' : '✉ Email me a sign-in link'}
-      </button>
 
       <p className="login-form__help">
         Not a member yet?{' '}
