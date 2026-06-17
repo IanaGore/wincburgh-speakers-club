@@ -6,6 +6,9 @@ export async function sendContactMessage(
   _prevState: { success: boolean; error: string | null },
   formData: FormData
 ) {
+  const honeypot = (formData.get('website') as string | null) ?? ''
+  if (honeypot) return { success: true, error: null }
+
   const name    = (formData.get('name')    as string | null)?.trim() ?? ''
   const email   = (formData.get('email')   as string | null)?.trim() ?? ''
   const phone   = (formData.get('phone')   as string | null)?.trim() ?? ''
