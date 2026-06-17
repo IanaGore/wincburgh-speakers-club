@@ -30,22 +30,24 @@ export async function completeConversion(prevState: { error: string | null }, fo
     return { error: 'This invite link has expired or already been used. Please contact us for a new one.' }
   }
 
-  // Create the auth account
-  const { data: authData, error: signUpError } = await supabase.auth.signUp({
+  // Create auth account via admin API — pre-confirms the email so no confirmation email is sent.
+  // signUp() would create an unconfirmed user and fire a Supabase confirmation email on top of
+  // our own invite, breaking the flow for admin-invited members.
+  const serviceClient = getServiceClient()
+  const { data: adminAuthData, error: createError } = await serviceClient.auth.admin.createUser({
     email: signup.email,
     password,
+    email_confirm: true,
   })
 
-  if (signUpError || !authData.user) {
-    return { error: signUpError?.message ?? 'Could not create account. Please try again.' }
+  if (createError || !adminAuthData.user) {
+    return { error: createError?.message ?? 'Could not create account. Please try again.' }
   }
 
-  // Create profile row — service role needed: SSR session isn't set within the same server action
-  // request after signUp(), so the regular client is still unauthenticated and no INSERT policy exists
-  const serviceClient = getServiceClient()
+  // Create profile row
   const fullName = [signup.first_name, signup.last_name].filter(Boolean).join(' ')
   const { error: profileError } = await serviceClient.from('profiles').upsert({
-    id: authData.user.id,
+    id: adminAuthData.user.id,
     full_name: fullName,
     contact_email: signup.email,
     phone: signup.phone || null,
@@ -62,6 +64,17 @@ export async function completeConversion(prevState: { error: string | null }, fo
     conversion_token_used_at: new Date().toISOString(),
   }).eq('id', signup.id)
   if (updateError) console.error('[join] failed to mark signup as converted:', updateError)
+
+  // Sign the user in immediately — account is confirmed so this succeeds without any email step
+  const { error: signInError } = await supabase.auth.signInWithPassword({
+    email: signup.email,
+    password,
+  })
+  if (signInError) {
+    // Account created successfully; auto sign-in failed — send them to login to do it manually
+    console.error('[join] auto sign-in failed:', signInError.message)
+    redirect('/login')
+  }
 
   redirect('/member/dashboard')
 }
