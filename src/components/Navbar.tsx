@@ -27,7 +27,7 @@ export default function Navbar({ portalHref, meetingShort, freeVisitsLabel }: { 
           {open ? <X size={22} /> : <Menu size={22} />}
         </button>
         <ul className={`navbar__links${open ? ' navbar__links--open' : ''}`}>
-          {[['/', 'Home'], ['/about', 'About'], ['/meetings', 'Meetings'], ['/news', 'News'], ['/get-started?intent=attend', 'Attend'], ['/get-started?intent=ask', 'Contact']].map(([href, label]) => (
+          {[['/', 'Home'], ['/about', 'About'], ['/meetings', 'Meetings'], ['/news', 'News'], ['/get-started', 'Get started']].map(([href, label]) => (
             <li key={href}><Link href={href} onClick={() => setOpen(false)}>{label}</Link></li>
           ))}
           <li className="navbar__links-login"><Link href={loginHref} onClick={() => setOpen(false)}>{loginLabel}</Link></li>

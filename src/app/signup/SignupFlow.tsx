@@ -4,6 +4,7 @@ import { submitSignup, type SignupData } from './actions'
 import EyebrowLabel from '@/components/ui/EyebrowLabel'
 import Button from '@/components/ui/Button'
 import { mapsUrl, type VenueSettings } from '@/lib/venue'
+import './signup.css'
 
 type Meeting = { id: string; meeting_date: string; theme: string | null; meeting_type: string | null }
 

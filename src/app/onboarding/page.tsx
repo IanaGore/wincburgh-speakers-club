@@ -1,6 +1,9 @@
 import { completeOnboarding } from './actions'
 import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
+import Wordmark from '@/components/Wordmark'
+import EyebrowLabel from '@/components/ui/EyebrowLabel'
+import '../join/join.css'
 
 export default async function OnboardingPage() {
   const supabase = await createClient()
@@ -11,26 +14,34 @@ export default async function OnboardingPage() {
   }
 
   return (
-    <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: "2rem" }}>
-      <div style={{ width: "100%", maxWidth: "400px", background: "var(--card-bg)", border: "1px solid var(--card-border)", padding: "2.5rem", borderRadius: "16px", backdropFilter: "blur(10px)" }}>
-        <h2 style={{ fontSize: "1.8rem", marginBottom: "1rem", textAlign: "center", fontWeight: "700" }}>Complete Your Profile</h2>
-        <p style={{ textAlign: "center", color: "#94a3b8", marginBottom: "2rem" }}>Tell us a bit about yourself to get started.</p>
-
-        <form action={completeOnboarding} style={{ display: "flex", flexDirection: "column", gap: "1.2rem" }}>
-          <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-            <label htmlFor="full_name" style={{ fontSize: "0.9rem", color: "#94a3b8" }}>Full Name</label>
-            <input
-              id="full_name"
-              name="full_name"
-              type="text"
-              required
-              style={{ padding: "0.8rem", borderRadius: "8px", background: "rgba(0,0,0,0.3)", border: "1px solid var(--card-border)", color: "white", outline: "none" }}
-            />
-          </div>
-
-          <button type="submit" className="btn-primary" style={{ width: "100%", padding: "0.8rem", marginTop: "1rem" }}>Save & Continue</button>
-        </form>
+    <div className="join-page">
+      <div className="join-topbar">
+        <Wordmark />
       </div>
+      <main className="join-main">
+        <EyebrowLabel tone="clay">One last step</EyebrowLabel>
+        <h1>Tell us your name.</h1>
+        <p className="join-main__intro">
+          We need your name to set up your member profile. This is how you&apos;ll appear to other members.
+        </p>
+        <form action={completeOnboarding} className="join-form">
+          <div className="join-form__prefilled">
+            <label className="wsc-label" htmlFor="full_name">Full name</label>
+          </div>
+          <input
+            id="full_name"
+            name="full_name"
+            type="text"
+            required
+            className="wsc-input"
+            placeholder="Your full name"
+            autoComplete="name"
+          />
+          <button type="submit" className="wsc-btn wsc-btn-primary" style={{ width: '100%', marginTop: 8 }}>
+            Save and continue
+          </button>
+        </form>
+      </main>
     </div>
   )
 }
