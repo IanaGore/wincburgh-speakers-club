@@ -3,8 +3,18 @@
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/utils/supabase/server'
+import { createClient as createServiceClient } from '@supabase/supabase-js'
 import { randomUUID } from 'crypto'
 import { sendInviteEmail, sendMemberRequestNotification } from '@/lib/email'
+
+// Caller is unauthenticated — signups UPDATE requires admin, so bypass RLS for token write
+function getServiceClient() {
+  return createServiceClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    { auth: { persistSession: false } }
+  )
+}
 
 export async function login(formData: FormData) {
   const supabase = await createClient()
@@ -67,7 +77,7 @@ export async function requestMemberAccess(formData: FormData) {
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? ''
     const joinUrl = `${siteUrl}/join?token=${token}`
 
-    await supabase.from('signups').update({
+    await getServiceClient().from('signups').update({
       conversion_token: token,
       conversion_token_expires_at: expiresAt.toISOString(),
       invite_sent_at: new Date().toISOString(),
