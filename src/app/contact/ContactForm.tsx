@@ -18,6 +18,10 @@ export default function ContactForm() {
 
   return (
     <form action={formAction} className="contact-form">
+      {/* Honeypot — bots fill this; real users never see it */}
+      <div style={{ position: 'absolute', left: '-9999px', top: 'auto', width: 1, height: 1, overflow: 'hidden' }} aria-hidden="true">
+        <input tabIndex={-1} name="website" type="text" autoComplete="off" />
+      </div>
       <div className="contact-form__row">
         <div className="input-field">
           <label className="wsc-label" htmlFor="name">Your name</label>

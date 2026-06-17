@@ -5,7 +5,7 @@ import { updateMessageStatus, updateMessageNotes, updateSignupStatus, updateSign
 
 export const metadata = { title: 'Enquiries | Admin' }
 
-const MESSAGE_STATUSES = ['new', 'replied', 'closed'] as const
+const MESSAGE_STATUSES = ['new', 'replied', 'closed', 'spam'] as const
 const SIGNUP_STATUSES = ['pending', 'contacted', 'attended', 'no_show', 'joined', 'converted'] as const
 
 function statusTag(status: string) {
@@ -13,6 +13,7 @@ function statusTag(status: string) {
     new: 'wsc-tag-clay',
     replied: 'wsc-tag-gold',
     closed: 'wsc-tag-sage',
+    spam: '',
     pending: 'wsc-tag-gold',
     contacted: 'wsc-tag-gold',
     attended: 'wsc-tag-sage',
