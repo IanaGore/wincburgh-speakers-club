@@ -1,7 +1,7 @@
 import { Resend } from 'resend'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
-const FROM = 'West Lothian Speakers Club <noreply@winchburghspeakersclub.uk>'
+const FROM = 'Winchburgh Speakers Club <noreply@winchburghspeakersclub.uk>'
 
 function esc(s: string): string {
   return s
@@ -29,6 +29,30 @@ export async function sendInviteEmail(
       <p><a href="${esc(joinUrl)}" style="background:#7c3aed;color:#fff;padding:12px 24px;border-radius:6px;text-decoration:none;display:inline-block;margin:16px 0">Set up your account</a></p>
       <p>This link expires on <strong>${esc(expiry)}</strong>.</p>
       <p>If you weren't expecting this, you can ignore it safely.</p>
+    `,
+  })
+}
+
+export async function sendEnquiryReply(
+  to: string,
+  enquirerName: string,
+  adminName: string,
+  body: string,
+  originalMessage: string,
+): Promise<void> {
+  await resend.emails.send({
+    from: `${esc(adminName)} · Winchburgh Speakers Club <noreply@winchburghspeakersclub.uk>`,
+    replyTo: 'replies@winchburghspeakersclub.uk',
+    to,
+    subject: 'Re: Your message to Winchburgh Speakers Club',
+    html: `
+      <p>Hi ${esc(enquirerName)},</p>
+      <p>${esc(body).replace(/\n/g, '<br/>')}</p>
+      <hr style="border:none;border-top:1px solid #e2e8f0;margin:24px 0"/>
+      <p style="color:#94a3b8;font-size:13px">Your original message:</p>
+      <blockquote style="border-left:3px solid #e2e8f0;margin:0;padding:0 0 0 16px;color:#64748b;font-size:13px">
+        ${esc(originalMessage).replace(/\n/g, '<br/>')}
+      </blockquote>
     `,
   })
 }

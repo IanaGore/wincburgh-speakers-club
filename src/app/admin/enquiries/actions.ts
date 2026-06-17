@@ -2,6 +2,7 @@
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/utils/supabase/server'
 import { checkAdmin } from '@/utils/supabase/auth-helpers'
+import { sendEnquiryReply } from '@/lib/email'
 
 function revalidateEnquiries() {
   revalidatePath('/admin/enquiries')
@@ -59,4 +60,68 @@ export async function updateSignupNotes(formData: FormData) {
     .eq('id', signupId)
   if (error) throw new Error('Failed to save notes')
   revalidateEnquiries()
+}
+
+export async function sendEnquiryMessage(
+  prevState: { error: string | null },
+  formData: FormData,
+): Promise<{ error: string | null }> {
+  await checkAdmin()
+  const supabase = await createClient()
+
+  const enquiryId = formData.get('enquiry_id') as string
+  const body = (formData.get('body') as string)?.trim()
+
+  if (!body) return { error: 'Message cannot be empty.' }
+
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Not authenticated.' }
+
+  const { data: enquiry, error: enquiryError } = await supabase
+    .from('contact_messages')
+    .select('name, email, message, status')
+    .eq('id', enquiryId)
+    .single()
+
+  if (enquiryError || !enquiry) return { error: 'Enquiry not found.' }
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('full_name')
+    .eq('id', user.id)
+    .single()
+
+  const adminName = profile?.full_name ?? 'Winchburgh Speakers Club'
+
+  try {
+    await sendEnquiryReply(enquiry.email, enquiry.name, adminName, body, enquiry.message)
+  } catch (err) {
+    console.error('[sendEnquiryMessage] email failed:', err)
+    return { error: 'Failed to send email. Please try again.' }
+  }
+
+  const { error: insertError } = await supabase
+    .from('enquiry_messages')
+    .insert({
+      enquiry_id: enquiryId,
+      direction: 'outbound',
+      body,
+      sent_by: user.id,
+    })
+
+  if (insertError) {
+    console.error('[sendEnquiryMessage] insert failed:', insertError)
+    return { error: 'Email sent but message could not be saved. Contact support.' }
+  }
+
+  if (enquiry.status === 'new') {
+    const { error: statusError } = await supabase
+      .from('contact_messages')
+      .update({ status: 'replied', handled_at: new Date().toISOString(), is_read: true })
+      .eq('id', enquiryId)
+    if (statusError) console.error('[sendEnquiryMessage] status update failed:', statusError)
+  }
+
+  revalidatePath('/admin/enquiries')
+  return { error: null }
 }

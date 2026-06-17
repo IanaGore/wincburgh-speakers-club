@@ -2,8 +2,17 @@ import { createClient } from '@/utils/supabase/server'
 import DeleteMessageButton from '../messages/DeleteMessageButton'
 import { MarkAttendedButton, InviteButton } from '../signups/RSVPActions'
 import { updateMessageStatus, updateMessageNotes, updateSignupStatus, updateSignupNotes } from './actions'
+import EnquiryMessageForm from './EnquiryMessageForm'
 
 export const metadata = { title: 'Enquiries | Admin' }
+
+type EnquiryMessage = {
+  id: string
+  direction: string
+  body: string
+  sent_at: string
+  profiles: { full_name: string } | null
+}
 
 const MESSAGE_STATUSES = ['new', 'replied', 'closed', 'spam'] as const
 const SIGNUP_STATUSES = ['pending', 'contacted', 'attended', 'no_show', 'joined', 'converted'] as const
@@ -35,7 +44,7 @@ export default async function EnquiriesPage({
   const [{ data: messages }, { data: signups }, { data: allMessages }] = await Promise.all([
     supabase
       .from('contact_messages')
-      .select('*')
+      .select('*, enquiry_messages(id, direction, body, sent_at, profiles(full_name))')
       .eq('status', mstatus)
       .order('created_at', { ascending: false }),
     supabase
@@ -133,6 +142,14 @@ export default async function EnquiriesPage({
                     <textarea id={`notes-${msg.id}`} name="notes" className="wsc-input" rows={2} defaultValue={msg.admin_notes ?? ''} placeholder="Internal notes…" />
                     <div><button type="submit" className="wsc-btn wsc-btn-sm wsc-btn-ghost">Save notes</button></div>
                   </form>
+                  <EnquiryMessageForm
+                    enquiryId={msg.id}
+                    messages={(
+                      ((msg.enquiry_messages as unknown as EnquiryMessage[]) ?? [])
+                        .slice()
+                        .sort((a, b) => new Date(a.sent_at).getTime() - new Date(b.sent_at).getTime())
+                    )}
+                  />
                 </div>
               ))
             )}
