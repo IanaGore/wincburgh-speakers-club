@@ -39,10 +39,11 @@ export async function sendEnquiryReply(
   adminName: string,
   body: string,
   originalMessage: string,
+  enquiryId: string,
 ): Promise<void> {
   await resend.emails.send({
     from: `${esc(adminName)} · Winchburgh Speakers Club <noreply@winchburghspeakersclub.uk>`,
-    replyTo: 'replies@winchburghspeakersclub.uk',
+    replyTo: `reply+${enquiryId}@winchburghspeakersclub.uk`,
     to,
     subject: 'Re: Your message to Winchburgh Speakers Club',
     html: `
