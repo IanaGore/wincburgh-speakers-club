@@ -94,7 +94,7 @@ export async function sendEnquiryMessage(
   const adminName = profile?.full_name ?? 'Winchburgh Speakers Club'
 
   try {
-    await sendEnquiryReply(enquiry.email, enquiry.name, adminName, body, enquiry.message)
+    await sendEnquiryReply(enquiry.email, enquiry.name, adminName, body, enquiry.message, enquiryId)
   } catch (err) {
     console.error('[sendEnquiryMessage] email failed:', err)
     return { error: 'Failed to send email. Please try again.' }
