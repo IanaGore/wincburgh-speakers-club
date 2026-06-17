@@ -1,14 +1,24 @@
 'use server'
 import { createClient } from '@/utils/supabase/server'
+import { createClient as createServiceClient } from '@supabase/supabase-js'
 import { redirect } from 'next/navigation'
+
+// Token lookup must bypass RLS — signups SELECT is admin-only and the user is unauthenticated here
+function getServiceClient() {
+  return createServiceClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    { auth: { persistSession: false } }
+  )
+}
 
 export async function completeConversion(prevState: { error: string | null }, formData: FormData) {
   const supabase = await createClient()
   const token = formData.get('token') as string
   const password = formData.get('password') as string
 
-  // Look up the signup by conversion token
-  const { data: signup, error: lookupError } = await supabase
+  // Look up the signup by conversion token — uses service role to bypass RLS
+  const { data: signup, error: lookupError } = await getServiceClient()
     .from('signups')
     .select('id, email, first_name, last_name, phone')
     .eq('conversion_token', token)
