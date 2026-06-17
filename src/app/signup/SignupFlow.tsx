@@ -221,7 +221,7 @@ export default function SignupFlow({ meetings, venue }: { meetings: Meeting[]; v
           <EyebrowLabel tone="gold">You&apos;re booked in</EyebrowLabel>
           <h2>Brilliant, <em style={{fontStyle:'italic',color:'oklch(0.55 0.155 60)'}}>{form.firstName}</em>. We&apos;ll see you then.</h2>
           <p style={{color:'var(--ink-2)',maxWidth:480}}>
-            We&apos;ll be in touch soon at <strong>{form.email}</strong>. A member of the committee will reach out to say hello in the next day or two.
+            We&apos;ve sent a confirmation to <strong>{form.email}</strong>. Come along and enjoy your first visit — after that, we&apos;ll email you an invite link to set up your member account.
           </p>
           {selectedMeeting && (
             <div className="signup-confirmation">

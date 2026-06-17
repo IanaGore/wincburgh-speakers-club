@@ -74,6 +74,7 @@ export async function sendRsvpConfirmation(
       <p>Hi ${firstName},</p>
       <p>You're confirmed for our meeting on <strong>${meetingDate}</strong> at <strong>${venue}</strong>.</p>
       <p>Your first three visits are free — just turn up and introduce yourself.</p>
+      <p>After your first visit, we'll send you an invite link to set up your member account on the website.</p>
       <p>We look forward to meeting you!</p>
       <p><a href="${siteUrl}">West Lothian Speakers Club</a></p>
     `,
@@ -93,9 +94,9 @@ export async function sendMemberRequestNotification(
     to: adminEmail,
     subject: `Member registration request from ${esc(fullName)}`,
     html: `
-      <p>${esc(fullName)} (${esc(email)}) has requested access to the member portal.</p>
-      <p>They have identified themselves as an existing club member.</p>
-      <p><a href="${esc(adminUrl)}/admin/enquiries?tab=rsvps">Review and send invite →</a></p>
+      <p>${esc(fullName)} (${esc(email)}) has registered as an existing club member.</p>
+      <p>An invite link has been sent to them automatically — no action needed unless there's a problem.</p>
+      <p><a href="${esc(adminUrl)}/admin/enquiries?tab=rsvps">View in enquiries →</a></p>
     `,
   })
 }
