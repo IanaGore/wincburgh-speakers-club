@@ -40,8 +40,10 @@ export async function completeConversion(prevState: { error: string | null }, fo
     return { error: signUpError?.message ?? 'Could not create account. Please try again.' }
   }
 
-  // Create profile row
-  const { error: profileError } = await supabase.from('profiles').upsert({
+  // Create profile row — service role needed: SSR session isn't set within the same server action
+  // request after signUp(), so the regular client is still unauthenticated and no INSERT policy exists
+  const serviceClient = getServiceClient()
+  const { error: profileError } = await serviceClient.from('profiles').upsert({
     id: authData.user.id,
     first_name: signup.first_name,
     last_name: signup.last_name,
@@ -52,7 +54,7 @@ export async function completeConversion(prevState: { error: string | null }, fo
   if (profileError) return { error: 'Account created but profile setup failed. Please contact us.' }
 
   // Mark signup as converted
-  const { error: updateError } = await supabase.from('signups').update({
+  const { error: updateError } = await serviceClient.from('signups').update({
     status: 'converted',
     conversion_token_used_at: new Date().toISOString(),
   }).eq('id', signup.id)
