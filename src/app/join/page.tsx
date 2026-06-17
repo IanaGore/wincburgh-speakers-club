@@ -1,8 +1,17 @@
-import { createClient } from '@/utils/supabase/server'
+import { createClient as createServiceClient } from '@supabase/supabase-js'
 import Wordmark from '@/components/Wordmark'
 import EyebrowLabel from '@/components/ui/EyebrowLabel'
 import JoinForm from './JoinForm'
 import './join.css'
+
+// Page is visited by unauthenticated users — signups SELECT is admin-only, so bypass RLS
+function getServiceClient() {
+  return createServiceClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    { auth: { persistSession: false } }
+  )
+}
 
 function ExpiredPage() {
   return (
@@ -32,8 +41,7 @@ export default async function JoinPage({ searchParams }: { searchParams: Promise
   const { token } = await searchParams
   if (!token) return <ExpiredPage />
 
-  const supabase = await createClient()
-  const { data: signup } = await supabase
+  const { data: signup } = await getServiceClient()
     .from('signups')
     .select('first_name, last_name, email, conversion_token_expires_at, conversion_token_used_at')
     .eq('conversion_token', token)
