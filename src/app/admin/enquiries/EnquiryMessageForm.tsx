@@ -7,7 +7,6 @@ type Message = {
   direction: string
   body: string
   sent_at: string
-  profiles: { full_name: string } | null
 }
 
 const initial = { error: null }
@@ -47,7 +46,7 @@ export default function EnquiryMessageForm({
               }}
             >
               <div style={{ display: 'flex', gap: 8, fontSize: 12, color: 'var(--ink-4)', marginBottom: 4 }}>
-                <span>{msg.profiles?.full_name ?? 'Winchburgh Speakers Club'}</span>
+                <span>{msg.direction === 'outbound' ? 'You' : 'Enquirer'}</span>
                 <span>·</span>
                 <span>
                   {new Date(msg.sent_at).toLocaleString('en-GB', {
