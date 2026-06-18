@@ -152,14 +152,16 @@ export async function sendCommunicationEmail({
       <p>Hi ${esc(toName)},</p>
       <p>${esc(body).replace(/\n/g, '<br/>')}</p>
       <hr style="border:none;border-top:1px solid #e2e8f0;margin:24px 0"/>
-      <p style="color:#94a3b8;font-size:12px">
+      <p style="color:#94a3b8;font-size:13px">
         Winchburgh Speakers Club ·
         <a href="https://winchburghspeakersclub.uk" style="color:#94a3b8">winchburghspeakersclub.uk</a>
       </p>
     `,
-    attachments: attachmentUrls.map(url => ({
-      path: url,
-      filename: url.split('/').pop() ?? 'attachment',
-    })),
+    ...(attachmentUrls.length > 0 && {
+      attachments: attachmentUrls.map(url => ({
+        path: url,
+        filename: url.split('/').pop() ?? 'attachment',
+      })),
+    }),
   })
 }
