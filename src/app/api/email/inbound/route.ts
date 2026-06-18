@@ -16,7 +16,8 @@ function getServiceClient() {
 
 function stripQuotedReply(text: string): string {
   const markers = [
-    /\r?\n[-]{2,}\r?\nOn .+ wrote:/m,
+    /\r?\nOn .+wrote:/m,
+    /\r?\n[-]{2,}\r?\n/m,
     /\r?\n>[ ]?.+/m,
     /\r?\nFrom:[ ].+/m,
   ]
@@ -111,9 +112,8 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   const resend = new Resend(process.env.RESEND_API_KEY)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const fetchResult = await (resend.emails.receiving as any).get(emailId)
-  const fe = fetchResult.error
-  console.log(`[E] id=${emailId} sc=${fe?.statusCode} nm=${fe?.name} msg=${fe?.message}`)
   if (fetchResult.error || !fetchResult.data) {
+    console.error('[inbound] fetch failed:', fetchResult.error?.statusCode, fetchResult.error?.message)
     return NextResponse.json({ error: 'fetch failed' }, { status: 500 })
   }
   const email = fetchResult.data
