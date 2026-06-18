@@ -89,11 +89,8 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
   const payload = JSON.parse(rawBody) as InboundPayload
 
-  // DEBUG: log full payload structure to diagnose missing body fields — remove after confirmed working
-  console.log('[inbound] full payload keys:', Object.keys(payload))
-  console.log('[inbound] data keys:', payload.data ? Object.keys(payload.data) : 'no data')
-  console.log('[inbound] text:', payload.data?.text)
-  console.log('[inbound] html length:', payload.data?.html?.length ?? 0)
+  // DEBUG: log raw payload to diagnose body field names — remove after confirmed working
+  console.log('[inbound] RAW:', JSON.stringify(payload).slice(0, 800))
 
   if (payload.type !== 'email.received') {
     return NextResponse.json({ ok: true })
