@@ -69,7 +69,8 @@ export default function ComposeForm({
   function addExternal() {
     const trimEmail = extEmail.trim()
     const trimName = extName.trim() || trimEmail
-    if (!trimEmail || !trimEmail.includes('@')) return
+    const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimEmail)
+    if (!emailOk) return
     if (recipients.some(r => r.email === trimEmail)) return
     setRecipients(prev => [...prev, { email: trimEmail, name: trimName, recipient_type: 'external' }])
     setExtName('')
@@ -180,11 +181,11 @@ export default function ComposeForm({
         <div style={{ display: 'flex', gap: 8, alignItems: 'flex-end' }}>
           <div style={{ flex: 1 }}>
             <label className="wsc-label" htmlFor="ext-name" style={{ fontSize: 12 }}>Name</label>
-            <input id="ext-name" className="wsc-input" value={extName} onChange={e => setExtName(e.target.value)} placeholder="External person" />
+            <input id="ext-name" className="wsc-input" value={extName} onChange={e => setExtName(e.target.value)} onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addExternal() } }} placeholder="External person" />
           </div>
           <div style={{ flex: 2 }}>
             <label className="wsc-label" htmlFor="ext-email" style={{ fontSize: 12 }}>Email</label>
-            <input id="ext-email" className="wsc-input" type="email" value={extEmail} onChange={e => setExtEmail(e.target.value)} placeholder="email@example.com" />
+            <input id="ext-email" className="wsc-input" type="email" value={extEmail} onChange={e => setExtEmail(e.target.value)} onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addExternal() } }} placeholder="email@example.com" />
           </div>
           <button type="button" className="wsc-btn wsc-btn-sm" onClick={addExternal} style={{ marginBottom: 1 }}>Add</button>
         </div>
@@ -227,10 +228,17 @@ export default function ComposeForm({
             </div>
           )}
 
-          {allAttachmentUrls.length > 0 && (
-            <ul style={{ fontSize: 13, color: 'var(--ink-2)', margin: 0, paddingLeft: 16 }}>
-              {allAttachmentUrls.map(url => (
-                <li key={url}>{url.split('/').pop()}</li>
+          {attachmentUrls.length > 0 && (
+            <ul style={{ fontSize: 13, color: 'var(--ink-2)', margin: 0, paddingLeft: 0, listStyle: 'none' }}>
+              {attachmentUrls.map(url => (
+                <li key={url} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span>{url.split('/').pop()}</span>
+                  <button
+                    type="button"
+                    onClick={() => setAttachmentUrls(prev => prev.filter(u => u !== url))}
+                    style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--ink-4)', fontSize: 14, padding: 0 }}
+                  >×</button>
+                </li>
               ))}
             </ul>
           )}
@@ -243,7 +251,7 @@ export default function ComposeForm({
       )}
 
       <div>
-        <button type="submit" className="wsc-btn wsc-btn-primary" disabled={pending || uploading}>
+        <button type="submit" className="wsc-btn wsc-btn-primary" disabled={pending || uploading || recipients.length === 0}>
           {pending ? 'Sending…' : `Send to ${recipients.length} recipient${recipients.length !== 1 ? 's' : ''}`}
         </button>
       </div>
