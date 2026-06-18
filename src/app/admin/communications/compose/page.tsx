@@ -9,7 +9,7 @@ export default async function ComposePage() {
   const supabase = await createClient()
   const bucketUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/site-media`
 
-  const [{ data: profiles }, { data: signups }, { data: enquiries }, { data: media }] = await Promise.all([
+  const [membersRes, signupsRes, enquiriesRes, mediaRes] = await Promise.all([
     supabase
       .from('profiles')
       .select('id, full_name, contact_email')
@@ -30,6 +30,16 @@ export default async function ComposePage() {
       .from('media')
       .select('key, storage_path, alt_text'),
   ])
+
+  if (membersRes.error) throw membersRes.error
+  if (signupsRes.error) throw signupsRes.error
+  if (enquiriesRes.error) throw enquiriesRes.error
+  if (mediaRes.error) throw mediaRes.error
+
+  const profiles = membersRes.data
+  const signups = signupsRes.data
+  const enquiries = enquiriesRes.data
+  const media = mediaRes.data
 
   const members = (profiles ?? []).map(p => ({
     id: p.id as string,
