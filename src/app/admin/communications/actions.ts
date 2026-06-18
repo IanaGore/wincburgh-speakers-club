@@ -63,9 +63,13 @@ export async function sendCommunicationAction(
   if (!body) return { error: 'Body is required.', success: false }
   if (!senderTitle) return { error: 'Sender title is required.', success: false }
 
+  if (!recipientsJson) return { error: 'Invalid recipients data.', success: false }
+
   let recipients: Recipient[]
   try {
-    recipients = JSON.parse(recipientsJson)
+    const parsed: unknown = JSON.parse(recipientsJson)
+    if (!Array.isArray(parsed)) throw new Error('not an array')
+    recipients = parsed as Recipient[]
   } catch {
     return { error: 'Invalid recipients data.', success: false }
   }
@@ -138,6 +142,7 @@ export async function sendCommunicationAction(
 
   if (updateError) {
     console.error('[sendComm] status update failed:', updateError)
+    sendFailed = true
   }
 
   revalidatePath('/admin/communications')
