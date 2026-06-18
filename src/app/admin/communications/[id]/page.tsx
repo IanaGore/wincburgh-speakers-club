@@ -117,7 +117,7 @@ export default async function CommunicationDetailPage({
               }}
             >
               <div style={{ display: 'flex', gap: 8, fontSize: 12, color: 'var(--ink-4)', marginBottom: 4, flexWrap: 'wrap' }}>
-                <span><strong>{r.from_name as string || r.from_email as string}</strong></span>
+                <span><strong>{(r.from_name as string | null) ?? (r.from_email as string)}</strong></span>
                 <span>·</span>
                 <span>{r.from_email as string}</span>
                 <span>·</span>
