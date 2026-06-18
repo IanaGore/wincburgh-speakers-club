@@ -34,6 +34,8 @@ function stripQuotedReply(text: string): string {
 type RoutingResult =
   | { type: 'enquiry'; id: string }
   | { type: 'communication'; id: string }
+  | { type: 'correspondence_new' }
+  | { type: 'correspondence_reply'; id: string }
   | null
 
 function extractRoutingId(toAddresses: string[]): RoutingResult {
@@ -46,6 +48,16 @@ function extractRoutingId(toAddresses: string[]): RoutingResult {
         return { type: 'communication', id }
       }
     }
+
+    // Correspondence replies: reply+corr-{uuid}@domain (must precede generic reply+ check)
+    const corrMatch = addr.match(/reply\+corr-([^@]+)@(.+)/)
+    if (corrMatch) {
+      const [, id, domain] = corrMatch
+      if (domain === RECEIVING_DOMAIN && UUID_RE.test(id)) {
+        return { type: 'correspondence_reply', id }
+      }
+    }
+
     // Enquiry replies: reply+{uuid}@domain
     const enquiryMatch = addr.match(/reply\+([^@]+)@(.+)/)
     if (enquiryMatch) {
@@ -53,6 +65,11 @@ function extractRoutingId(toAddresses: string[]): RoutingResult {
       if (domain === RECEIVING_DOMAIN && UUID_RE.test(id)) {
         return { type: 'enquiry', id }
       }
+    }
+
+    // New external correspondence: president@domain
+    if (addr.toLowerCase() === `president@${RECEIVING_DOMAIN}`) {
+      return { type: 'correspondence_new' }
     }
   }
   return null
@@ -160,7 +177,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       console.error('[inbound] enquiry insert failed:', insertError)
       return NextResponse.json({ error: 'insert failed' }, { status: 500 })
     }
-  } else {
+  } else if (routing.type === 'communication') {
     const { data: comm, error: commError } = await supabase
       .from('communications')
       .select('id')
@@ -184,6 +201,69 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
     if (insertError) {
       console.error('[inbound] comm reply insert failed:', insertError)
+      return NextResponse.json({ error: 'insert failed' }, { status: 500 })
+    }
+  } else if (routing.type === 'correspondence_new') {
+    const rawFrom: string = email.from ?? ''
+    const fromMatch = rawFrom.match(/^(.+?)\s*<([^>]+)>$/)
+    const fromEmail: string = fromMatch ? fromMatch[2] : rawFrom
+    const fromName: string = fromMatch ? fromMatch[1].trim() : ''
+    const subject: string = (email.subject as string | null) ?? '(No subject)'
+
+    const { data: corr, error: corrError } = await supabase
+      .from('external_correspondence')
+      .insert({ subject, from_email: fromEmail, from_name: fromName })
+      .select('id')
+      .single()
+
+    if (corrError || !corr) {
+      console.error('[inbound] correspondence insert failed:', corrError)
+      return NextResponse.json({ error: 'insert failed' }, { status: 500 })
+    }
+
+    const { error: msgError } = await supabase
+      .from('correspondence_messages')
+      .insert({
+        correspondence_id: corr.id,
+        direction: 'inbound',
+        body,
+        from_email: fromEmail,
+        from_name: fromName,
+      })
+
+    if (msgError) {
+      console.error('[inbound] correspondence message insert failed:', msgError)
+      return NextResponse.json({ error: 'insert failed' }, { status: 500 })
+    }
+  } else if (routing.type === 'correspondence_reply') {
+    const { data: corr, error: corrError } = await supabase
+      .from('external_correspondence')
+      .select('id')
+      .eq('id', routing.id)
+      .single()
+
+    if (corrError || !corr) {
+      console.info('[inbound] correspondence not found:', routing.id)
+      return NextResponse.json({ ok: true })
+    }
+
+    const rawFrom: string = email.from ?? ''
+    const fromMatch = rawFrom.match(/^(.+?)\s*<([^>]+)>$/)
+    const fromEmail: string = fromMatch ? fromMatch[2] : rawFrom
+    const fromName: string = fromMatch ? fromMatch[1].trim() : ''
+
+    const { error: msgError } = await supabase
+      .from('correspondence_messages')
+      .insert({
+        correspondence_id: routing.id,
+        direction: 'inbound',
+        body,
+        from_email: fromEmail,
+        from_name: fromName,
+      })
+
+    if (msgError) {
+      console.error('[inbound] correspondence reply insert failed:', msgError)
       return NextResponse.json({ error: 'insert failed' }, { status: 500 })
     }
   }
