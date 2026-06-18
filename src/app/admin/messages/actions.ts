@@ -34,4 +34,5 @@ export async function deleteMessage(formData: FormData) {
   if (error) throw new Error("Failed to delete message")
 
   revalidatePath('/admin/messages')
+  revalidatePath('/admin/enquiries')
 }
