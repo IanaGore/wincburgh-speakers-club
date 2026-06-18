@@ -24,6 +24,19 @@ export async function uploadCommAttachment(
   if (!file || file.size === 0) return { url: null, error: 'No file provided' }
   if (file.size > 10 * 1024 * 1024) return { url: null, error: 'File must be under 10 MB' }
 
+  const ALLOWED_TYPES = [
+    'application/pdf',
+    'image/png',
+    'image/jpeg',
+    'image/gif',
+    'image/webp',
+    'application/msword',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  ]
+  if (!ALLOWED_TYPES.includes(file.type)) {
+    return { url: null, error: 'File type not allowed. Accepted: PDF, images, Word documents.' }
+  }
+
   const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_')
   const path = `${COMMS_PREFIX}/${Date.now()}_${safeName}`
   const buffer = Buffer.from(await file.arrayBuffer())
