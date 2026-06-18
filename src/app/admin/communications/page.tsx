@@ -10,17 +10,16 @@ export default async function CommunicationsPage() {
   const { data: comms } = await supabase
     .from('communications')
     .select(`
-      id, subject, sender_title, status, sent_at,
+      id, subject, sender_title, sent_at,
       communication_recipients(id),
       communication_replies(id)
     `)
-    .order('sent_at', { ascending: false, nullsFirst: true })
+    .order('sent_at', { ascending: false, nullsFirst: false })
 
   const rows = (comms ?? []).map(c => ({
     id: c.id as string,
     subject: c.subject as string,
     senderTitle: c.sender_title as string,
-    status: c.status as string,
     sentAt: c.sent_at as string | null,
     recipientCount: (c.communication_recipients as { id: string }[]).length,
     replyCount: (c.communication_replies as { id: string }[]).length,
