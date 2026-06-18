@@ -183,7 +183,7 @@ export async function sendCorrespondenceReply({
     from: 'Winchburgh Speakers Club <president@winchburghspeakersclub.uk>',
     replyTo: `reply+corr-${correspondenceId}@winchburghspeakersclub.uk`,
     to,
-    subject: subject.startsWith('Re:') ? subject : `Re: ${subject}`,
+    subject: /^re:/i.test(subject) ? subject : `Re: ${subject}`,
     html: `
       <p>Hi ${esc(toName || 'there')},</p>
       <p>${esc(body).replace(/\n/g, '<br/>')}</p>

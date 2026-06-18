@@ -210,14 +210,25 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     const fromName: string = fromMatch ? fromMatch[1].trim() : ''
     const subject: string = (email.subject as string | null) ?? '(No subject)'
 
+    // Insert correspondence row — ignore if this emailId was already processed (retry-safe)
     const { data: corr, error: corrError } = await supabase
       .from('external_correspondence')
-      .insert({ subject, from_email: fromEmail, from_name: fromName })
+      .insert({ subject, from_email: fromEmail, from_name: fromName, resend_email_id: emailId })
       .select('id')
       .single()
 
-    if (corrError || !corr) {
+    if (corrError) {
+      // Duplicate resend_email_id means Resend is retrying a previously-processed email
+      if ((corrError as { code?: string }).code === '23505') {
+        console.info('[inbound] correspondence already processed, skipping:', emailId)
+        return NextResponse.json({ ok: true })
+      }
       console.error('[inbound] correspondence insert failed:', corrError)
+      return NextResponse.json({ error: 'insert failed' }, { status: 500 })
+    }
+
+    if (!corr) {
+      console.error('[inbound] correspondence insert returned no data')
       return NextResponse.json({ error: 'insert failed' }, { status: 500 })
     }
 
@@ -232,7 +243,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       })
 
     if (msgError) {
-      console.error('[inbound] correspondence message insert failed:', msgError)
+      console.error('[inbound] correspondence message insert failed:', fromEmail, msgError)
       return NextResponse.json({ error: 'insert failed' }, { status: 500 })
     }
   } else if (routing.type === 'correspondence_reply') {
