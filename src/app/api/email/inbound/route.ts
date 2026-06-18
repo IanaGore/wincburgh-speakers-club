@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { Webhook } from 'svix'
 import { createClient } from '@supabase/supabase-js'
+import { Resend } from 'resend'
 
 const RECEIVING_DOMAIN = 'winchburghspeakersclub.uk'
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
@@ -59,9 +60,8 @@ function htmlToText(html: string): string {
 type InboundPayload = {
   type: string
   data?: {
+    email_id?: string
     to?: string[]
-    text?: string | null
-    html?: string | null
   }
 }
 
@@ -89,9 +89,6 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
   const payload = JSON.parse(rawBody) as InboundPayload
 
-  // DEBUG: log raw payload to diagnose body field names — remove after confirmed working
-  console.log('[inbound] RAW:', JSON.stringify(payload).slice(0, 800))
-
   if (payload.type !== 'email.received') {
     return NextResponse.json({ ok: true })
   }
@@ -103,6 +100,26 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     console.info('[inbound] no matching plus-address found in:', toAddresses)
     return NextResponse.json({ ok: true })
   }
+
+  const emailId = payload.data?.email_id
+  if (!emailId) {
+    console.error('[inbound] no email_id in payload')
+    return NextResponse.json({ ok: true })
+  }
+
+  // Fetch full email content (webhook payload contains metadata only)
+  const resend = new Resend(process.env.RESEND_API_KEY)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: email, error: fetchError } = await (resend.emails.receiving as any).get(emailId)
+  if (fetchError || !email) {
+    console.error('[inbound] failed to fetch email body:', fetchError)
+    return NextResponse.json({ error: 'fetch failed' }, { status: 500 })
+  }
+
+  const rawText: string | null = email.text ?? null
+  const rawHtml: string | null = email.html ?? null
+  const source = rawText ?? (rawHtml ? htmlToText(rawHtml) : null)
+  const body = source ? stripQuotedReply(source) : '[No message body]'
 
   const supabase = getServiceClient()
 
@@ -116,11 +133,6 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     console.info('[inbound] enquiry not found:', enquiryId)
     return NextResponse.json({ ok: true })
   }
-
-  const rawText = payload.data?.text ?? null
-  const rawHtml = payload.data?.html ?? null
-  const source = rawText ?? (rawHtml ? htmlToText(rawHtml) : null)
-  const body = source ? stripQuotedReply(source) : '[No message body]'
 
   const { error: insertError } = await supabase
     .from('enquiry_messages')
