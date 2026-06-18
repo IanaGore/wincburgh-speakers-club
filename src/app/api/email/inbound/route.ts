@@ -41,11 +41,27 @@ function extractEnquiryId(toAddresses: string[]): string | null {
   return null
 }
 
+function htmlToText(html: string): string {
+  return html
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<\/p>/gi, '\n')
+    .replace(/<[^>]+>/g, '')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#x27;/g, "'")
+    .replace(/\n{3,}/g, '\n\n')
+    .trim()
+}
+
 type InboundPayload = {
   type: string
   data?: {
     to?: string[]
     text?: string | null
+    html?: string | null
   }
 }
 
@@ -99,7 +115,9 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   }
 
   const rawText = payload.data?.text ?? null
-  const body = rawText ? stripQuotedReply(rawText) : '[No plain-text body]'
+  const rawHtml = payload.data?.html ?? null
+  const source = rawText ?? (rawHtml ? htmlToText(rawHtml) : null)
+  const body = source ? stripQuotedReply(source) : '[No message body]'
 
   const { error: insertError } = await supabase
     .from('enquiry_messages')
