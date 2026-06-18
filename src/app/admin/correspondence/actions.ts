@@ -74,7 +74,10 @@ export async function updateCorrespondenceStatus(formData: FormData): Promise<vo
     .update({ status })
     .eq('id', id)
 
-  if (error) console.error('[corr status] update failed:', error)
+  if (error) {
+    console.error('[corr status] update failed:', error)
+    throw new Error('Failed to update correspondence status')
+  }
 
   revalidatePath(`/admin/correspondence/${id}`)
   revalidatePath('/admin/correspondence')
