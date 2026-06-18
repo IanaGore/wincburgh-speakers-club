@@ -2,26 +2,27 @@
 import { useActionState, useRef, useEffect } from 'react'
 import { sendCorrespondenceReplyAction } from '../actions'
 
-const initial = { error: null as string | null, success: false }
+const initial = { error: null as string | null, success: false, successCount: 0 }
 
 export default function ReplyForm({ correspondenceId }: { correspondenceId: string }) {
   const [state, formAction, pending] = useActionState(sendCorrespondenceReplyAction, initial)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
   useEffect(() => {
-    if (state.success && textareaRef.current) {
+    if (state.successCount > 0 && textareaRef.current) {
       textareaRef.current.value = ''
     }
-  }, [state.success])
+  }, [state.successCount])
 
   return (
     <div>
-      <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--ink-3)', marginBottom: 8, letterSpacing: '0.04em' }}>
+      <label htmlFor="reply-body" style={{ fontSize: 13, fontWeight: 600, color: 'var(--ink-3)', marginBottom: 8, letterSpacing: '0.04em', display: 'block' }}>
         REPLY <span style={{ fontWeight: 400, color: 'var(--ink-4)' }}>· sending as president@winchburghspeakersclub.uk</span>
-      </div>
+      </label>
       <form action={formAction} style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
         <input type="hidden" name="correspondence_id" value={correspondenceId} />
         <textarea
+          id="reply-body"
           ref={textareaRef}
           name="body"
           className="wsc-input wsc-textarea"

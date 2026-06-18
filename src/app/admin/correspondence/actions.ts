@@ -7,17 +7,17 @@ import { sendCorrespondenceReply } from '@/lib/email'
 const VALID_STATUSES = ['open', 'in_progress', 'closed'] as const
 
 export async function sendCorrespondenceReplyAction(
-  prevState: { error: string | null; success: boolean },
+  prevState: { error: string | null; success: boolean; successCount: number },
   formData: FormData,
-): Promise<{ error: string | null; success: boolean }> {
+): Promise<{ error: string | null; success: boolean; successCount: number }> {
   const user = await checkAdmin()
   const supabase = await createClient()
 
   const correspondenceId = (formData.get('correspondence_id') as string)?.trim()
   const body = (formData.get('body') as string)?.trim()
 
-  if (!correspondenceId) return { error: 'Invalid correspondence ID.', success: false }
-  if (!body) return { error: 'Reply cannot be empty.', success: false }
+  if (!correspondenceId) return { error: 'Invalid correspondence ID.', success: false, successCount: prevState.successCount }
+  if (!body) return { error: 'Reply cannot be empty.', success: false, successCount: prevState.successCount }
 
   const { data: corr, error: corrError } = await supabase
     .from('external_correspondence')
@@ -25,7 +25,7 @@ export async function sendCorrespondenceReplyAction(
     .eq('id', correspondenceId)
     .single()
 
-  if (corrError || !corr) return { error: 'Correspondence not found.', success: false }
+  if (corrError || !corr) return { error: 'Correspondence not found.', success: false, successCount: prevState.successCount }
 
   try {
     await sendCorrespondenceReply({
@@ -37,7 +37,7 @@ export async function sendCorrespondenceReplyAction(
     })
   } catch (err) {
     console.error('[corr reply] send failed:', err)
-    return { error: 'Failed to send email. Check Resend logs.', success: false }
+    return { error: 'Failed to send email. Check Resend logs.', success: false, successCount: prevState.successCount }
   }
 
   const { error: insertError } = await supabase
@@ -53,11 +53,11 @@ export async function sendCorrespondenceReplyAction(
 
   if (insertError) {
     console.error('[corr reply] message insert failed:', insertError)
-    return { error: 'Email sent but failed to save to thread.', success: false }
+    return { error: 'Email sent but failed to save to thread.', success: false, successCount: prevState.successCount }
   }
 
   revalidatePath(`/admin/correspondence/${correspondenceId}`)
-  return { error: null, success: true }
+  return { error: null, success: true, successCount: prevState.successCount + 1 }
 }
 
 export async function updateCorrespondenceStatus(formData: FormData): Promise<void> {
