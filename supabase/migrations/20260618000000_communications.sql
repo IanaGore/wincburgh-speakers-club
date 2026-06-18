@@ -5,9 +5,9 @@ create table communications (
   subject text not null,
   body text not null,
   sender_title text not null,
-  sent_by uuid references auth.users(id),
+  sent_by uuid references auth.users(id) on delete set null,
   sent_at timestamptz,
-  status text not null default 'draft',
+  status text not null default 'draft' check (status in ('draft', 'sent')),
   attachment_urls text[] not null default '{}'
 );
 
@@ -16,8 +16,9 @@ create table communication_recipients (
   communication_id uuid not null references communications(id) on delete cascade,
   email text not null,
   name text not null,
-  recipient_type text not null,
-  source_id uuid
+  recipient_type text not null check (recipient_type in ('member', 'signup', 'external')),
+  source_id uuid,
+  unique (communication_id, email)
 );
 
 create table communication_replies (
@@ -28,6 +29,12 @@ create table communication_replies (
   body text not null,
   received_at timestamptz not null default now()
 );
+
+create index if not exists communication_recipients_communication_id_idx
+  on communication_recipients(communication_id);
+
+create index if not exists communication_replies_communication_id_idx
+  on communication_replies(communication_id);
 
 alter table communications enable row level security;
 alter table communication_recipients enable row level security;
