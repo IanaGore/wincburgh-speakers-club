@@ -65,14 +65,16 @@ export async function updateCorrespondenceStatus(formData: FormData): Promise<vo
   const supabase = await createClient()
 
   const id = (formData.get('correspondence_id') as string)?.trim()
-  const status = formData.get('status') as string
+  const status = (formData.get('status') as string)?.trim()
 
   if (!id || !(VALID_STATUSES as readonly string[]).includes(status)) return
 
-  await supabase
+  const { error } = await supabase
     .from('external_correspondence')
     .update({ status })
     .eq('id', id)
+
+  if (error) console.error('[corr status] update failed:', error)
 
   revalidatePath(`/admin/correspondence/${id}`)
   revalidatePath('/admin/correspondence')
