@@ -124,6 +124,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   }
 
   const resend = new Resend(process.env.RESEND_API_KEY)
+  // Fetch full email content — webhook payload contains metadata only, not body
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const fetchResult = await (resend.emails.receiving as any).get(emailId)
   if (fetchResult.error || !fetchResult.data) {
@@ -172,10 +173,10 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     }
 
     // email.from may be "Name <addr>" or just "addr" — parse both
-    const rawFrom: string = email.from ?? 'unknown@unknown'
+    const rawFrom: string = email.from ?? ''
     const fromMatch = rawFrom.match(/^(.+?)\s*<([^>]+)>$/)
     const fromEmail: string = fromMatch ? fromMatch[2] : rawFrom
-    const fromName: string = fromMatch ? fromMatch[1].trim() : rawFrom
+    const fromName: string = fromMatch ? fromMatch[1].trim() : ''
 
     const { error: insertError } = await supabase
       .from('communication_replies')
