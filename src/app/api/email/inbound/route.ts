@@ -31,14 +31,29 @@ function stripQuotedReply(text: string): string {
   return text.trim()
 }
 
-function extractEnquiryId(toAddresses: string[]): string | null {
+type RoutingResult =
+  | { type: 'enquiry'; id: string }
+  | { type: 'communication'; id: string }
+  | null
+
+function extractRoutingId(toAddresses: string[]): RoutingResult {
   for (const addr of toAddresses) {
-    const match = addr.match(/reply\+([^@]+)@(.+)/)
-    if (!match) continue
-    const [, id, domain] = match
-    if (domain !== RECEIVING_DOMAIN) continue
-    if (!UUID_RE.test(id)) continue
-    return id
+    // Communication replies: reply+comm-{uuid}@domain
+    const commMatch = addr.match(/reply\+comm-([^@]+)@(.+)/)
+    if (commMatch) {
+      const [, id, domain] = commMatch
+      if (domain === RECEIVING_DOMAIN && UUID_RE.test(id)) {
+        return { type: 'communication', id }
+      }
+    }
+    // Enquiry replies: reply+{uuid}@domain
+    const enquiryMatch = addr.match(/reply\+([^@]+)@(.+)/)
+    if (enquiryMatch) {
+      const [, id, domain] = enquiryMatch
+      if (domain === RECEIVING_DOMAIN && UUID_RE.test(id)) {
+        return { type: 'enquiry', id }
+      }
+    }
   }
   return null
 }
@@ -95,9 +110,9 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   }
 
   const toAddresses = payload.data?.to ?? []
-  const enquiryId = extractEnquiryId(toAddresses)
+  const routing = extractRoutingId(toAddresses)
 
-  if (!enquiryId) {
+  if (!routing) {
     console.info('[inbound] no matching plus-address found in:', toAddresses)
     return NextResponse.json({ ok: true })
   }
@@ -108,8 +123,8 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ ok: true })
   }
 
-  // Fetch full email content (webhook payload contains metadata only)
   const resend = new Resend(process.env.RESEND_API_KEY)
+  // Fetch full email content — webhook payload contains metadata only, not body
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const fetchResult = await (resend.emails.receiving as any).get(emailId)
   if (fetchResult.error || !fetchResult.data) {
@@ -125,29 +140,52 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
   const supabase = getServiceClient()
 
-  const { data: enquiry, error: enquiryError } = await supabase
-    .from('contact_messages')
-    .select('id')
-    .eq('id', enquiryId)
-    .single()
+  if (routing.type === 'enquiry') {
+    const { data: enquiry, error: enquiryError } = await supabase
+      .from('contact_messages')
+      .select('id')
+      .eq('id', routing.id)
+      .single()
 
-  if (enquiryError || !enquiry) {
-    console.info('[inbound] enquiry not found:', enquiryId)
-    return NextResponse.json({ ok: true })
-  }
+    if (enquiryError || !enquiry) {
+      console.info('[inbound] enquiry not found:', routing.id)
+      return NextResponse.json({ ok: true })
+    }
 
-  const { error: insertError } = await supabase
-    .from('enquiry_messages')
-    .insert({
-      enquiry_id: enquiryId,
-      direction: 'inbound',
-      body,
-      sent_by: null,
-    })
+    const { error: insertError } = await supabase
+      .from('enquiry_messages')
+      .insert({ enquiry_id: routing.id, direction: 'inbound', body, sent_by: null })
 
-  if (insertError) {
-    console.error('[inbound] insert failed:', insertError)
-    return NextResponse.json({ error: 'insert failed' }, { status: 500 })
+    if (insertError) {
+      console.error('[inbound] enquiry insert failed:', insertError)
+      return NextResponse.json({ error: 'insert failed' }, { status: 500 })
+    }
+  } else {
+    const { data: comm, error: commError } = await supabase
+      .from('communications')
+      .select('id')
+      .eq('id', routing.id)
+      .single()
+
+    if (commError || !comm) {
+      console.info('[inbound] communication not found:', routing.id)
+      return NextResponse.json({ ok: true })
+    }
+
+    // email.from may be "Name <addr>" or just "addr" — parse both
+    const rawFrom: string = email.from ?? ''
+    const fromMatch = rawFrom.match(/^(.+?)\s*<([^>]+)>$/)
+    const fromEmail: string = fromMatch ? fromMatch[2] : rawFrom
+    const fromName: string = fromMatch ? fromMatch[1].trim() : ''
+
+    const { error: insertError } = await supabase
+      .from('communication_replies')
+      .insert({ communication_id: routing.id, from_email: fromEmail, from_name: fromName, body })
+
+    if (insertError) {
+      console.error('[inbound] comm reply insert failed:', insertError)
+      return NextResponse.json({ error: 'insert failed' }, { status: 500 })
+    }
   }
 
   return NextResponse.json({ ok: true })

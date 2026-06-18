@@ -27,6 +27,7 @@ export default function PortalNav({ isAdminView = false }: { isAdminView?: boole
             <Link href="/admin/payments" style={activeStyle(pathname, '/admin/payments')}>Payments</Link>
             <Link href="/admin/news" style={activeStyle(pathname, '/admin/news')}>News</Link>
             <Link href="/admin/enquiries" style={activeStyle(pathname, '/admin/enquiries')}>Enquiries</Link>
+            <Link href="/admin/communications" style={activeStyle(pathname, '/admin/communications')}>Communications</Link>
             <Link href="/admin/media" style={activeStyle(pathname, '/admin/media')}>Media</Link>
             <Link href="/admin/resources" style={activeStyle(pathname, '/admin/resources')}>Resources</Link>
             <Link href="/admin/settings" style={activeStyle(pathname, '/admin/settings')}>Settings</Link>
