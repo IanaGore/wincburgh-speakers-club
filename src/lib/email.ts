@@ -165,3 +165,33 @@ export async function sendCommunicationEmail({
     }),
   })
 }
+
+export async function sendCorrespondenceReply({
+  to,
+  toName,
+  subject,
+  body,
+  correspondenceId,
+}: {
+  to: string
+  toName: string
+  subject: string
+  body: string
+  correspondenceId: string
+}): Promise<void> {
+  await resend.emails.send({
+    from: 'Winchburgh Speakers Club <president@winchburghspeakersclub.uk>',
+    replyTo: `reply+corr-${correspondenceId}@winchburghspeakersclub.uk`,
+    to,
+    subject: subject.startsWith('Re:') ? subject : `Re: ${subject}`,
+    html: `
+      <p>Hi ${esc(toName || 'there')},</p>
+      <p>${esc(body).replace(/\n/g, '<br/>')}</p>
+      <hr style="border:none;border-top:1px solid #e2e8f0;margin:24px 0"/>
+      <p style="color:#94a3b8;font-size:13px">
+        Winchburgh Speakers Club ·
+        <a href="https://winchburghspeakersclub.uk" style="color:#94a3b8">winchburghspeakersclub.uk</a>
+      </p>
+    `,
+  })
+}
