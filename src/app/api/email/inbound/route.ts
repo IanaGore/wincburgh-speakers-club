@@ -111,9 +111,9 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   const resend = new Resend(process.env.RESEND_API_KEY)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const fetchResult = await (resend.emails.receiving as any).get(emailId)
-  console.log('[inbound] fetch result:', JSON.stringify({ emailId, error: fetchResult.error, dataKeys: fetchResult.data ? Object.keys(fetchResult.data) : null }))
+  const fe = fetchResult.error
+  console.log(`[E] id=${emailId} sc=${fe?.statusCode} nm=${fe?.name} msg=${fe?.message}`)
   if (fetchResult.error || !fetchResult.data) {
-    console.error('[inbound] failed to fetch email body:', JSON.stringify(fetchResult.error))
     return NextResponse.json({ error: 'fetch failed' }, { status: 500 })
   }
   const email = fetchResult.data
