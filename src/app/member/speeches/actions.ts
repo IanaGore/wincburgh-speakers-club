@@ -90,15 +90,17 @@ export async function markPathwayComplete(formData: FormData) {
   const speechTitle = (formData.get('speechTitle') as string)?.trim() || null
   const completedAt = (formData.get('completedAt') as string) || null
 
-  if (!VALID_PATHWAY_CODES.includes(pathwayCode as any)) throw new Error('Invalid pathway code')
+  if (!(VALID_PATHWAY_CODES as readonly string[]).includes(pathwayCode)) throw new Error('Invalid pathway code')
 
-  await supabase.from('speech_pathway_progress').upsert({
+  const { error } = await supabase.from('speech_pathway_progress').upsert({
     member_id: user.id,
     pathway_code: pathwayCode,
     completed: true,
     completed_at: completedAt || null,
     speech_title: speechTitle || null,
   }, { onConflict: 'member_id,pathway_code' })
+
+  if (error) throw new Error('Failed to update pathway progress')
 
   revalidatePath('/member/speeches')
 }
@@ -110,13 +112,15 @@ export async function unmarkPathwayComplete(formData: FormData) {
 
   const pathwayCode = (formData.get('pathwayCode') as string)?.toUpperCase()
 
-  if (!VALID_PATHWAY_CODES.includes(pathwayCode as any)) throw new Error('Invalid pathway code')
+  if (!(VALID_PATHWAY_CODES as readonly string[]).includes(pathwayCode)) throw new Error('Invalid pathway code')
 
-  await supabase
+  const { error } = await supabase
     .from('speech_pathway_progress')
-    .update({ completed: false, completed_at: null, speech_title: null })
+    .update({ completed: false, completed_at: null })
     .eq('member_id', user.id)
     .eq('pathway_code', pathwayCode)
+
+  if (error) throw new Error('Failed to update pathway progress')
 
   revalidatePath('/member/speeches')
 }
