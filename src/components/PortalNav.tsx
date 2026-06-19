@@ -65,10 +65,7 @@ export default function PortalNav({ isAdminView = false }: { isAdminView?: boole
     if (!openGroup) return
     function handleOutside(e: MouseEvent) {
       const target = e.target as Element
-      if (
-        !target.closest('.portal-nav') &&
-        !target.closest('.portal-nav__dropdown-panel')
-      ) {
+      if (!target.closest('.portal-nav')) {
         setOpenGroup(null)
       }
     }
