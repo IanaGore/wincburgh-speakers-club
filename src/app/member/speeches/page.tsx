@@ -2,6 +2,7 @@ import { createClient } from '@/utils/supabase/server'
 import { logSpeech } from './actions'
 import FeedbackForm from './FeedbackForm'
 import DeleteSpeechButton from './DeleteSpeechButton'
+import RemoveSessionSpeechButton from './RemoveSessionSpeechButton'
 import EyebrowLabel from '@/components/ui/EyebrowLabel'
 import './speeches.css'
 
@@ -76,9 +77,12 @@ export default async function SpeechesPage({
                       {s.speech_length && <span>{s.speech_length}</span>}
                     </div>
                   </div>
-                  <span className="speech-card__date">
-                    {s.meetings?.meeting_date ? fmtDate(s.meetings.meeting_date) : 'No date'}
-                  </span>
+                  <div className="speech-card__actions">
+                    <span className="speech-card__date">
+                      {s.meetings?.meeting_date ? fmtDate(s.meetings.meeting_date) : 'No date'}
+                    </span>
+                    <RemoveSessionSpeechButton assignmentId={s.id} />
+                  </div>
                 </div>
               )) : (
                 <div className="wsc-card speech-card__empty">
