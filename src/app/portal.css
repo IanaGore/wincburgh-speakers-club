@@ -64,6 +64,15 @@
   background: rgba(255, 255, 255, 0.05);
 }
 
+/* Nav has a light background — override dark-theme btn-secondary tokens */
+.portal-nav .btn-secondary {
+  color: var(--ink);
+  border-color: var(--rule);
+}
+.portal-nav .btn-secondary:hover {
+  background: var(--paper-2);
+}
+
 /* Native <select> options don't inherit background — force dark on portal pages */
 .portal-root select option {
   background: #1e293b;
