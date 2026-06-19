@@ -125,15 +125,17 @@ export default async function EnquiriesPage({
                     {msg.message}
                   </div>
 
-                  <form action={updateMessageStatus} style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexWrap: 'wrap' }}>
-                    <input type="hidden" name="message_id" value={msg.id} />
-                    <label className="wsc-label" style={{ margin: 0 }}>Status:</label>
-                    <select name="status" defaultValue={msg.status} className="wsc-input" style={{ width: 'auto', padding: '0.25rem 0.5rem', fontSize: 13 }}>
-                      {MESSAGE_STATUSES.map(s => <option key={s} value={s}>{s}</option>)}
-                    </select>
-                    <button type="submit" className="wsc-btn wsc-btn-sm wsc-btn-ghost">Update</button>
+                  <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexWrap: 'wrap' }}>
+                    <form action={updateMessageStatus} style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                      <input type="hidden" name="message_id" value={msg.id} />
+                      <label className="wsc-label" style={{ margin: 0 }}>Status:</label>
+                      <select name="status" defaultValue={msg.status} className="wsc-input" style={{ width: 'auto', padding: '0.25rem 0.5rem', fontSize: 13 }}>
+                        {MESSAGE_STATUSES.map(s => <option key={s} value={s}>{s}</option>)}
+                      </select>
+                      <button type="submit" className="wsc-btn wsc-btn-sm wsc-btn-ghost">Update</button>
+                    </form>
                     <DeleteMessageButton messageId={msg.id} />
-                  </form>
+                  </div>
 
                   <form action={updateMessageNotes} style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
                     <input type="hidden" name="message_id" value={msg.id} />
