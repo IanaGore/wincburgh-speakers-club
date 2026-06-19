@@ -109,6 +109,7 @@ export async function dropRole(formData: FormData) {
     console.error(error)
     throw new Error("Failed to drop role")
   }
-  
+
   revalidatePath('/member/dashboard')
+  revalidatePath('/member/speeches')
 }
