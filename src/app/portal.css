@@ -168,7 +168,6 @@
 
 /* Individual link inside the dropdown panel */
 .portal-nav__dropdown-item {
-  display: block;
   padding: 0.65rem 1.25rem;
   min-height: 44px;
   color: var(--ink);
@@ -181,7 +180,7 @@
 }
 
 .portal-nav__dropdown-item:hover {
-  background: var(--surface, #f5f0e8);
+  background: var(--paper-2);
   color: var(--clay);
 }
 
