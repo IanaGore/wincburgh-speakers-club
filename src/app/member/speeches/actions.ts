@@ -36,6 +36,17 @@ export async function logSpeech(formData: FormData) {
     redirect('/member/speeches?error=1')
   }
 
+  const normalizedCode = pathway?.trim().toUpperCase()
+  if (normalizedCode && (VALID_PATHWAY_CODES as readonly string[]).includes(normalizedCode)) {
+    await supabase.from('speech_pathway_progress').upsert({
+      member_id: user.id,
+      pathway_code: normalizedCode,
+      completed: true,
+      completed_at: speech_date,
+      speech_title: title,
+    }, { onConflict: 'member_id,pathway_code', ignoreDuplicates: true })
+  }
+
   redirect(`/member/speeches?logged=${encodeURIComponent(title)}`)
 }
 
