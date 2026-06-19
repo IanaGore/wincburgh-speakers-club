@@ -59,21 +59,6 @@ export async function uploadMediaPhoto(formData: FormData) {
     throw new Error(`DB: ${dbError.message}`)
   }
 
-  // DIAGNOSTIC: can the regular user client read back what was just written?
-  const { data: readCheck, error: readError } = await supabase
-    .from('media').select('key, storage_path').eq('key', key).single()
-  console.log('[media] read-back (user client):', JSON.stringify({
-    key,
-    found: !!readCheck,
-    storage_path: readCheck?.storage_path ?? null,
-    error: readError?.message ?? null,
-    code: readError?.code ?? null,
-  }))
-
-  // DIAGNOSTIC: can the admin client read back all rows?
-  const { data: adminRows } = await admin.from('media').select('key')
-  console.log('[media] all rows (admin client):', JSON.stringify(adminRows?.map(r => r.key) ?? []))
-
   revalidatePath('/admin/media')
   revalidatePath('/')
   revalidatePath('/about')
