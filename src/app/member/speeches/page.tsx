@@ -4,6 +4,7 @@ import FeedbackForm from './FeedbackForm'
 import DeleteSpeechButton from './DeleteSpeechButton'
 import RemoveSessionSpeechButton from './RemoveSessionSpeechButton'
 import EyebrowLabel from '@/components/ui/EyebrowLabel'
+import PathwayTracker from './PathwayTracker'
 import './speeches.css'
 
 function fmtDate(dateStr: string) {
@@ -49,6 +50,11 @@ export default async function SpeechesPage({
     .select('*, meeting:meetings(meeting_date), speaker:profiles!speeches_member_id_fkey(full_name)')
     .eq('evaluator_id', user.id)
     .order('created_at', { ascending: false })
+
+  const { data: pathwayProgress } = await supabase
+    .from('speech_pathway_progress')
+    .select('pathway_code, completed, completed_at, speech_title')
+    .eq('member_id', user.id)
 
   const { data: profiles } = await supabase.from('profiles').select('id, full_name').order('full_name')
   const { data: meetings } = await supabase.from('meetings').select('id, meeting_date').order('meeting_date', { ascending: false })
@@ -108,6 +114,9 @@ export default async function SpeechesPage({
               </div>
             </section>
           )}
+
+          {/* Pathway Progress */}
+          <PathwayTracker progress={pathwayProgress ?? []} />
 
           {/* Manually Logged Speeches */}
           <section className="speeches-section">
