@@ -87,7 +87,9 @@ export default async function SpeechesPage({
                     <span className="speech-card__date">
                       {s.meetings?.meeting_date ? fmtDate(s.meetings.meeting_date) : 'No date'}
                     </span>
-                    <RemoveSessionSpeechButton assignmentId={s.id} />
+                    {(!s.meetings?.meeting_date || s.meetings.meeting_date >= new Date().toISOString().slice(0, 10)) && (
+                      <RemoveSessionSpeechButton assignmentId={s.id} />
+                    )}
                   </div>
                 </div>
               )) : (
