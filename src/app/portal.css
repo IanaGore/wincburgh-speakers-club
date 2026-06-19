@@ -196,6 +196,7 @@
   align-items: center;
   gap: 1rem;
   flex-shrink: 0;
+  margin-left: auto;
 }
 
 /* Mobile: horizontal scrollable tab strip */
@@ -230,6 +231,9 @@
   .portal-nav__pinned {
     gap: 0.5rem;
     flex-shrink: 0;
+    position: sticky;
+    right: 0;
+    background: var(--paper);
   }
 
   .portal-nav__dropdown-toggle {
