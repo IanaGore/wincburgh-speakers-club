@@ -3,6 +3,7 @@
 import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
+import { VALID_PATHWAY_CODES } from '@/lib/pathways'
 
 export async function logSpeech(formData: FormData) {
   const supabase = await createClient()
@@ -65,6 +66,46 @@ export async function addFeedback(formData: FormData) {
   if (error) {
     throw new Error('Failed to add feedback: ' + error.message)
   }
+
+  revalidatePath('/member/speeches')
+}
+
+export async function markPathwayComplete(formData: FormData) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Not logged in')
+
+  const pathwayCode = (formData.get('pathwayCode') as string)?.toUpperCase()
+  const speechTitle = (formData.get('speechTitle') as string)?.trim() || null
+  const completedAt = (formData.get('completedAt') as string) || null
+
+  if (!VALID_PATHWAY_CODES.includes(pathwayCode as any)) throw new Error('Invalid pathway code')
+
+  await supabase.from('speech_pathway_progress').upsert({
+    member_id: user.id,
+    pathway_code: pathwayCode,
+    completed: true,
+    completed_at: completedAt || null,
+    speech_title: speechTitle || null,
+  }, { onConflict: 'member_id,pathway_code' })
+
+  revalidatePath('/member/speeches')
+}
+
+export async function unmarkPathwayComplete(formData: FormData) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Not logged in')
+
+  const pathwayCode = (formData.get('pathwayCode') as string)?.toUpperCase()
+
+  if (!VALID_PATHWAY_CODES.includes(pathwayCode as any)) throw new Error('Invalid pathway code')
+
+  await supabase
+    .from('speech_pathway_progress')
+    .update({ completed: false, completed_at: null, speech_title: null })
+    .eq('member_id', user.id)
+    .eq('pathway_code', pathwayCode)
 
   revalidatePath('/member/speeches')
 }
