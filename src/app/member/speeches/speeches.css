@@ -265,6 +265,11 @@
   gap: 1.75rem;
 }
 
+.pathway-section {
+  display: flex;
+  flex-direction: column;
+}
+
 .pathway-section__header {
   display: flex;
   justify-content: space-between;
