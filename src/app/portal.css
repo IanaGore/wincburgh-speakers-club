@@ -108,6 +108,97 @@
   color: var(--clay);
 }
 
+/* Dropdown wrapper — positions the panel anchor point */
+.portal-nav__dropdown-wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+/* Dropdown toggle button — looks identical to a nav link */
+.portal-nav__dropdown-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--ink);
+  font-weight: 500;
+  font-size: inherit;
+  font-family: inherit;
+  cursor: pointer;
+  transition: color 0.15s;
+  white-space: nowrap;
+}
+
+.portal-nav__dropdown-toggle:hover,
+.portal-nav__dropdown-toggle.is-active {
+  color: var(--clay);
+}
+
+.portal-nav__dropdown-toggle.is-active {
+  border-bottom: 2px solid var(--clay);
+  padding-bottom: 2px;
+}
+
+/* Chevron rotates when dropdown is open */
+.portal-nav__chevron {
+  font-size: 0.7rem;
+  color: var(--ink-3);
+  transition: transform 0.15s;
+  display: inline-block;
+}
+
+.portal-nav__chevron.is-open {
+  transform: rotate(180deg);
+}
+
+/* Dropdown panel — fixed so it escapes the mobile scroll container */
+.portal-nav__dropdown-panel {
+  position: fixed;
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  z-index: 100;
+  min-width: 160px;
+  padding: 0.5rem 0;
+}
+
+/* Individual link inside the dropdown panel */
+.portal-nav__dropdown-item {
+  display: block;
+  padding: 0.65rem 1.25rem;
+  min-height: 44px;
+  color: var(--ink);
+  font-weight: 500;
+  font-size: 0.9rem;
+  transition: background 0.1s, color 0.1s;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+}
+
+.portal-nav__dropdown-item:hover {
+  background: var(--surface, #f5f0e8);
+  color: var(--clay);
+}
+
+.portal-nav__dropdown-item.is-active {
+  color: var(--clay);
+  border-left: 3px solid var(--clay);
+  padding-left: calc(1.25rem - 3px);
+}
+
+/* Pinned actions — always visible at far right, never scrolls */
+.portal-nav__pinned {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-shrink: 0;
+}
+
 /* Mobile: horizontal scrollable tab strip */
 @media (max-width: 767px) {
   .portal-nav {
@@ -133,6 +224,16 @@
 
   .portal-nav__links a,
   .portal-nav__links button {
+    font-size: 0.9rem;
+    padding: 0.3rem 0.5rem;
+  }
+
+  .portal-nav__pinned {
+    gap: 0.5rem;
+    flex-shrink: 0;
+  }
+
+  .portal-nav__dropdown-toggle {
     font-size: 0.9rem;
     padding: 0.3rem 0.5rem;
   }
