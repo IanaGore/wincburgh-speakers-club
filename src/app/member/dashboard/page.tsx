@@ -102,7 +102,7 @@ export default async function MemberDashboard() {
   // Profile
   const { data: profile } = await supabase
     .from('profiles')
-    .select('full_name, pathway')
+    .select('full_name')
     .eq('id', user.id)
     .single()
 
@@ -267,11 +267,6 @@ export default async function MemberDashboard() {
                 />
               ))}
             </div>
-            {profile?.pathway && (
-              <p style={{ fontFamily: 'var(--mono)', fontSize: 11, color: 'var(--ink-3)', marginTop: 8 }}>
-                Pathway: {profile.pathway}
-              </p>
-            )}
           </div>
 
           {/* Feedback placeholder card */}
