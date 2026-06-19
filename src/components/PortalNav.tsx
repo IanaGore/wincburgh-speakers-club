@@ -30,7 +30,18 @@ const GROUP_LABELS: Record<GroupKey, string> = {
   comms: 'Comms',
 }
 
-export default function PortalNav({ isAdminView = false }: { isAdminView?: boolean }) {
+export default function PortalNav({
+  isAdminView = false,
+  avatarUrl,
+  fullName,
+}: {
+  isAdminView?: boolean
+  avatarUrl?: string | null
+  fullName?: string | null
+}) {
+  const initials = fullName
+    ? fullName.split(' ').map(p => p[0]).join('').slice(0, 2).toUpperCase()
+    : '?'
   const pathname = usePathname()
   const [openGroup, setOpenGroup] = useState<GroupKey | null>(null)
   const [panelPos, setPanelPos] = useState<{ top: number; left: number }>({ top: 0, left: 0 })
@@ -147,6 +158,12 @@ export default function PortalNav({ isAdminView = false }: { isAdminView?: boole
             Admin Tools →
           </Link>
         )}
+        <Link href="/member/profile" className="portal-nav__avatar" title={fullName ?? 'Profile'}>
+          {avatarUrl
+            ? <img src={avatarUrl} alt={fullName ?? 'Avatar'} className="portal-nav__avatar-img" />
+            : <span className="portal-nav__avatar-initials">{initials}</span>
+          }
+        </Link>
         <form action={logout}>
           <button
             type="submit"

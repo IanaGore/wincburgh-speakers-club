@@ -11,7 +11,7 @@ export default async function MemberLayout({ children }: { children: React.React
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('full_name')
+    .select('full_name, avatar_url')
     .eq('id', user.id)
     .single()
 
@@ -21,7 +21,7 @@ export default async function MemberLayout({ children }: { children: React.React
 
   return (
     <div className="portal-root">
-      <PortalNav isAdminView={false} />
+      <PortalNav isAdminView={false} fullName={profile.full_name} avatarUrl={profile.avatar_url} />
       {children}
     </div>
   )
