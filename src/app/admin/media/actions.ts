@@ -1,7 +1,7 @@
 'use server'
 import { createClient } from '@/utils/supabase/server'
 import { createClient as createAdminClient } from '@supabase/supabase-js'
-import { revalidatePath } from 'next/cache'
+import { revalidatePath, refresh } from 'next/cache'
 
 const BUCKET = 'site-media'
 const MAX_BYTES = 5 * 1024 * 1024 // 5 MB
@@ -63,4 +63,5 @@ export async function uploadMediaPhoto(formData: FormData) {
   revalidatePath('/')
   revalidatePath('/about')
   revalidatePath('/meetings')
+  refresh()
 }

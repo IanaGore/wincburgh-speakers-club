@@ -1,6 +1,5 @@
 'use client'
 import { useRef, useState } from 'react'
-import { useRouter } from 'next/navigation'
 import { uploadMediaPhoto } from './actions'
 
 const MEDIA_SLOTS = [
@@ -25,7 +24,6 @@ export default function MediaUploader({ existing, bucketUrl }: Props) {
   const [uploading, setUploading] = useState<string | null>(null)
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [success, setSuccess] = useState<Record<string, boolean>>({})
-  const router = useRouter()
   const formRefs = useRef<Record<string, HTMLFormElement | null>>({})
 
   async function handleUpload(key: string, form: HTMLFormElement) {
@@ -36,7 +34,6 @@ export default function MediaUploader({ existing, bucketUrl }: Props) {
       const fd = new FormData(form)
       await uploadMediaPhoto(fd)
       setSuccess(prev => ({ ...prev, [key]: true }))
-      router.refresh()
     } catch (e) {
       setErrors(prev => ({ ...prev, [key]: e instanceof Error ? e.message : 'Upload failed' }))
     } finally {
