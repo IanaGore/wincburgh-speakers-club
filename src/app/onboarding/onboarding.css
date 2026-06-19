@@ -1,0 +1,36 @@
+.avatar-preview-wrap {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 8px;
+}
+
+.avatar-preview {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--rule);
+}
+
+.avatar-preview--empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--paper-2);
+  color: var(--ink-3);
+  font-size: 40px;
+  font-weight: 500;
+}
+
+.onboarding-skip {
+  display: block;
+  text-align: center;
+  margin-top: 16px;
+  color: var(--ink-3);
+  font-size: 14px;
+  text-decoration: none;
+}
+
+.onboarding-skip:hover {
+  color: var(--ink-2);
+}
