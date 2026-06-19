@@ -2,7 +2,9 @@ import { createClient } from '@/utils/supabase/server'
 import { logSpeech } from './actions'
 import FeedbackForm from './FeedbackForm'
 import DeleteSpeechButton from './DeleteSpeechButton'
+import RemoveSessionSpeechButton from './RemoveSessionSpeechButton'
 import EyebrowLabel from '@/components/ui/EyebrowLabel'
+import PathwayTracker from './PathwayTracker'
 import './speeches.css'
 
 function fmtDate(dateStr: string) {
@@ -49,6 +51,11 @@ export default async function SpeechesPage({
     .eq('evaluator_id', user.id)
     .order('created_at', { ascending: false })
 
+  const { data: pathwayProgress } = await supabase
+    .from('speech_pathway_progress')
+    .select('pathway_code, completed, completed_at, speech_title')
+    .eq('member_id', user.id)
+
   const { data: profiles } = await supabase.from('profiles').select('id, full_name').order('full_name')
   const { data: meetings } = await supabase.from('meetings').select('id, meeting_date').order('meeting_date', { ascending: false })
   const evaluatorOptions = (profiles ?? []).filter(p => p.id !== user.id)
@@ -76,9 +83,14 @@ export default async function SpeechesPage({
                       {s.speech_length && <span>{s.speech_length}</span>}
                     </div>
                   </div>
-                  <span className="speech-card__date">
-                    {s.meetings?.meeting_date ? fmtDate(s.meetings.meeting_date) : 'No date'}
-                  </span>
+                  <div className="speech-card__actions">
+                    <span className="speech-card__date">
+                      {s.meetings?.meeting_date ? fmtDate(s.meetings.meeting_date) : 'No date'}
+                    </span>
+                    {(!s.meetings?.meeting_date || s.meetings.meeting_date >= new Date().toISOString().slice(0, 10)) && (
+                      <RemoveSessionSpeechButton assignmentId={s.id} />
+                    )}
+                  </div>
                 </div>
               )) : (
                 <div className="wsc-card speech-card__empty">
@@ -104,6 +116,9 @@ export default async function SpeechesPage({
               </div>
             </section>
           )}
+
+          {/* Pathway Progress */}
+          <PathwayTracker progress={pathwayProgress ?? []} />
 
           {/* Manually Logged Speeches */}
           <section className="speeches-section">

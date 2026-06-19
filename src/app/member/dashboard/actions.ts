@@ -2,6 +2,7 @@
 
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/utils/supabase/server'
+import { VALID_PATHWAY_CODES } from '@/lib/pathways'
 
 export async function volunteerForRole(formData: FormData) {
   const assignmentId   = formData.get('assignmentId') as string
@@ -84,7 +85,19 @@ export async function updateSpeechDetails(formData: FormData) {
     throw new Error("Failed to update speech details")
   }
 
+  const normalizedCode = speech_level?.trim().toUpperCase()
+  if (normalizedCode && (VALID_PATHWAY_CODES as readonly string[]).includes(normalizedCode)) {
+    await supabase.from('speech_pathway_progress').upsert({
+      member_id: user.id,
+      pathway_code: normalizedCode,
+      completed: true,
+      completed_at: null,
+      speech_title: speech_title || null,
+    }, { onConflict: 'member_id,pathway_code', ignoreDuplicates: true })
+  }
+
   revalidatePath('/member/dashboard')
+  revalidatePath('/member/speeches')
 }
 
 export async function dropRole(formData: FormData) {
@@ -109,6 +122,7 @@ export async function dropRole(formData: FormData) {
     console.error(error)
     throw new Error("Failed to drop role")
   }
-  
+
   revalidatePath('/member/dashboard')
+  revalidatePath('/member/speeches')
 }
