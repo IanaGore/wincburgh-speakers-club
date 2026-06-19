@@ -60,4 +60,7 @@ export async function uploadMediaPhoto(formData: FormData) {
   }
 
   revalidatePath('/admin/media')
+  revalidatePath('/')
+  revalidatePath('/about')
+  revalidatePath('/meetings')
 }
