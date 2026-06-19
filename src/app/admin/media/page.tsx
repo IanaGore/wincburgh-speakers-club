@@ -1,4 +1,4 @@
-import { createClient } from '@/utils/supabase/server'
+import { createClient as createAdminClient } from '@supabase/supabase-js'
 import EyebrowLabel from '@/components/ui/EyebrowLabel'
 import MediaUploader from './MediaUploader'
 import './media.css'
@@ -6,8 +6,13 @@ import './media.css'
 export const metadata = { title: 'Media | Admin' }
 
 export default async function AdminMediaPage() {
-  const supabase = await createClient()
-  const { data: existing } = await supabase.from('media').select('key, storage_path, alt_text')
+  // Service role bypasses RLS — safe because media table contains only public image metadata
+  const admin = createAdminClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    { auth: { persistSession: false } }
+  )
+  const { data: existing } = await admin.from('media').select('key, storage_path, alt_text')
 
   const bucketUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/site-media`
 

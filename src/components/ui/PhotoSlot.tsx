@@ -1,4 +1,4 @@
-import { createClient } from '@/utils/supabase/server'
+import { createClient as createAdminClient } from '@supabase/supabase-js'
 import './PhotoSlot.css'
 
 interface PhotoSlotProps {
@@ -19,8 +19,13 @@ export default async function PhotoSlot({
   mediaKey,
 }: PhotoSlotProps) {
   if (mediaKey) {
-    const supabase = await createClient()
-    const { data } = await supabase
+    // Service role bypasses RLS — safe because media table contains only public image metadata
+    const admin = createAdminClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+      { auth: { persistSession: false } }
+    )
+    const { data } = await admin
       .from('media')
       .select('storage_path, alt_text')
       .eq('key', mediaKey)
