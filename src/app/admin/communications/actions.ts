@@ -126,7 +126,7 @@ export async function sendCommunicationAction(
       sendCommunicationEmail({ to: r.email, toName: r.name, communicationId, senderTitle, subject, body, attachmentUrls })
     )
   )
-  const sendFailed = sendResults.some(r => {
+  const emailsFailed = sendResults.some(r => {
     if (r.status === 'rejected') {
       console.error(`[sendComm] email failed:`, r.reason)
       return true
@@ -141,8 +141,9 @@ export async function sendCommunicationAction(
 
   if (updateError) {
     console.error('[sendComm] status update failed:', updateError)
-    sendFailed = true
   }
+
+  const sendFailed = emailsFailed || !!updateError
 
   revalidatePath('/admin/communications')
 
