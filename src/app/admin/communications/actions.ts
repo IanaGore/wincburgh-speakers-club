@@ -1,20 +1,12 @@
 'use server'
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/utils/supabase/server'
-import { createClient as createAdminClient } from '@supabase/supabase-js'
+import { createServiceClient } from '@/utils/supabase/service'
 import { checkAdmin } from '@/utils/supabase/auth-helpers'
 import { sendCommunicationEmail } from '@/lib/email'
 
 const BUCKET = 'site-media'
 const COMMS_PREFIX = 'comms-attachments'
-
-function getServiceClient() {
-  return createAdminClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
-    { auth: { persistSession: false } }
-  )
-}
 
 export async function uploadCommAttachment(
   formData: FormData,
@@ -41,7 +33,7 @@ export async function uploadCommAttachment(
   const path = `${COMMS_PREFIX}/${Date.now()}_${safeName}`
   const buffer = Buffer.from(await file.arrayBuffer())
 
-  const admin = getServiceClient()
+  const admin = createServiceClient()
   const { error } = await admin.storage
     .from(BUCKET)
     .upload(path, buffer, { contentType: file.type, upsert: false })
@@ -128,24 +120,18 @@ export async function sendCommunicationAction(
     return { error: 'Failed to save recipients.', success: false }
   }
 
-  // Send emails
-  let sendFailed = false
-  for (const r of recipients) {
-    try {
-      await sendCommunicationEmail({
-        to: r.email,
-        toName: r.name,
-        communicationId,
-        senderTitle,
-        subject,
-        body,
-        attachmentUrls,
-      })
-    } catch (err) {
-      console.error(`[sendComm] email failed for ${r.email}:`, err)
-      sendFailed = true
+  // Send emails in parallel
+  const sendResults = await Promise.allSettled(
+    recipients.map(r =>
+      sendCommunicationEmail({ to: r.email, toName: r.name, communicationId, senderTitle, subject, body, attachmentUrls })
+    )
+  )
+  const sendFailed = sendResults.some(r => {
+    if (r.status === 'rejected') {
+      console.error(`[sendComm] email failed:`, r.reason)
+      return true
     }
-  }
+  })
 
   // Update status to sent
   const { error: updateError } = await supabase

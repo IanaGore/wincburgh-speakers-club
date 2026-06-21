@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "test:e2e": "playwright test",
-    "check:migrations": "node scripts/check-migration-grants.mjs"
+    "check:migrations": "node scripts/check-migration-grants.mjs",
+    "test": "vitest run"
   },
   "dependencies": {
     "@grafana/faro-web-sdk": "^2.7.0",
@@ -32,6 +33,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.2.4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^4.1.9"
   }
 }

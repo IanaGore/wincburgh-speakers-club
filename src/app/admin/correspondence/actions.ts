@@ -27,19 +27,8 @@ export async function sendCorrespondenceReplyAction(
 
   if (corrError || !corr) return { error: 'Correspondence not found.', success: false, successCount: prevState.successCount }
 
-  try {
-    await sendCorrespondenceReply({
-      to: corr.from_email as string,
-      toName: corr.from_name as string,
-      subject: corr.subject as string,
-      body,
-      correspondenceId,
-    })
-  } catch (err) {
-    console.error('[corr reply] send failed:', err)
-    return { error: 'Failed to send email. Check Resend logs.', success: false, successCount: prevState.successCount }
-  }
-
+  // Insert DB record first — if email send fails, admin can retry without duplicating the thread entry.
+  // Reversed order (email first) caused duplicate sends on retry when the insert failed.
   const { error: insertError } = await supabase
     .from('correspondence_messages')
     .insert({
@@ -53,7 +42,20 @@ export async function sendCorrespondenceReplyAction(
 
   if (insertError) {
     console.error('[corr reply] message insert failed:', insertError)
-    return { error: 'Email sent but failed to save to thread.', success: false, successCount: prevState.successCount }
+    return { error: 'Failed to save reply to thread.', success: false, successCount: prevState.successCount }
+  }
+
+  try {
+    await sendCorrespondenceReply({
+      to: corr.from_email as string,
+      toName: corr.from_name as string,
+      subject: corr.subject as string,
+      body,
+      correspondenceId,
+    })
+  } catch (err) {
+    console.error('[corr reply] send failed:', err)
+    return { error: 'Reply saved but email failed to send. Check Resend logs.', success: false, successCount: prevState.successCount }
   }
 
   revalidatePath(`/admin/correspondence/${correspondenceId}`)

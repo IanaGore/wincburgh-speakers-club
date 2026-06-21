@@ -28,27 +28,20 @@ export async function submitSignup(data: SignupData) {
 
   const supabase = await createClient()
 
-  // Fetch meeting date + venue for confirmation email
-  let meetingDateStr = ''
-  let venueName = ''
-  if (data.meetingId) {
-    const { data: meeting } = await supabase
-      .from('meetings')
-      .select('meeting_date')
-      .eq('id', data.meetingId)
-      .single()
-    if (meeting) {
-      meetingDateStr = new Date(meeting.meeting_date).toLocaleDateString('en-GB', {
+  // Fetch meeting date + venue in parallel for confirmation email
+  const [meetingResult, settingsResult] = await Promise.all([
+    data.meetingId
+      ? supabase.from('meetings').select('meeting_date').eq('id', data.meetingId).single()
+      : Promise.resolve({ data: null }),
+    supabase.from('site_settings').select('venue_name, meeting_time').eq('id', 1).single(),
+  ])
+  const meetingDateStr = meetingResult.data
+    ? new Date(meetingResult.data.meeting_date).toLocaleDateString('en-GB', {
         weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
       })
-    }
-  }
-  const { data: settings } = await supabase
-    .from('site_settings')
-    .select('venue_name, meeting_time')
-    .eq('id', 1)
-    .single()
-  venueName = settings?.venue_name ?? 'our venue'
+    : ''
+  const settings = settingsResult.data
+  let venueName = settings?.venue_name ?? 'our venue'
   if (settings?.meeting_time) venueName = `${venueName} at ${settings.meeting_time}`
 
   const { error } = await supabase.from('signups').insert({
