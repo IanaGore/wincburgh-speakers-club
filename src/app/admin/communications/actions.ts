@@ -120,18 +120,23 @@ export async function sendCommunicationAction(
     return { error: 'Failed to save recipients.', success: false }
   }
 
-  // Send emails in parallel
-  const sendResults = await Promise.allSettled(
-    recipients.map(r =>
-      sendCommunicationEmail({ to: r.email, toName: r.name, communicationId, senderTitle, subject, body, attachmentUrls })
-    )
-  )
-  const emailsFailed = sendResults.some(r => {
-    if (r.status === 'rejected') {
-      console.error(`[sendComm] email failed:`, r.reason)
-      return true
+  let emailsFailed = false
+  for (const recipient of recipients) {
+    try {
+      await sendCommunicationEmail({
+        to: recipient.email,
+        toName: recipient.name,
+        communicationId,
+        senderTitle,
+        subject,
+        body,
+        attachmentUrls,
+      })
+    } catch (error) {
+      console.error(`[sendComm] email failed for ${recipient.email}:`, error)
+      emailsFailed = true
     }
-  })
+  }
 
   // Update status to sent
   const { error: updateError } = await supabase
