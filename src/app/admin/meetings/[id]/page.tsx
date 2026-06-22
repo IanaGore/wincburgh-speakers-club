@@ -3,23 +3,7 @@ import { addCustomRole, deleteRoleFromForm } from './actions'
 import Link from 'next/link'
 import CopyAgendaButton from './CopyAgendaButton'
 import RemoveRoleButton from './RemoveRoleButton'
-
-function getRoleNumber(name: string): number | null {
-  const m = name.match(/(\d+)$/)
-  return m ? parseInt(m[1]) : null
-}
-
-function groupAssignments(assignments: any[]) {
-  const speeches  = assignments.filter(a => a.role_name.startsWith('Speech'))
-  const evaluators = assignments.filter(a => a.role_name.startsWith('Evaluator'))
-  const others    = assignments.filter(a => !a.role_name.startsWith('Speech') && !a.role_name.startsWith('Evaluator'))
-  const pairs = speeches.map(s => ({
-    speech: s,
-    evaluator: evaluators.find(e => getRoleNumber(e.role_name) === getRoleNumber(s.role_name)) ?? null
-  }))
-  const unpaired = evaluators.filter(e => !speeches.some(s => getRoleNumber(s.role_name) === getRoleNumber(e.role_name)))
-  return { pairs, unpaired, others }
-}
+import { groupAssignments } from '@/lib/assignments'
 
 function AssignmentRow({ assignment, meetingId }: { assignment: any; meetingId: string }) {
   return (

@@ -1,23 +1,21 @@
 'use client'
 
-function getRoleNumber(name: string): number | null {
-  const m = name.match(/(\d+)$/)
-  return m ? parseInt(m[1]) : null
+import { groupAssignments } from '@/lib/assignments'
+
+type AgendaAssignment = {
+  role_name: string
+  member_id?: string | null
+  profiles?: { full_name?: string | null } | null
+  speech_title?: string | null
+  speech_level?: string | null
+  speech_length?: string | null
 }
 
-function groupAssignments(assignments: any[]) {
-  const speeches   = assignments.filter(a => a.role_name.startsWith('Speech'))
-  const evaluators = assignments.filter(a => a.role_name.startsWith('Evaluator'))
-  const others     = assignments.filter(a => !a.role_name.startsWith('Speech') && !a.role_name.startsWith('Evaluator'))
-  const pairs = speeches.map(s => ({
-    speech: s,
-    evaluator: evaluators.find(e => getRoleNumber(e.role_name) === getRoleNumber(s.role_name)) ?? null
-  }))
-  const unpaired = evaluators.filter(e => !speeches.some(s => getRoleNumber(s.role_name) === getRoleNumber(e.role_name)))
-  return { pairs, unpaired, others }
-}
-
-export default function CopyAgendaButton({ meeting }: { meeting: any }) {
+export default function CopyAgendaButton({ meeting }: { meeting: {
+  meeting_date: string
+  theme?: string | null
+  meeting_assignments?: AgendaAssignment[]
+} }) {
   const handleCopy = () => {
     const dateStr = new Date(meeting.meeting_date).toLocaleDateString('en-GB', {
       weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
