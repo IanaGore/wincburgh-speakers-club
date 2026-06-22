@@ -18,3 +18,5 @@ create policy "Admins only"
       where id = auth.uid() and is_admin = true
     )
   );
+
+grant select, insert, update, delete on public.enquiry_messages to authenticated;
