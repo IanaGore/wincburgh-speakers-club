@@ -1,5 +1,10 @@
 import { describe, it, expect } from 'vitest'
-import { extractRoutingId, stripQuotedReply, htmlToText } from '../email-utils'
+import {
+  extractRoutingId,
+  htmlToText,
+  isDuplicateDeliveryError,
+  stripQuotedReply,
+} from '../email-utils'
 
 const DOMAIN = 'winchburghspeakersclub.uk'
 const UUID = '550e8400-e29b-41d4-a716-446655440000'
@@ -73,5 +78,16 @@ describe('htmlToText', () => {
 
   it('collapses excessive blank lines', () => {
     expect(htmlToText('a\n\n\n\nb')).toBe('a\n\nb')
+  })
+})
+
+describe('isDuplicateDeliveryError', () => {
+  it('recognises PostgreSQL unique violations', () => {
+    expect(isDuplicateDeliveryError({ code: '23505' })).toBe(true)
+  })
+
+  it('does not swallow unrelated database errors', () => {
+    expect(isDuplicateDeliveryError({ code: '42501' })).toBe(false)
+    expect(isDuplicateDeliveryError(null)).toBe(false)
   })
 })

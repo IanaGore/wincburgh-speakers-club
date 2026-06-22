@@ -8,6 +8,10 @@ export type RoutingResult =
   | { type: 'correspondence_reply'; id: string }
   | null
 
+export function isDuplicateDeliveryError(error: { code?: string } | null): boolean {
+  return error?.code === '23505'
+}
+
 export function extractRoutingId(toAddresses: string[]): RoutingResult {
   for (const addr of toAddresses) {
     // Communication replies: reply+comm-{uuid}@domain (must precede generic reply+ check)

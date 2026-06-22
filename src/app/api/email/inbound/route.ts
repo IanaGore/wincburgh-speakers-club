@@ -2,7 +2,12 @@ import { NextRequest, NextResponse } from 'next/server'
 import { Webhook } from 'svix'
 import { Resend } from 'resend'
 import { createServiceClient } from '@/utils/supabase/service'
-import { extractRoutingId, stripQuotedReply, htmlToText } from '@/lib/email-utils'
+import {
+  extractRoutingId,
+  htmlToText,
+  isDuplicateDeliveryError,
+  stripQuotedReply,
+} from '@/lib/email-utils'
 
 type InboundPayload = {
   type: string
@@ -85,9 +90,19 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
     const { error: insertError } = await supabase
       .from('enquiry_messages')
-      .insert({ enquiry_id: routing.id, direction: 'inbound', body, sent_by: null })
+      .insert({
+        enquiry_id: routing.id,
+        direction: 'inbound',
+        body,
+        sent_by: null,
+        resend_email_id: emailId,
+      })
 
     if (insertError) {
+      if (isDuplicateDeliveryError(insertError)) {
+        console.info('[inbound] enquiry email already processed, skipping:', emailId)
+        return NextResponse.json({ ok: true })
+      }
       console.error('[inbound] enquiry insert failed:', insertError)
       return NextResponse.json({ error: 'insert failed' }, { status: 500 })
     }
@@ -111,9 +126,19 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
     const { error: insertError } = await supabase
       .from('communication_replies')
-      .insert({ communication_id: routing.id, from_email: fromEmail, from_name: fromName, body })
+      .insert({
+        communication_id: routing.id,
+        from_email: fromEmail,
+        from_name: fromName,
+        body,
+        resend_email_id: emailId,
+      })
 
     if (insertError) {
+      if (isDuplicateDeliveryError(insertError)) {
+        console.info('[inbound] communication email already processed, skipping:', emailId)
+        return NextResponse.json({ ok: true })
+      }
       console.error('[inbound] comm reply insert failed:', insertError)
       return NextResponse.json({ error: 'insert failed' }, { status: 500 })
     }
@@ -154,9 +179,14 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         body,
         from_email: fromEmail,
         from_name: fromName,
+        resend_email_id: emailId,
       })
 
     if (msgError) {
+      if (isDuplicateDeliveryError(msgError)) {
+        console.info('[inbound] correspondence email already processed, skipping:', emailId)
+        return NextResponse.json({ ok: true })
+      }
       console.error('[inbound] correspondence message insert failed:', fromEmail, msgError)
       return NextResponse.json({ error: 'insert failed' }, { status: 500 })
     }
@@ -185,9 +215,14 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         body,
         from_email: fromEmail,
         from_name: fromName,
+        resend_email_id: emailId,
       })
 
     if (msgError) {
+      if (isDuplicateDeliveryError(msgError)) {
+        console.info('[inbound] correspondence reply already processed, skipping:', emailId)
+        return NextResponse.json({ ok: true })
+      }
       console.error('[inbound] correspondence reply insert failed:', msgError)
       return NextResponse.json({ error: 'insert failed' }, { status: 500 })
     }
