@@ -1,5 +1,6 @@
 import { createClient } from '@/utils/supabase/server'
 import { toggleAdmin, updateMemberRoles, toggleActive, inviteMember } from './actions'
+import Link from 'next/link'
 
 const AVAILABLE_ROLES = [
   "Guest",
@@ -140,6 +141,9 @@ export default async function AdminMembersPage({
           </div>
         </form>
       </details>
+      <div style={{ marginBottom: '1.5rem' }}>
+        <Link href="/admin/members/bulk-invites" className="wsc-btn wsc-btn-ghost">Bulk invite spreadsheet</Link>
+      </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '3rem' }}>
         {/* Members Section */}
