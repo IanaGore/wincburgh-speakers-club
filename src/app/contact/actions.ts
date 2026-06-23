@@ -19,6 +19,10 @@ export async function sendContactMessage(
     return { success: false, error: 'Name, email and message are required.' }
   }
 
+  if (!/\S+@\S+\.\S+/.test(email)) {
+    return { success: false, error: 'Please enter a valid email address.' }
+  }
+
   const supabase = await createClient()
   const { error } = await supabase
     .from('contact_messages')

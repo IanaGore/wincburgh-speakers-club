@@ -1,24 +1,19 @@
 'use server'
 import { createClient } from '@/utils/supabase/server'
-import { createClient as createServiceClient } from '@supabase/supabase-js'
+import { createServiceClient } from '@/utils/supabase/service'
 import { redirect } from 'next/navigation'
-
-// Token lookup must bypass RLS — signups SELECT is admin-only and the user is unauthenticated here
-function getServiceClient() {
-  return createServiceClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
-    { auth: { persistSession: false } }
-  )
-}
 
 export async function completeConversion(prevState: { error: string | null }, formData: FormData) {
   const supabase = await createClient()
-  const token = formData.get('token') as string
+  const token = (formData.get('token') as string | null)?.trim()
   const password = formData.get('password') as string
 
-  // Look up the signup by conversion token — uses service role to bypass RLS
-  const { data: signup, error: lookupError } = await getServiceClient()
+  if (!token) return { error: 'Invalid invite link.' }
+  if (!password || password.length < 8) return { error: 'Password must be at least 8 characters.' }
+
+  // Token lookup must bypass RLS — signups SELECT is admin-only and the user is unauthenticated here
+  const serviceClient = createServiceClient()
+  const { data: signup, error: lookupError } = await serviceClient
     .from('signups')
     .select('id, email, first_name, last_name, phone')
     .eq('conversion_token', token)
@@ -33,7 +28,6 @@ export async function completeConversion(prevState: { error: string | null }, fo
   // Create auth account via admin API — pre-confirms the email so no confirmation email is sent.
   // signUp() would create an unconfirmed user and fire a Supabase confirmation email on top of
   // our own invite, breaking the flow for admin-invited members.
-  const serviceClient = getServiceClient()
   const { data: adminAuthData, error: createError } = await serviceClient.auth.admin.createUser({
     email: signup.email,
     password,
@@ -44,7 +38,6 @@ export async function completeConversion(prevState: { error: string | null }, fo
     return { error: createError?.message ?? 'Could not create account. Please try again.' }
   }
 
-  // Create profile row
   const fullName = [signup.first_name, signup.last_name].filter(Boolean).join(' ')
   const { error: profileError } = await serviceClient.from('profiles').upsert({
     id: adminAuthData.user.id,

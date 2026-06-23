@@ -6,26 +6,10 @@ import VolunteerForm from './VolunteerForm'
 import EditSpeechForm from './EditSpeechForm'
 import DropRoleButton from './DropRoleButton'
 import DashboardGreeting from './DashboardGreeting'
+import { groupAssignments } from '@/lib/assignments'
 import './dashboard.css'
 
 type Member = { id: string; full_name: string }
-
-function getRoleNumber(name: string): number | null {
-  const m = name.match(/(\d+)$/)
-  return m ? parseInt(m[1]) : null
-}
-
-function groupAssignments(assignments: any[]) {
-  const speeches   = assignments.filter(a => a.role_name.startsWith('Speech'))
-  const evaluators = assignments.filter(a => a.role_name.startsWith('Evaluator'))
-  const others     = assignments.filter(a => !a.role_name.startsWith('Speech') && !a.role_name.startsWith('Evaluator'))
-  const pairs = speeches.map(s => ({
-    speech: s,
-    evaluator: evaluators.find(e => getRoleNumber(e.role_name) === getRoleNumber(s.role_name)) ?? null
-  }))
-  const unpaired = evaluators.filter(e => !speeches.some(s => getRoleNumber(s.role_name) === getRoleNumber(e.role_name)))
-  return { pairs, unpaired, others }
-}
 
 function RoleRow({
   assignment,

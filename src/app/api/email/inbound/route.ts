@@ -1,94 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { Webhook } from 'svix'
-import { createClient } from '@supabase/supabase-js'
 import { Resend } from 'resend'
-
-const RECEIVING_DOMAIN = 'winchburghspeakersclub.uk'
-const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
-
-function getServiceClient() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
-    { auth: { persistSession: false } },
-  )
-}
-
-function stripQuotedReply(text: string): string {
-  const markers = [
-    /\r?\nOn .+wrote:/m,
-    /\r?\n[-]{2,}\r?\n/m,
-    /\r?\n>[ ]?.+/m,
-    /\r?\nFrom:[ ].+/m,
-  ]
-  for (const marker of markers) {
-    const idx = text.search(marker)
-    if (idx !== -1) {
-      const stripped = text.slice(0, idx).trim()
-      return stripped.length > 0 ? stripped : text.trim()
-    }
-  }
-  return text.trim()
-}
-
-type RoutingResult =
-  | { type: 'enquiry'; id: string }
-  | { type: 'communication'; id: string }
-  | { type: 'correspondence_new' }
-  | { type: 'correspondence_reply'; id: string }
-  | null
-
-function extractRoutingId(toAddresses: string[]): RoutingResult {
-  for (const addr of toAddresses) {
-    // Communication replies: reply+comm-{uuid}@domain
-    const commMatch = addr.match(/reply\+comm-([^@]+)@(.+)/)
-    if (commMatch) {
-      const [, id, domain] = commMatch
-      if (domain === RECEIVING_DOMAIN && UUID_RE.test(id)) {
-        return { type: 'communication', id }
-      }
-    }
-
-    // Correspondence replies: reply+corr-{uuid}@domain (must precede generic reply+ check)
-    const corrMatch = addr.match(/reply\+corr-([^@]+)@(.+)/)
-    if (corrMatch) {
-      const [, id, domain] = corrMatch
-      if (domain === RECEIVING_DOMAIN && UUID_RE.test(id)) {
-        return { type: 'correspondence_reply', id }
-      }
-    }
-
-    // Enquiry replies: reply+{uuid}@domain
-    const enquiryMatch = addr.match(/reply\+([^@]+)@(.+)/)
-    if (enquiryMatch) {
-      const [, id, domain] = enquiryMatch
-      if (domain === RECEIVING_DOMAIN && UUID_RE.test(id)) {
-        return { type: 'enquiry', id }
-      }
-    }
-
-    // New external correspondence: president@domain
-    if (addr.toLowerCase() === `president@${RECEIVING_DOMAIN}`) {
-      return { type: 'correspondence_new' }
-    }
-  }
-  return null
-}
-
-function htmlToText(html: string): string {
-  return html
-    .replace(/<br\s*\/?>/gi, '\n')
-    .replace(/<\/p>/gi, '\n')
-    .replace(/<[^>]+>/g, '')
-    .replace(/&nbsp;/g, ' ')
-    .replace(/&amp;/g, '&')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/&quot;/g, '"')
-    .replace(/&#x27;/g, "'")
-    .replace(/\n{3,}/g, '\n\n')
-    .trim()
-}
+import { createServiceClient } from '@/utils/supabase/service'
+import {
+  extractRoutingId,
+  htmlToText,
+  isDuplicateDeliveryError,
+  stripQuotedReply,
+} from '@/lib/email-utils'
 
 type InboundPayload = {
   type: string
@@ -141,8 +60,6 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   }
 
   const resend = new Resend(process.env.RESEND_API_KEY)
-  // Fetch full email content — webhook payload contains metadata only, not body
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const fetchResult = await (resend.emails.receiving as any).get(emailId)
   if (fetchResult.error || !fetchResult.data) {
     console.error('[inbound] fetch failed:', fetchResult.error?.statusCode, fetchResult.error?.message)
@@ -155,7 +72,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   const source = rawText ?? (rawHtml ? htmlToText(rawHtml) : null)
   const body = source ? stripQuotedReply(source) : '[No message body]'
 
-  const supabase = getServiceClient()
+  const supabase = createServiceClient()
 
   if (routing.type === 'enquiry') {
     const { data: enquiry, error: enquiryError } = await supabase
@@ -171,9 +88,19 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
     const { error: insertError } = await supabase
       .from('enquiry_messages')
-      .insert({ enquiry_id: routing.id, direction: 'inbound', body, sent_by: null })
+      .insert({
+        enquiry_id: routing.id,
+        direction: 'inbound',
+        body,
+        sent_by: null,
+        resend_email_id: emailId,
+      })
 
     if (insertError) {
+      if (isDuplicateDeliveryError(insertError)) {
+        console.info('[inbound] enquiry email already processed, skipping:', emailId)
+        return NextResponse.json({ ok: true })
+      }
       console.error('[inbound] enquiry insert failed:', insertError)
       return NextResponse.json({ error: 'insert failed' }, { status: 500 })
     }
@@ -197,9 +124,19 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
     const { error: insertError } = await supabase
       .from('communication_replies')
-      .insert({ communication_id: routing.id, from_email: fromEmail, from_name: fromName, body })
+      .insert({
+        communication_id: routing.id,
+        from_email: fromEmail,
+        from_name: fromName,
+        body,
+        resend_email_id: emailId,
+      })
 
     if (insertError) {
+      if (isDuplicateDeliveryError(insertError)) {
+        console.info('[inbound] communication email already processed, skipping:', emailId)
+        return NextResponse.json({ ok: true })
+      }
       console.error('[inbound] comm reply insert failed:', insertError)
       return NextResponse.json({ error: 'insert failed' }, { status: 500 })
     }
@@ -240,9 +177,14 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         body,
         from_email: fromEmail,
         from_name: fromName,
+        resend_email_id: emailId,
       })
 
     if (msgError) {
+      if (isDuplicateDeliveryError(msgError)) {
+        console.info('[inbound] correspondence email already processed, skipping:', emailId)
+        return NextResponse.json({ ok: true })
+      }
       console.error('[inbound] correspondence message insert failed:', fromEmail, msgError)
       return NextResponse.json({ error: 'insert failed' }, { status: 500 })
     }
@@ -271,9 +213,14 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         body,
         from_email: fromEmail,
         from_name: fromName,
+        resend_email_id: emailId,
       })
 
     if (msgError) {
+      if (isDuplicateDeliveryError(msgError)) {
+        console.info('[inbound] correspondence reply already processed, skipping:', emailId)
+        return NextResponse.json({ ok: true })
+      }
       console.error('[inbound] correspondence reply insert failed:', msgError)
       return NextResponse.json({ error: 'insert failed' }, { status: 500 })
     }

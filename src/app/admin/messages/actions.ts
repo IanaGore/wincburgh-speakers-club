@@ -8,7 +8,8 @@ export async function markAsRead(formData: FormData) {
   await checkAdmin()
   const supabase = await createClient()
 
-  const messageId = formData.get('message_id') as string
+  const messageId = (formData.get('message_id') as string | null)?.trim()
+  if (!messageId) throw new Error('Missing message_id')
 
   const { error } = await supabase
     .from('contact_messages')
@@ -24,7 +25,8 @@ export async function deleteMessage(formData: FormData) {
   await checkAdmin()
   const supabase = await createClient()
 
-  const messageId = formData.get('message_id') as string
+  const messageId = (formData.get('message_id') as string | null)?.trim()
+  if (!messageId) throw new Error('Missing message_id')
 
   const { error } = await supabase
     .from('contact_messages')

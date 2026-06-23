@@ -1,7 +1,7 @@
 'use server'
 
 import { createClient } from '@/utils/supabase/server'
-import { createClient as createAdminClient } from '@supabase/supabase-js'
+import { createServiceClient } from '@/utils/supabase/service'
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 
@@ -43,11 +43,7 @@ export async function uploadAvatar(formData: FormData) {
   const storagePath = `avatars/${user.id}.${ext}`
   const buffer = Buffer.from(await file.arrayBuffer())
 
-  const admin = createAdminClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
-    { auth: { persistSession: false } }
-  )
+  const admin = createServiceClient()
 
   const { error: uploadError } = await admin.storage
     .from('site-media')
