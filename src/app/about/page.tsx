@@ -5,7 +5,7 @@ import PhotoSlot from '@/components/ui/PhotoSlot'
 import Link from 'next/link'
 import './about.css'
 
-export const metadata = { title: 'About | West Lothian Speakers Club' }
+export const metadata = { title: 'About | Winchburgh Speakers Club' }
 
 export default async function AboutPage() {
   const supabase = await createClient()
@@ -25,7 +25,7 @@ export default async function AboutPage() {
         <section className="about-hero">
           <PhotoSlot mediaKey="about_hero" width="100%" height="100%" label="about hero" style={{ position: 'absolute', inset: 0 }} />
           <div className="about-hero__overlay">
-            <h1 className="about-hero__title">West Lothian Speakers Club</h1>
+            <h1 className="about-hero__title">Winchburgh Speakers Club</h1>
             <p className="about-hero__mission">{mission}</p>
             <Link href="/get-started?intent=attend" className="wsc-btn wsc-btn-primary">Come to a meeting</Link>
           </div>
