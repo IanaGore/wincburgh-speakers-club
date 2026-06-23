@@ -1,5 +1,6 @@
 'use client'
 import { useActionState, useState, useRef } from 'react'
+import Link from 'next/link'
 import { sendCommunicationAction, uploadCommAttachment } from '../actions'
 
 const SENDER_TITLES = [
@@ -109,9 +110,9 @@ export default function ComposeForm({
     return (
       <div style={{ padding: '2rem', textAlign: 'center' }}>
         <p style={{ color: 'var(--ink)', fontSize: 18, fontFamily: 'var(--serif)' }}>Communication sent.</p>
-        <a href="/admin/communications" className="wsc-btn wsc-btn-primary wsc-btn-sm" style={{ marginTop: '1rem', display: 'inline-block' }}>
+        <Link href="/admin/communications" className="wsc-btn wsc-btn-primary wsc-btn-sm" style={{ marginTop: '1rem', display: 'inline-block' }}>
           View all communications
-        </a>
+        </Link>
       </div>
     )
   }

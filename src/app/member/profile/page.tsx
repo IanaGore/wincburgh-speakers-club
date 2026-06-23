@@ -166,7 +166,7 @@ export default async function ProfilePage() {
           {sortedSpeeches.length === 0 ? (
             <div style={{ padding: "3rem", border: "1px dashed var(--card-border)", borderRadius: "12px", textAlign: "center", color: "#94a3b8" }}>
               <div style={{ fontSize: "2rem", marginBottom: "1rem" }}>🎤</div>
-              You haven't recorded any speeches yet.<br/>Volunteer for a speech role in an upcoming session!
+              You haven&apos;t recorded any speeches yet.<br/>Volunteer for a speech role in an upcoming session!
             </div>
           ) : (
             <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>

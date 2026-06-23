@@ -68,7 +68,8 @@ export default function PortalNav({
 
   // Close dropdown on route change (e.g. after clicking a dropdown item)
   useEffect(() => {
-    setOpenGroup(null)
+    const timer = window.setTimeout(() => setOpenGroup(null), 0)
+    return () => window.clearTimeout(timer)
   }, [pathname])
 
   // Close dropdown when clicking outside the nav or panel

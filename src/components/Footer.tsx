@@ -8,7 +8,7 @@ export default function Footer() {
       <div className="footer__inner">
         <div className="footer__brand">
           <Wordmark />
-          <p className="footer__tagline">Winchburgh's home for public speaking, storytelling, and connecting.</p>
+          <p className="footer__tagline">Winchburgh&apos;s home for public speaking, storytelling, and connecting.</p>
         </div>
         <div className="footer__col">
           <h4>Visit</h4>
