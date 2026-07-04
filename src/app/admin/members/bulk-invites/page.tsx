@@ -63,18 +63,18 @@ export default async function BulkInvitesPage({
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14, marginBottom: 16 }}>
             <thead>
               <tr style={{ borderBottom: '1px solid var(--rule)', textAlign: 'left' }}>
-                <th style={{ padding: '8px 12px' }}>Row</th>
-                <th style={{ padding: '8px 12px' }}>Email</th>
-                <th style={{ padding: '8px 12px' }}>Name</th>
-                <th style={{ padding: '8px 12px' }}>Status</th>
+                <th style={{ padding: '8px 12px', color: 'var(--ink-3)', fontWeight: 500 }}>Row</th>
+                <th style={{ padding: '8px 12px', color: 'var(--ink-3)', fontWeight: 500 }}>Email</th>
+                <th style={{ padding: '8px 12px', color: 'var(--ink-3)', fontWeight: 500 }}>Name</th>
+                <th style={{ padding: '8px 12px', color: 'var(--ink-3)', fontWeight: 500 }}>Status</th>
               </tr>
             </thead>
             <tbody>
               {rows?.map(row => (
                 <tr key={row.id as string} style={{ borderBottom: '1px solid var(--rule-soft)' }}>
-                  <td style={{ padding: '8px 12px' }}>{row.row_number as number}</td>
-                  <td style={{ padding: '8px 12px' }}>{row.email as string}</td>
-                  <td style={{ padding: '8px 12px' }}>{[row.first_name, row.last_name].filter(Boolean).join(' ')}</td>
+                  <td style={{ padding: '8px 12px', color: 'var(--ink-2)' }}>{row.row_number as number}</td>
+                  <td style={{ padding: '8px 12px', color: 'var(--ink-2)' }}>{row.email as string}</td>
+                  <td style={{ padding: '8px 12px', color: 'var(--ink-2)' }}>{[row.first_name, row.last_name].filter(Boolean).join(' ')}</td>
                   <td style={{ padding: '8px 12px' }}>
                     <span className="wsc-tag">{row.status as string}{row.error ? ` · ${row.error as string}` : ''}</span>
                   </td>
