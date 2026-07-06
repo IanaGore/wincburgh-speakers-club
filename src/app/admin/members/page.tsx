@@ -1,5 +1,6 @@
 import { createClient } from '@/utils/supabase/server'
 import { toggleAdmin, updateMemberRoles, toggleActive, inviteMember } from './actions'
+import { InviteButton } from '../signups/RSVPActions'
 import Link from 'next/link'
 
 const AVAILABLE_ROLES = [
@@ -88,10 +89,18 @@ export default async function AdminMembersPage({
   const { invited, invite_error: inviteError } = await searchParams
   const supabase = await createClient()
 
-  const { data: profiles } = await supabase
-    .from('profiles')
-    .select('id, full_name, is_admin, club_roles, contact_email, phone, is_active')
-    .order('full_name')
+  const [{ data: profiles }, { data: pendingInvites }] = await Promise.all([
+    supabase
+      .from('profiles')
+      .select('id, full_name, is_admin, club_roles, contact_email, phone, is_active')
+      .order('full_name'),
+    supabase
+      .from('signups')
+      .select('id, first_name, last_name, email, invite_sent_at, invite_count, conversion_token_expires_at, created_at')
+      .eq('source', 'admin_invite')
+      .eq('status', 'pending')
+      .order('created_at', { ascending: false }),
+  ])
 
   const guests = profiles?.filter(p => (p.club_roles || []).length === 0 || ((p.club_roles || []).length === 1 && p.club_roles.includes('Guest'))) || []
   const members = profiles?.filter(p => (p.club_roles || []).some((r: string) => r !== 'Guest')) || []
@@ -144,6 +153,38 @@ export default async function AdminMembersPage({
       <div style={{ marginBottom: '1.5rem' }}>
         <Link href="/admin/members/bulk-invites" className="wsc-btn wsc-btn-ghost">Bulk invite spreadsheet</Link>
       </div>
+
+      <section style={{ marginBottom: '2.5rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', gap: '1rem', flexWrap: 'wrap' }}>
+          <h2 style={{ fontFamily: 'var(--serif)', fontWeight: 500, fontSize: 20, margin: 0, color: 'var(--ink)' }}>Pending invites</h2>
+          <span className="wsc-tag wsc-tag-gold">{pendingInvites?.length ?? 0} waiting</span>
+        </div>
+        <div className="wsc-card" style={{ overflow: 'hidden' }}>
+          {pendingInvites?.length ? pendingInvites.map(invite => {
+            const expiresAt = invite.conversion_token_expires_at ? new Date(invite.conversion_token_expires_at as string).getTime() : null
+            const expired = expiresAt ? expiresAt < Date.now() : false
+            const name = [invite.first_name, invite.last_name].filter(Boolean).join(' ') || 'Unnamed invite'
+            return (
+              <div key={invite.id as string} style={{ padding: '1.25rem 1.5rem', borderBottom: '1px solid var(--rule-soft)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap', marginBottom: '0.35rem' }}>
+                    <strong style={{ color: 'var(--ink)' }}>{name}</strong>
+                    {expired && <span className="wsc-tag wsc-tag-clay">Expired</span>}
+                    <span className="wsc-tag">Sent {(invite.invite_count as number) ?? 0}x</span>
+                  </div>
+                  <div style={{ fontSize: 13, color: 'var(--ink-3)', display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
+                    <span>{invite.email as string}</span>
+                    <span>{invite.invite_sent_at ? `Last sent ${new Date(invite.invite_sent_at as string).toLocaleString()}` : 'Not sent yet'}</span>
+                  </div>
+                </div>
+                <InviteButton signupId={invite.id as string} label="Resend invite" doneLabel="Resent ✓" />
+              </div>
+            )
+          }) : (
+            <p style={{ padding: '2rem', textAlign: 'center', color: 'var(--ink-3)', margin: 0 }}>No pending admin invites.</p>
+          )}
+        </div>
+      </section>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '3rem' }}>
         {/* Members Section */}
