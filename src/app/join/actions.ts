@@ -44,6 +44,7 @@ export async function completeConversion(prevState: { error: string | null }, fo
     full_name: fullName,
     contact_email: signup.email,
     phone: signup.phone || null,
+    club_roles: ['Member'],
     is_admin: false,
   })
   if (profileError) {
