@@ -22,7 +22,7 @@ export function MarkAttendedButton({ signupId }: { signupId: string }) {
   )
 }
 
-export function InviteButton({ signupId }: { signupId: string }) {
+export function InviteButton({ signupId, label = 'Invite to join', doneLabel = 'Invite sent ✓' }: { signupId: string; label?: string; doneLabel?: string }) {
   const [loading, setLoading] = useState(false)
   const [done, setDone] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -39,7 +39,7 @@ export function InviteButton({ signupId }: { signupId: string }) {
           catch (e) { setError(e instanceof Error ? e.message : 'Failed') }
           finally { setLoading(false) }
         }}>
-        {done ? 'Invite sent ✓' : loading ? '…' : 'Invite to join'}
+        {done ? doneLabel : loading ? '…' : label}
       </button>
       {error && <span style={{ color: 'var(--error, #ef4444)', fontSize: 12, marginLeft: 8 }}>{error}</span>}
     </div>
