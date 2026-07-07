@@ -4,8 +4,6 @@ import { createClient } from '@/utils/supabase/server'
 import PrintButton from './PrintButton'
 import '../resources.css'
 
-const BUCKET_URL = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/site-media`
-
 export default async function RoleResourcesPage({ params }: { params: Promise<{ slug: string }> }) {
   const supabase = await createClient()
   const { slug } = await params
@@ -51,7 +49,11 @@ export default async function RoleResourcesPage({ params }: { params: Promise<{ 
                       .sort((a, b) => a.sort_order - b.sort_order)
                       .map((f) => (
                         <li key={f.id}>
-                          <a href={`${BUCKET_URL}/${f.storage_path}`} target="_blank" rel="noopener noreferrer">
+                          <a
+                            href={supabase.storage.from('site-media').getPublicUrl(f.storage_path).data.publicUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
                             📎 {f.file_name}
                           </a>
                           {f.size ? <span>{Math.max(1, Math.round(f.size / 1024))} KB</span> : null}
