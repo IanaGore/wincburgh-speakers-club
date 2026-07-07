@@ -27,6 +27,7 @@ export default function ResourceManager({ roleId, initialResources }: { roleId: 
   const [dragIndex, setDragIndex] = useState<number | null>(null)
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
+  const [selectedFiles, setSelectedFiles] = useState<Record<string, File | null>>({})
   const fileInputs = useRef<Record<string, HTMLInputElement | null>>({})
 
   function editField(id: string, field: 'title' | 'body', value: string) {
@@ -119,11 +120,16 @@ export default function ResourceManager({ roleId, initialResources }: { roleId: 
         )
         const input = fileInputs.current[r.id]
         if (input) input.value = ''
+        setSelectedFiles((prev) => ({ ...prev, [r.id]: null }))
         router.refresh()
       } catch (e) {
         setError(e instanceof Error ? e.message : 'Could not upload that file. Please try again.')
       }
     })
+  }
+
+  function handleFileChange(r: Resource, file: File | null) {
+    setSelectedFiles((prev) => ({ ...prev, [r.id]: file }))
   }
 
   function handleDeleteFile(r: Resource, f: ResourceFile) {
@@ -231,6 +237,29 @@ export default function ResourceManager({ roleId, initialResources }: { roleId: 
             </ul>
           )}
 
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+            <span className="wsc-label">Attachment</span>
+            <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexWrap: 'wrap' }}>
+              <input
+                ref={(el) => { fileInputs.current[r.id] = el }}
+                type="file"
+                accept=".pdf,.doc,.docx,image/jpeg,image/png,image/webp"
+                className="wsc-input"
+                style={{ flex: '1 1 260px', height: 42, paddingTop: 9 }}
+                disabled={isPending}
+                onChange={(e) => handleFileChange(r, e.target.files?.[0] ?? null)}
+              />
+              <button
+                type="button"
+                className="wsc-btn wsc-btn-ghost"
+                disabled={isPending || !selectedFiles[r.id]}
+                onClick={() => handleUpload(r, selectedFiles[r.id] ?? null)}
+              >
+                Upload
+              </button>
+            </div>
+          </div>
+
           <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexWrap: 'wrap' }}>
             <button
               type="button"
@@ -248,17 +277,6 @@ export default function ResourceManager({ roleId, initialResources }: { roleId: 
             >
               {r.is_published ? 'Unpublish' : 'Publish'}
             </button>
-            <label className="wsc-btn" style={{ cursor: 'pointer' }}>
-              + Attach file
-              <input
-                ref={(el) => { fileInputs.current[r.id] = el }}
-                type="file"
-                accept=".pdf,.doc,.docx,image/jpeg,image/png,image/webp"
-                style={{ display: 'none' }}
-                disabled={isPending}
-                onChange={(e) => handleUpload(r, e.target.files?.[0] ?? null)}
-              />
-            </label>
             <button
               type="button"
               className="wsc-btn"
