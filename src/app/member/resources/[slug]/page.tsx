@@ -19,7 +19,7 @@ export default async function RoleResourcesPage({ params }: { params: Promise<{ 
 
   const { data: resources } = await supabase
     .from('role_resources')
-    .select('id, title, body, role_resource_files (id, file_name, storage_path, mime_type, sort_order)')
+    .select('id, title, body, role_resource_files (id, file_name, storage_path, mime_type, size, sort_order)')
     .eq('role_id', role.id)
     .eq('is_published', true)
     .order('sort_order')
@@ -43,18 +43,22 @@ export default async function RoleResourcesPage({ params }: { params: Promise<{ 
               <h2>{resource.title}</h2>
               <div className="resources-body">{resource.body}</div>
               {(resource.role_resource_files ?? []).length > 0 && (
-                <ul className="resources-files no-print">
-                  {(resource.role_resource_files ?? [])
-                    .slice()
-                    .sort((a, b) => a.sort_order - b.sort_order)
-                    .map((f) => (
-                      <li key={f.id}>
-                        <a href={`${BUCKET_URL}/${f.storage_path}`} target="_blank" rel="noopener noreferrer">
-                          📎 {f.file_name}
-                        </a>
-                      </li>
-                    ))}
-                </ul>
+                <div className="resources-attachments no-print">
+                  <h3>Attachments</h3>
+                  <ul className="resources-files">
+                    {(resource.role_resource_files ?? [])
+                      .slice()
+                      .sort((a, b) => a.sort_order - b.sort_order)
+                      .map((f) => (
+                        <li key={f.id}>
+                          <a href={`${BUCKET_URL}/${f.storage_path}`} target="_blank" rel="noopener noreferrer">
+                            📎 {f.file_name}
+                          </a>
+                          {f.size ? <span>{Math.max(1, Math.round(f.size / 1024))} KB</span> : null}
+                        </li>
+                      ))}
+                  </ul>
+                </div>
               )}
             </article>
           ))

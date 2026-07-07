@@ -115,10 +115,40 @@
   gap: 0.4rem;
 }
 
+.resources-attachments {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(248, 250, 252, 0.15);
+}
+
+.resources-attachments h3 {
+  font-family: var(--sans);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--foreground);
+  opacity: 0.7;
+  margin: 0 0 0.5rem;
+}
+
 .resources-files a {
   color: var(--clay);
   text-decoration: none;
   font-size: 0.9rem;
+}
+
+.resources-files li {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.resources-files li span {
+  color: var(--foreground);
+  opacity: 0.6;
+  font-size: 0.8rem;
 }
 
 .resources-files a:hover {
