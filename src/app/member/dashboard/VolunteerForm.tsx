@@ -43,10 +43,10 @@ export default function VolunteerForm({
   const selectClass = dark ? 'dash-select' : 'wsc-input'
   const inputClass  = dark ? 'dash-input'  : 'wsc-input'
 
-  // ── Non-speech: assign-other mode ─────────────────────────
-  if (!isSpeech && showAssignOther) {
+  // ── Assign-other mode (speech & non-speech) ───────────────
+  if (showAssignOther) {
     return (
-      <form action={actionFn} className="dash-volunteer-form">
+      <form action={handleVolunteer} className="dash-volunteer-form">
         <input type="hidden" name="assignmentId" value={assignment.id} />
         <input type="hidden" name="meetingId" value={meetingId} />
         <select name="target_member_id" required className={selectClass}>
@@ -55,7 +55,23 @@ export default function VolunteerForm({
             <option key={m.id} value={m.id}>{m.full_name}</option>
           ))}
         </select>
-        <button type="submit" className="wsc-btn wsc-btn-primary wsc-btn-sm" style={{ width: '100%' }}>
+        {isSpeech && (
+          <div className="dash-speech-expand" style={{ marginTop: 0 }}>
+            <p className="dash-speech-expand__label">Speech Details (Optional)</p>
+            <select name="speech_level" className={selectClass}>
+              <option value="">Select Level (optional)...</option>
+              <optgroup label="Foundation">
+                {['F1', 'F2', 'F3', 'F4', 'F5'].map(l => <option key={l} value={l}>{l}</option>)}
+              </optgroup>
+              <optgroup label="Advanced">
+                {['A1', 'A2', 'A3', 'A4', 'A5'].map(l => <option key={l} value={l}>{l}</option>)}
+              </optgroup>
+            </select>
+            <input type="text" name="speech_title" placeholder="Speech Title (optional)" className={inputClass} />
+            <input type="text" name="speech_length" placeholder="Estimated Length" defaultValue="6 - 8 minutes" className={inputClass} />
+          </div>
+        )}
+        <button type="submit" className="wsc-btn wsc-btn-primary wsc-btn-sm" style={{ width: '100%', marginTop: isSpeech ? 4 : 0 }}>
           Confirm
         </button>
         <button
@@ -69,17 +85,28 @@ export default function VolunteerForm({
     )
   }
 
-  // ── Non-speech: default mode ───────────────────────────────
-  if (!isSpeech) {
+  // ── Default mode (idle) ───────────────────────────────────
+  if (!showSpeechForm) {
     return (
       <div className="dash-volunteer-form">
-        <form action={handleVolunteer}>
-          <input type="hidden" name="assignmentId" value={assignment.id} />
-          <input type="hidden" name="meetingId" value={meetingId} />
-          <button type="submit" className="wsc-btn wsc-btn-primary wsc-btn-sm" style={{ width: '100%' }}>
+        {isSpeech ? (
+          <button
+            type="button"
+            onClick={() => setShowSpeechForm(true)}
+            className="wsc-btn wsc-btn-primary wsc-btn-sm"
+            style={{ width: '100%' }}
+          >
             Volunteer
           </button>
-        </form>
+        ) : (
+          <form action={handleVolunteer}>
+            <input type="hidden" name="assignmentId" value={assignment.id} />
+            <input type="hidden" name="meetingId" value={meetingId} />
+            <button type="submit" className="wsc-btn wsc-btn-primary wsc-btn-sm" style={{ width: '100%' }}>
+              Volunteer
+            </button>
+          </form>
+        )}
         <button
           type="button"
           onClick={() => setShowAssignOther(true)}
@@ -91,20 +118,7 @@ export default function VolunteerForm({
     )
   }
 
-  // ── Speech: initial button ─────────────────────────────────
-  if (!showSpeechForm) {
-    return (
-      <button
-        onClick={() => setShowSpeechForm(true)}
-        className="wsc-btn wsc-btn-primary wsc-btn-sm"
-        style={{ width: '100%' }}
-      >
-        Volunteer
-      </button>
-    )
-  }
-
-  // ── Speech: expanded form ──────────────────────────────────
+  // ── Speech: expanded volunteer form ────────────────────────
   return (
     <form action={handleVolunteer} className="dash-volunteer-form">
       <input type="hidden" name="assignmentId" value={assignment.id} />
@@ -112,16 +126,6 @@ export default function VolunteerForm({
 
       <div className="dash-speech-expand">
         <p className="dash-speech-expand__label">Speech Details</p>
-
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-          <label className="wsc-label" style={{ fontSize: 11 }}>Volunteering as</label>
-          <select name="target_member_id" className={selectClass}>
-            <option value="">Myself</option>
-            {members.map(m => (
-              <option key={m.id} value={m.id}>{m.full_name}</option>
-            ))}
-          </select>
-        </div>
 
         <select name="speech_level" required className={selectClass}>
           <option value="">Select Level...</option>
