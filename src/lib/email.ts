@@ -1,7 +1,8 @@
 import { Resend } from 'resend'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
-const FROM = 'Winchburgh Speakers Club <noreply@winchburghspeakersclub.uk>'
+const resend = new Resend(process.env.RESEND_API_KEY || 're_placeholder_for_build')
+const CLUB_NAME = process.env.RESEND_CLUB_NAME ?? process.env.NEXT_PUBLIC_CLUB_NAME ?? 'Winchburgh Speakers Club'
+const FROM = process.env.RESEND_FROM_EMAIL ?? `${CLUB_NAME} <noreply@winchburghspeakersclub.uk>`
 
 function esc(s: string): string {
   return s
@@ -22,10 +23,10 @@ export async function sendInviteEmail(
   await resend.emails.send({
     from: FROM,
     to,
-    subject: 'Your invitation to join West Lothian Speakers Club',
+    subject: `Your invitation to join ${CLUB_NAME}`,
     html: `
       <p>Hi ${esc(firstName)},</p>
-      <p>You've been invited to create your member account at West Lothian Speakers Club.</p>
+      <p>You've been invited to create your member account at ${CLUB_NAME}.</p>
       <p><a href="${esc(joinUrl)}" style="background:#7c3aed;color:#fff;padding:12px 24px;border-radius:6px;text-decoration:none;display:inline-block;margin:16px 0">Set up your account</a></p>
       <p>This link expires on <strong>${esc(expiry)}</strong>.</p>
       <p>If you weren't expecting this, you can ignore it safely.</p>
@@ -94,14 +95,14 @@ export async function sendRsvpConfirmation(
   await resend.emails.send({
     from: FROM,
     to,
-    subject: 'Your RSVP is confirmed — West Lothian Speakers Club',
+    subject: `Your RSVP is confirmed — ${CLUB_NAME}`,
     html: `
       <p>Hi ${firstName},</p>
       <p>You're confirmed for our meeting on <strong>${meetingDate}</strong> at <strong>${venue}</strong>.</p>
       <p>Your first three visits are free — just turn up and introduce yourself.</p>
       <p>After your first visit, we'll send you an invite link to set up your member account on the website.</p>
       <p>We look forward to meeting you!</p>
-      <p><a href="${siteUrl}">West Lothian Speakers Club</a></p>
+      <p><a href="${siteUrl}">${CLUB_NAME}</a></p>
     `,
   })
 }
