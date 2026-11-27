@@ -56,7 +56,7 @@ export default async function AdminMeetingsPage() {
                   </div>
                   <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
                     <Link href={`/admin/meetings/${meeting.id}`} className="wsc-btn wsc-btn-sm wsc-btn-ghost">
-                      Manage Roles
+                      Manage Meeting
                     </Link>
                     <Link href={`/admin/meetings/${meeting.id}/summary`} className="wsc-btn wsc-btn-sm wsc-btn-ghost">
                       Summary
