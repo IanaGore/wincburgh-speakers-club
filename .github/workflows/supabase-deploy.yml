@@ -30,4 +30,4 @@ jobs:
         run: supabase link --project-ref $SUPABASE_PROJECT_ID --password $SUPABASE_DB_PASSWORD
 
       - name: Push Migrations to Production DB
-        run: supabase db push --include-all
+        run: supabase db push --remote --include-all
