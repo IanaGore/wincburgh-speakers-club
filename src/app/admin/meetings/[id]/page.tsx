@@ -1,25 +1,39 @@
 import { createClient } from '@/utils/supabase/server'
-import { addCustomRole, deleteRoleFromForm } from './actions'
 import Link from 'next/link'
 import CopyAgendaButton from './CopyAgendaButton'
-import RemoveRoleButton from './RemoveRoleButton'
+import AssignmentRow, {
+  type MeetingAssignmentItem,
+  type MemberOption,
+} from './AssignmentRow'
+import MeetingDetailsCard from './MeetingDetailsCard'
+import AddRoleForm from './AddRoleForm'
 import { groupAssignments } from '@/lib/assignments'
+import './meeting-manage.css'
 
-function AssignmentRow({ assignment, meetingId }: { assignment: any; meetingId: string }) {
-  return (
-    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: '1px solid var(--rule-soft)' }}>
-      <span style={{ fontWeight: 600, color: 'var(--ink)' }}>{assignment.role_name}</span>
-      <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-        <span style={{ color: assignment.member_id ? 'var(--clay)' : 'var(--ink-4)', fontSize: '0.9rem' }}>
-          {assignment.member_id ? (assignment.profiles?.full_name || 'Member') : 'Open'}
-        </span>
-        <RemoveRoleButton assignmentId={assignment.id} meetingId={meetingId} actionFn={deleteRoleFromForm} />
-      </div>
-    </div>
-  )
+type AssignmentRecord = MeetingAssignmentItem & {
+  created_at?: string | null
 }
 
-export default async function ManageMeetingPage({ params }: { params: Promise<{ id: string }> }) {
+function getOtherAssignmentsByMember(
+  assignments: AssignmentRecord[],
+  excludeAssignmentId?: string,
+): Record<string, string[]> {
+  const map: Record<string, string[]> = {}
+  for (const a of assignments) {
+    if (!a.member_id || a.id === excludeAssignmentId) continue
+    if (!map[a.member_id]) {
+      map[a.member_id] = []
+    }
+    map[a.member_id].push(a.role_name)
+  }
+  return map
+}
+
+export default async function ManageMeetingPage({
+  params,
+}: {
+  params: Promise<{ id: string }>
+}) {
   const supabase = await createClient()
   const { id } = await params
 
@@ -31,67 +45,145 @@ export default async function ManageMeetingPage({ params }: { params: Promise<{ 
 
   if (!meeting) return <div>Meeting not found</div>
 
-  const { pairs, unpaired, others } = groupAssignments(meeting.meeting_assignments ?? [])
+  let members: MemberOption[] = []
+  const { data: rpcData, error: rpcError } = await supabase.rpc('get_member_directory')
+  if (!rpcError && rpcData) {
+    members = rpcData as MemberOption[]
+  } else {
+    const { data: fallback } = await supabase
+      .from('profiles')
+      .select('id, full_name')
+      .not('full_name', 'is', null)
+      .order('full_name')
+    members = (fallback ?? []) as MemberOption[]
+  }
+
+  const rawAssignments = (meeting.meeting_assignments ?? []) as AssignmentRecord[]
+  const sortedAssignments = [...rawAssignments].sort(
+    (a, b) =>
+      (a.created_at ?? '').localeCompare(b.created_at ?? '') ||
+      a.id.localeCompare(b.id),
+  )
+
+  const { pairs, unpaired, others } = groupAssignments(sortedAssignments)
+  const allAssignedByMember = getOtherAssignmentsByMember(sortedAssignments)
+
+  const hasAgendaNotes = 'agenda_notes' in meeting
+  const hasMeetingType = 'meeting_type' in meeting
+  const agendaNotes = hasAgendaNotes
+    ? ((meeting as { agenda_notes?: string | null }).agenda_notes ?? '')
+    : ''
+  const meetingType = hasMeetingType
+    ? ((meeting as { meeting_type?: string | null }).meeting_type ?? '')
+    : ''
 
   return (
-    <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
+    <div className="meeting-manage">
+      <div className="meeting-manage__header">
         <div>
-          <Link href="/admin/meetings" style={{ color: 'var(--ink-3)', fontSize: '0.9rem', textDecoration: 'none', fontFamily: 'var(--mono)' }}>← Sessions</Link>
-          <h1 style={{ fontFamily: 'var(--serif)', fontWeight: 500, fontSize: 28, margin: '8px 0 0', color: 'var(--ink)' }}>
-            {new Date(meeting.meeting_date).toLocaleDateString('en-GB', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+          <Link href="/admin/meetings" className="meeting-manage__back">
+            ← Sessions
+          </Link>
+          <h1 className="meeting-manage__title">
+            {new Date(meeting.meeting_date).toLocaleDateString('en-GB', {
+              weekday: 'long',
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+            })}
           </h1>
+          {(meeting.theme || agendaNotes) && (
+            <p className="meeting-manage__subtitle">
+              {meeting.theme ? `Theme: ${meeting.theme}` : ''}
+              {meeting.theme && agendaNotes ? ' · ' : ''}
+              {agendaNotes}
+            </p>
+          )}
         </div>
         <Link href={`/admin/meetings/${id}/summary`} className="wsc-btn wsc-btn-ghost">
           Summary / Notes →
         </Link>
       </div>
 
-      <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap' }}>
+      <div className="meeting-manage__grid">
         {/* Roles List */}
-        <div className="wsc-card" style={{ flex: '2', minWidth: '400px', padding: '2rem' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-            <h2 style={{ fontFamily: 'var(--serif)', fontWeight: 500, fontSize: 20, margin: 0, color: 'var(--ink)' }}>Roles</h2>
+        <div className="wsc-card meeting-manage__roles-card">
+          <div className="meeting-manage__card-header">
+            <h2 className="meeting-manage__card-title">Roles</h2>
             <CopyAgendaButton meeting={meeting} />
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column' }}>
-            {others.map((a: any) => <AssignmentRow key={a.id} assignment={a} meetingId={id} />)}
+            {others.map((a) => (
+              <AssignmentRow
+                key={a.id}
+                assignment={a}
+                meetingId={id}
+                members={members}
+                otherAssignmentsByMember={getOtherAssignmentsByMember(sortedAssignments, a.id)}
+              />
+            ))}
 
-            {pairs.map(({ speech, evaluator }: any) => (
-              <div key={speech.id} style={{ borderBottom: '1px solid var(--rule-soft)', paddingBottom: '0.5rem', marginBottom: '0.5rem' }}>
-                <AssignmentRow assignment={speech} meetingId={id} />
-                {speech.member_id && (speech.speech_title || speech.speech_level) && (
-                  <div style={{ paddingLeft: '1rem', paddingBottom: '0.4rem', fontSize: '0.82rem', color: 'var(--ink-3)' }}>
-                    {speech.speech_level && <span style={{ color: 'var(--clay)', marginRight: '0.4rem' }}>[{speech.speech_level}]</span>}
-                    {speech.speech_title && <span style={{ color: 'var(--ink-2)' }}>{speech.speech_title}</span>}
-                    {speech.speech_length && <span style={{ color: 'var(--ink-4)', marginLeft: '0.4rem' }}>({speech.speech_length})</span>}
-                  </div>
-                )}
+            {pairs.map(({ speech, evaluator }) => (
+              <div key={speech.id} className="meeting-role-pair">
+                <AssignmentRow
+                  assignment={speech}
+                  meetingId={id}
+                  members={members}
+                  otherAssignmentsByMember={getOtherAssignmentsByMember(
+                    sortedAssignments,
+                    speech.id,
+                  )}
+                />
                 {evaluator && (
-                  <div style={{ paddingLeft: '1.5rem', borderLeft: '2px solid var(--rule)', marginLeft: '0.5rem' }}>
-                    <AssignmentRow assignment={evaluator} meetingId={id} />
+                  <div className="meeting-role-pair__evaluator">
+                    <AssignmentRow
+                      assignment={evaluator}
+                      meetingId={id}
+                      members={members}
+                      otherAssignmentsByMember={getOtherAssignmentsByMember(
+                        sortedAssignments,
+                        evaluator.id,
+                      )}
+                    />
                   </div>
                 )}
               </div>
             ))}
 
-            {unpaired.map((a: any) => <AssignmentRow key={a.id} assignment={a} meetingId={id} />)}
+            {unpaired.map((a) => (
+              <AssignmentRow
+                key={a.id}
+                assignment={a}
+                meetingId={id}
+                members={members}
+                otherAssignmentsByMember={getOtherAssignmentsByMember(sortedAssignments, a.id)}
+              />
+            ))}
 
-            {meeting.meeting_assignments.length === 0 && (
-              <p style={{ color: 'var(--ink-3)' }}>No roles assigned. Add some below.</p>
+            {sortedAssignments.length === 0 && (
+              <p style={{ color: 'var(--ink-3)' }}>No roles assigned. Add some on the right.</p>
             )}
           </div>
         </div>
 
-        {/* Add Custom Role */}
-        <div className="wsc-card" style={{ flex: '1', minWidth: '300px', height: 'fit-content', padding: '2rem' }}>
-          <h2 style={{ fontFamily: 'var(--serif)', fontWeight: 500, fontSize: 20, margin: '0 0 1.5rem', color: 'var(--ink)' }}>Add Custom Role</h2>
-          <form action={addCustomRole} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            <input type="hidden" name="meeting_id" value={meeting.id} />
-            <input type="text" name="role_name" placeholder="e.g. 'Guest Speaker'" required className="wsc-input" />
-            <button type="submit" className="wsc-btn wsc-btn-primary">Add Role</button>
-          </form>
+        {/* Sidebar: Meeting Details + Add Custom Role */}
+        <div className="meeting-manage__sidebar">
+          <MeetingDetailsCard
+            meetingId={meeting.id}
+            initialDate={meeting.meeting_date}
+            initialTheme={meeting.theme ?? ''}
+            initialAgendaNotes={agendaNotes}
+            hasAgendaNotes={hasAgendaNotes}
+            initialMeetingType={meetingType}
+            hasMeetingType={hasMeetingType}
+          />
+
+          <AddRoleForm
+            meetingId={meeting.id}
+            members={members}
+            assignedRolesByMember={allAssignedByMember}
+          />
         </div>
       </div>
     </div>

@@ -14,6 +14,7 @@ type AgendaAssignment = {
 export default function CopyAgendaButton({ meeting }: { meeting: {
   meeting_date: string
   theme?: string | null
+  agenda_notes?: string | null
   meeting_assignments?: AgendaAssignment[]
 } }) {
   const handleCopy = () => {
@@ -23,6 +24,7 @@ export default function CopyAgendaButton({ meeting }: { meeting: {
 
     let text = `🎙️ *Speakers Club Programme*\n📅 *Date:* ${dateStr}\n`
     if (meeting.theme) text += `💡 *Theme:* ${meeting.theme}\n`
+    if (meeting.agenda_notes) text += `📝 *Notes:* ${meeting.agenda_notes}\n`
     text += `\n`
 
     const { pairs, unpaired, others } = groupAssignments(meeting.meeting_assignments ?? [])
